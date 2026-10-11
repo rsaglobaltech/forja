@@ -15,7 +15,7 @@ quarkus.datasource.db-kind=postgresql
 quarkus.flyway.migrate-at-start=true
 # En desarrollo y tests, Quarkus levanta PostgreSQL solo (Dev Services, con Docker).
 # En producción, por variables de entorno.
-%prod.quarkus.datasource.jdbc.url=${DB_URL:jdbc:postgresql://localhost:5432/<%= dbName %>}
+%prod.quarkus.datasource.jdbc.url=${DB_URL:jdbc:postgresql://localhost:${DB_PORT:5432}/<%= dbName %>}
 %prod.quarkus.datasource.username=${DB_USER:postgres}
 %prod.quarkus.datasource.password=${DB_PASSWORD:postgres}
 <% } -%>

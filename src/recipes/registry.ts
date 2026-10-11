@@ -15,6 +15,7 @@ import extrasLint from "./extras-lint.js";
 import apiSpring from "./api-spring.js";
 import apiQuarkus from "./api-quarkus.js";
 import compose from "./compose.js";
+import webJava from "./web-java.js";
 import keycloak from "./keycloak.js";
 
 export const recipeRegistry: Record<string, Recipe> = {
@@ -34,4 +35,5 @@ export const recipeRegistry: Record<string, Recipe> = {
   "api-quarkus": apiQuarkus,
   compose,
   keycloak,
+  "web-java": webJava,
 };

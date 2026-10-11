@@ -3,7 +3,7 @@ spring:
     name: <%= config.name %>-api
 <% if (config.db === "postgres-docker") { -%>
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/<%= dbName %>}
+    url: ${DB_URL:jdbc:postgresql://localhost:${DB_PORT:5432}/<%= dbName %>}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:postgres}
 <% } -%>

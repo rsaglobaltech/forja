@@ -7,7 +7,8 @@ services:
       POSTGRES_DB: <%= dbName %>
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports: ["5432:5432"]
+    # ¿Otro Postgres local en el 5432? `DB_PORT=5440 docker compose up -d` y la misma DB_PORT para la API.
+    ports: ["${DB_PORT:-5432}:5432"]
     volumes: ["db-data:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d <%= dbName %>"]

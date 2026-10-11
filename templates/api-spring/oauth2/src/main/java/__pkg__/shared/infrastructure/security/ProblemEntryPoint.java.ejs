@@ -14,6 +14,7 @@ class ProblemEntryPoint implements AuthenticationEntryPoint {
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     response.setHeader("WWW-Authenticate", "Bearer");
     response.setContentType("application/problem+json");
+    response.setCharacterEncoding("UTF-8");
     response.getWriter().write("""
         {"type":"about:blank","title":"Unauthorized","status":401,"detail":"Falta un token válido.","code":"unauthorized"}""");
   }
