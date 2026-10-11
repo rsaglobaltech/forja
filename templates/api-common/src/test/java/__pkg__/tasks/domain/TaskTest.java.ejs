@@ -1,0 +1,35 @@
+package <%= pkg %>.tasks.domain;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import <%= pkg %>.shared.domain.DomainException;
+import java.time.Instant;
+import org.junit.jupiter.api.Test;
+
+class TaskTest {
+  private static final Instant T0 = Instant.parse("2026-01-01T10:00:00Z");
+
+  @Test
+  void aNewTaskIsPendingAndOwned() {
+    Task task = Task.create("ana", new TaskTitle("  Revisar contrato  "), T0);
+    assertThat(task.done()).isFalse();
+    assertThat(task.ownedBy("ana")).isTrue();
+    assertThat(task.title().value()).isEqualTo("Revisar contrato");
+  }
+
+  @Test
+  void completingTwiceIsAConflict() {
+    Task done = Task.create("ana", new TaskTitle("x"), T0).complete(T0.plusSeconds(60));
+    assertThat(done.doneAt()).isEqualTo(T0.plusSeconds(60));
+    assertThatThrownBy(() -> done.complete(T0)).isInstanceOf(DomainException.class)
+        .extracting(e -> ((DomainException) e).code()).isEqualTo("task_already_done");
+  }
+
+  @Test
+  void aTitleHasOneTo120Characters() {
+    assertThatThrownBy(() -> new TaskTitle(" ")).isInstanceOf(DomainException.class);
+    assertThatThrownBy(() -> new TaskTitle("x".repeat(121))).isInstanceOf(DomainException.class);
+    assertThat(new TaskTitle("x".repeat(120)).value()).hasSize(120);
+  }
+}

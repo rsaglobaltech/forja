@@ -1,0 +1,26 @@
+package <%= pkg %>.tasks.application;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskTitle;
+import java.time.Clock;
+
+/** Caso de uso: crear una tarea del usuario actual. Sin anotaciones: se instancia en infrastructure/config. */
+public final class CreateTask {
+  private final TaskRepository tasks;
+  private final CurrentUser user;
+  private final Clock clock;
+
+  public CreateTask(TaskRepository tasks, CurrentUser user, Clock clock) {
+    this.tasks = tasks;
+    this.user = user;
+    this.clock = clock;
+  }
+
+  public Task execute(String title) {
+    Task task = Task.create(user.id(), new TaskTitle(title), clock.instant());
+    tasks.save(task);
+    return task;
+  }
+}

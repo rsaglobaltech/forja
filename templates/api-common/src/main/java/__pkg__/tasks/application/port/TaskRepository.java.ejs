@@ -1,0 +1,16 @@
+package <%= pkg %>.tasks.application.port;
+
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskId;
+import java.util.List;
+import java.util.Optional;
+
+/** Puerto de salida: dónde viven las tareas. Adaptadores en infrastructure/persistence. */
+public interface TaskRepository {
+  void save(Task task);
+
+  Optional<Task> findById(TaskId id);
+
+  /** Las del usuario, de la más reciente a la más antigua. */
+  List<Task> findByOwner(String owner);
+}

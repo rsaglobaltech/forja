@@ -1,0 +1,29 @@
+package <%= pkg %>.tasks.application;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskId;
+import <%= pkg %>.tasks.domain.TaskNotFound;
+import java.time.Clock;
+
+/** La tarea de otro usuario responde como si no existiera: no se revela qué ids existen. */
+public final class CompleteTask {
+  private final TaskRepository tasks;
+  private final CurrentUser user;
+  private final Clock clock;
+
+  public CompleteTask(TaskRepository tasks, CurrentUser user, Clock clock) {
+    this.tasks = tasks;
+    this.user = user;
+    this.clock = clock;
+  }
+
+  public Task execute(String id) {
+    TaskId taskId = TaskId.of(id);
+    Task task = tasks.findById(taskId).filter(t -> t.ownedBy(user.id())).orElseThrow(() -> TaskNotFound.withId(id));
+    Task done = task.complete(clock.instant());
+    tasks.save(done);
+    return done;
+  }
+}

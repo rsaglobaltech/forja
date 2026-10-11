@@ -1,0 +1,35 @@
+# Servicios de desarrollo de <%= config.name %>. `docker compose up -d`
+services:
+<% if (config.db === "postgres-docker") { -%>
+  db:
+    image: postgres:<%= versions.postgres %>
+    environment:
+      POSTGRES_DB: <%= dbName %>
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    # ¿Otro Postgres local en el 5432? `DB_PORT=5440 docker compose up -d` y la misma DB_PORT para la API.
+    ports: ["${DB_PORT:-5432}:5432"]
+    volumes: ["db-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d <%= dbName %>"]
+      interval: 5s
+      retries: 10
+<% } -%>
+<% if (config.auth === "oauth2") { -%>
+  keycloak:
+    image: quay.io/keycloak/keycloak:<%= versions.keycloak %>
+    # Solo desarrollo: base de datos interna, HTTP y el realm de infra/keycloak importado al arrancar.
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: http://localhost:8180
+      KC_HEALTH_ENABLED: "true"
+    ports: ["8180:8080"]
+    volumes: ["./infra/keycloak:/opt/keycloak/data/import:ro"]
+<% } -%>
+<% if (config.db === "postgres-docker") { -%>
+
+volumes:
+  db-data:
+<% } -%>

@@ -1,0 +1,13 @@
+package <%= pkg %>.shared.infrastructure.security;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import jakarta.enterprise.context.ApplicationScoped;
+
+/** Sin autenticación (auth = none): todas las peticiones son del mismo usuario local. */
+@ApplicationScoped
+class LocalUser implements CurrentUser {
+  static final String ID = "local-user";
+
+  @Override
+  public String id() { return ID; }
+}

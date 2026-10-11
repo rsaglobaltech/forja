@@ -1,0 +1,31 @@
+package <%= pkg %>.tasks.infrastructure.config;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import <%= pkg %>.tasks.application.CompleteTask;
+import <%= pkg %>.tasks.application.CreateTask;
+import <%= pkg %>.tasks.application.ListMyTasks;
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import java.time.Clock;
+
+/** El único sitio que conoce a la vez los casos de uso y CDI: aquí se cablean. */
+class TasksConfiguration {
+  @Produces
+  @ApplicationScoped
+  CreateTask createTask(TaskRepository tasks, CurrentUser user, Clock clock) {
+    return new CreateTask(tasks, user, clock);
+  }
+
+  @Produces
+  @ApplicationScoped
+  ListMyTasks listMyTasks(TaskRepository tasks, CurrentUser user) {
+    return new ListMyTasks(tasks, user);
+  }
+
+  @Produces
+  @ApplicationScoped
+  CompleteTask completeTask(TaskRepository tasks, CurrentUser user, Clock clock) {
+    return new CompleteTask(tasks, user, clock);
+  }
+}

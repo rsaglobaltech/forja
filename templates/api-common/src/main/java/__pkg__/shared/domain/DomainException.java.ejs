@@ -1,0 +1,22 @@
+package <%= pkg %>.shared.domain;
+
+/**
+ * Una regla de negocio que no se cumple. El {@code code} es estable: es lo que ve el cliente de la API
+ * (en el campo {@code code} de la respuesta RFC 9457) y lo que nombran los escenarios.
+ */
+public class DomainException extends RuntimeException {
+  public enum Kind { INVALID, NOT_FOUND, CONFLICT, FORBIDDEN }
+
+  private final String code;
+  private final Kind kind;
+
+  public DomainException(String code, Kind kind, String message) {
+    super(message);
+    this.code = code;
+    this.kind = kind;
+  }
+
+  public String code() { return code; }
+
+  public Kind kind() { return kind; }
+}
