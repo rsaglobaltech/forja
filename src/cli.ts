@@ -8,7 +8,7 @@ import { runWizard, confirmGit, confirmInstall } from "./prompts/wizard.js";
 import { planRecipes, UnsupportedOptionError } from "./engine/planner.js";
 import { renderProject, writeToDisk } from "./engine/renderer.js";
 import { vfsTree } from "./engine/vfs.js";
-import { runPostinstall, nextSteps } from "./engine/postinstall.js";
+import { runPostinstall, nextSteps, type PostinstallResult } from "./engine/postinstall.js";
 
 const program = new Command();
 
@@ -113,10 +113,11 @@ program
       const initGit = flags.skipGit ? false : flags.yes ? true : await confirmGit();
 
       const spinner = p.spinner();
+      let result: PostinstallResult | undefined;
       if (initGit || installDeps) {
         spinner.start("Corriendo git init / install…");
         try {
-          await runPostinstall({ targetDir, config, initGit, installDeps });
+          result = await runPostinstall({ targetDir, config, initGit, installDeps });
           spinner.stop("Listo.");
         } catch (error) {
           spinner.stop("Falló git/install, revisá el error abajo.");
@@ -127,7 +128,7 @@ program
 
       console.log(`\n${config.name} generado en ${targetDir}\n`);
       console.log("Siguientes pasos:\n");
-      for (const step of nextSteps(config, installDeps)) {
+      for (const step of nextSteps(config, installDeps, result)) {
         console.log(`  ${step}`);
       }
     } catch (error) {

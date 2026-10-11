@@ -1,0 +1,16 @@
+---
+product: <%= config.name %>
+surfaces: [api<% if (web) { %>, web<% } %>]
+actors:
+  # Quién usa el producto y por dónde. `specgate draft --check` (regla D3) exige un escenario de cada actor
+  # en cada una de sus superficies.
+  - { name: Cliente, surfaces: [api<% if (web) { %>, web<% } %>] }
+modules: []
+---
+
+# Ficha del proyecto
+
+Pega aquí la ficha del cliente **tal cual**, sin reescribirla: `specgate draft --check` (regla D6) comprueba
+que cada valor de un escenario sale de este texto o de `assumptions.md`.
+
+Si la ficha trae capturas, describe aquí lo que muestran.

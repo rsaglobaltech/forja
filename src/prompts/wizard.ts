@@ -1,5 +1,5 @@
 import * as p from "@clack/prompts";
-import { parseForjaConfig, type ForjaConfig } from "../config/schema.js";
+import { javaPackageOf, parseForjaConfig, type ForjaConfig } from "../config/schema.js";
 
 function detectPm(): "npm" | "pnpm" | "bun" {
   const ua = process.env.npm_config_user_agent ?? "";
@@ -34,6 +34,18 @@ export async function runWizard(nameArg?: string): Promise<ForjaConfig> {
         },
       })) as string);
   if (p.isCancel(name)) cancelAndExit();
+
+  const backend = (await p.select({
+    message: "Backend",
+    options: [
+      { value: "node", label: "TypeScript (packages/core, Next.js)" },
+      { value: "spring", label: "Java · Spring Boot 4 (apps/api)" },
+      { value: "quarkus", label: "Java · Quarkus 3 (apps/api)" },
+    ],
+    initialValue: "node",
+  })) as ForjaConfig["backend"];
+  if (p.isCancel(backend)) cancelAndExit();
+  if (backend !== "node") return runJavaWizard(name, backend);
 
   const scope = (await p.text({
     message: "Scope de paquetes internos (@acme/*)",
@@ -105,7 +117,11 @@ export async function runWizard(nameArg?: string): Promise<ForjaConfig> {
 
   const extras = (await p.multiselect({
     message: "Extras",
-    options: [{ value: "lint", label: "ESLint + Prettier" }],
+    options: [
+      { value: "lint", label: "ESLint + Prettier" },
+      { value: "ci", label: "CI en GitHub Actions" },
+      { value: "specgate", label: "Specgate (desarrollo guiado por especificaciones)" },
+    ],
     initialValues: ["lint"],
     required: false,
   })) as ForjaConfig["extras"];
@@ -126,6 +142,8 @@ export async function runWizard(nameArg?: string): Promise<ForjaConfig> {
     name,
     scope,
     platforms,
+    backend: "node",
+    archunit: false,
     arch: "hexagonal",
     db,
     auth,
@@ -139,6 +157,96 @@ export async function runWizard(nameArg?: string): Promise<ForjaConfig> {
     pm,
   });
 
+  p.outro("Listo, generando…");
+  return config;
+}
+
+/** Backend Java: siempre hexagonal; se elige ArchUnit, web, base de datos, auth y extras. */
+async function runJavaWizard(name: string, backend: "spring" | "quarkus"): Promise<ForjaConfig> {
+  const ask = async <T>(prompt: Promise<T | symbol>): Promise<T> => {
+    const value = await prompt;
+    if (p.isCancel(value)) cancelAndExit();
+    return value as T;
+  };
+
+  const javaPackage = await ask(
+    p.text({
+      message: "Paquete Java raíz",
+      initialValue: javaPackageOf({ name, javaPackage: undefined }),
+      validate(value) {
+        if (!/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/.test(value ?? "")) return "p. ej. com.acme.tienda";
+      },
+    }),
+  );
+  const archunit = await ask(
+    p.confirm({ message: "¿Reglas de arquitectura con ArchUnit? (el build falla si se rompe la hexagonal)", initialValue: true }),
+  );
+  const web = await ask(p.confirm({ message: "¿Frontend web (Next.js 16)?", initialValue: true }));
+  const db = await ask(
+    p.select({
+      message: "Base de datos",
+      options: [
+        { value: "postgres-docker", label: "PostgreSQL (Docker; tests con Postgres real)" },
+        { value: "none", label: "En memoria" },
+      ],
+      initialValue: "postgres-docker",
+    }),
+  );
+  const auth = await ask(
+    p.select({
+      message: "Autenticación",
+      options: [
+        { value: "oauth2", label: "OAuth2 / OIDC con Keycloak (API resource server + login en la web)" },
+        { value: "none", label: "Ninguna" },
+      ],
+      initialValue: "oauth2",
+    }),
+  );
+  const design = web
+    ? await ask(
+        p.select({
+          message: "Sistema de diseño",
+          options: [
+            { value: "tailwind", label: "Tailwind" },
+            { value: "none", label: "Sin estilos" },
+          ],
+          initialValue: "tailwind",
+        }),
+      )
+    : "none";
+  const extras = await ask(
+    p.multiselect({
+      message: "Extras",
+      options: [
+        { value: "ci", label: "CI en GitHub Actions" },
+        { value: "docker", label: "Dockerfiles de producción" },
+        { value: "specgate", label: "Specgate (desarrollo guiado por especificaciones)" },
+        ...(web ? [{ value: "lint", label: "ESLint + Prettier (web)" }] : []),
+      ],
+      initialValues: ["ci", "docker", "specgate", ...(web ? ["lint"] : [])],
+      required: false,
+    }),
+  );
+
+  const config = parseForjaConfig({
+    name,
+    scope: `@${name}`,
+    platforms: web ? ["web"] : [],
+    backend,
+    javaPackage,
+    archunit,
+    arch: "hexagonal",
+    db,
+    auth,
+    mailer: "console",
+    design,
+    ui: "own",
+    edgeFunctions: false,
+    eas: false,
+    tests: ["unit", "integration"],
+    extras,
+    pm: "npm",
+  });
   p.outro("Listo, generando…");
   return config;
 }

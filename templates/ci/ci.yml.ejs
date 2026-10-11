@@ -1,0 +1,59 @@
+# CI de <%= config.name %> (generado con forja). Corre en cada push y pull request.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+<% if (java) { -%>
+  api:
+    name: API (<%= backendName %>)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      # Tests de dominio, casos de uso, API<%= config.db === "postgres-docker" ? " contra PostgreSQL real (Docker)" : "" %>, arranque real<%= config.archunit ? " y ArchUnit" : "" %>.
+      - run: ./mvnw -B verify
+<% } -%>
+<% if (web || !java) { -%>
+  <%= java ? "web" : "app" %>:
+    name: <%= java ? "Web (Next.js)" : "App" %>
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Dependencias
+        run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+<% if (config.extras.includes("lint")) { -%>
+      - run: npm run lint
+<% } -%>
+<% if (java) { -%>
+      - run: npm run test:web
+<% } else { -%>
+      - run: npm run typecheck
+      - run: npm test
+<% } -%>
+<% } -%>
+<% if (config.extras.includes("specgate")) { -%>
+  spec:
+    name: Especificación (Specgate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # La especificación: requisitos, escenarios y trazabilidad. Los tests ya corren en los otros jobs.
+      - run: npx -y @rsaglobaltech/specgate@<%= versions.specgate %> validate . --strict
+<% } -%>

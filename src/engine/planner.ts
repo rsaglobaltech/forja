@@ -71,9 +71,10 @@ export function planRecipes(config: ForjaConfig): Recipe[] {
   }
 
   if (config.extras.includes("lint")) ids.push("extras-lint");
+  if (config.extras.includes("ci")) ids.push("ci");
   // "docker": docker-compose.yml ya lo genera db-postgres-docker sin pedirlo
   // aparte (no tendría sentido Compose sin Postgres en v0.1); no-op acá.
-  for (const extra of ["husky", "ci", "i18n", "trigger", "ai", "storybook"] as const) {
+  for (const extra of ["husky", "i18n", "trigger", "ai", "storybook"] as const) {
     if (config.extras.includes(extra)) throw new UnsupportedOptionError("extras", extra, "v0.2");
   }
 

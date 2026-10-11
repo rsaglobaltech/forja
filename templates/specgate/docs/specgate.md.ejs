@@ -1,0 +1,35 @@
+# Desarrollo guiado por especificaciones (Specgate)
+
+Este proyecto se generó preparado para [Specgate](https://www.npmjs.com/package/@rsaglobaltech/specgate):
+requisitos con escenarios, tests que los nombran y un gate que no deja cerrar nada en rojo.
+
+## Una vez
+
+```bash
+npx @rsaglobaltech/specgate init --no-capabilities    # si forja no lo hizo al generar
+npx @rsaglobaltech/specgate config set test_cmd "npm test"
+npx @rsaglobaltech/specgate done REQ-001              # la línea base
+```
+
+El CI (`.github/workflows/ci.yml`) ya incluye el job de la especificación.
+
+## Por cada módulo
+
+1. Pega la ficha en `docs/brief.md` y completa la cabecera (actores, superficies, módulos).
+2. `npx @rsaglobaltech/specgate change new draft-<módulo> --capability <módulo> --reserve 10`
+   y añade `brief: docs/brief.md` a su `change.yaml`.
+3. Redacta el borrador (requisitos, escenarios con valores concretos, `assumptions.md`, `questions.md`).
+4. `npx @rsaglobaltech/specgate draft --check draft-<módulo>` hasta que salga en verde.
+5. **Revisión humana** del borrador; las preguntas, al cliente.
+6. `npx @rsaglobaltech/specgate change archive draft-<módulo>`
+7. Por requisito: el test primero, nombrando `REQ-xxx SCN-xxx` (en Java, en el `@DisplayName`), y
+   `npx @rsaglobaltech/specgate done REQ-xxx`: se niega mientras la suite esté en rojo.
+8. Antes de cada PR: `npx @rsaglobaltech/specgate check`.
+9. Prueba la aplicación arrancada: lo que encuentre es un cambio nuevo (vuelta al paso 2).
+
+`npx @rsaglobaltech/specgate status` dice en cualquier momento qué le falta a cada requisito.
+
+## Dónde encaja con la arquitectura
+
+Cada módulo de la especificación es un módulo hexagonal en `apps/api/.../<módulo>/`: los escenarios se
+prueban en sus tests de casos de uso y de API.

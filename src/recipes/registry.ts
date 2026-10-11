@@ -16,6 +16,9 @@ import apiSpring from "./api-spring.js";
 import apiQuarkus from "./api-quarkus.js";
 import compose from "./compose.js";
 import webJava from "./web-java.js";
+import ci from "./ci.js";
+import dockerJava from "./docker-java.js";
+import specgate from "./specgate.js";
 import keycloak from "./keycloak.js";
 
 export const recipeRegistry: Record<string, Recipe> = {
@@ -36,4 +39,7 @@ export const recipeRegistry: Record<string, Recipe> = {
   compose,
   keycloak,
   "web-java": webJava,
+  ci,
+  "docker-java": dockerJava,
+  specgate,
 };
