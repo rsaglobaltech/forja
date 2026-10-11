@@ -1,0 +1,54 @@
+package <%= pkg %>.shared.infrastructure.web;
+
+import <%= pkg %>.shared.domain.DomainException;
+import java.net.URI;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+/**
+ * Todos los errores salen como RFC 9457 ({@code application/problem+json}) con un {@code code} estable,
+ * también los que produce Spring (cuerpo ilegible, ruta o método inexistentes).
+ */
+@RestControllerAdvice
+class ProblemDetailsHandler {
+  @ExceptionHandler(DomainException.class)
+  ProblemDetail domain(DomainException e) {
+    HttpStatus status = switch (e.kind()) {
+      case INVALID -> HttpStatus.UNPROCESSABLE_CONTENT;
+      case NOT_FOUND -> HttpStatus.NOT_FOUND;
+      case CONFLICT -> HttpStatus.CONFLICT;
+      case FORBIDDEN -> HttpStatus.FORBIDDEN;
+    };
+    return problem(status, e.code(), e.getMessage());
+  }
+
+  @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class,
+      MethodArgumentTypeMismatchException.class})
+  ProblemDetail invalidRequest(Exception e) {
+    return problem(HttpStatus.BAD_REQUEST, "invalid_request", "La petición no se puede leer o no es válida.");
+  }
+
+  @ExceptionHandler(NoResourceFoundException.class)
+  ProblemDetail notFound(NoResourceFoundException e) {
+    return problem(HttpStatus.NOT_FOUND, "route_not_found", "No existe esa ruta.");
+  }
+
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  ProblemDetail methodNotAllowed(HttpRequestMethodNotSupportedException e) {
+    return problem(HttpStatus.METHOD_NOT_ALLOWED, "method_not_allowed", "Método no permitido en esa ruta.");
+  }
+
+  static ProblemDetail problem(HttpStatus status, String code, String detail) {
+    ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
+    problem.setType(URI.create("about:blank"));
+    problem.setProperty("code", code);
+    return problem;
+  }
+}

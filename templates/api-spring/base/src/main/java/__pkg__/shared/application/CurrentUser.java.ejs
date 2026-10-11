@@ -1,0 +1,6 @@
+package <%= pkg %>.shared.application;
+
+/** Puerto: quién hace la petición. El adaptador sale del token OAuth2 (o de un usuario local sin auth). */
+public interface CurrentUser {
+  String id();
+}

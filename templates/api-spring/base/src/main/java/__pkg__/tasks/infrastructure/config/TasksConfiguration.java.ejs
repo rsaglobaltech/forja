@@ -1,0 +1,29 @@
+package <%= pkg %>.tasks.infrastructure.config;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import <%= pkg %>.tasks.application.CompleteTask;
+import <%= pkg %>.tasks.application.CreateTask;
+import <%= pkg %>.tasks.application.ListMyTasks;
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import java.time.Clock;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/** El único sitio que conoce a la vez los casos de uso y Spring: aquí se cablean. */
+@Configuration(proxyBeanMethods = false)
+class TasksConfiguration {
+  @Bean
+  CreateTask createTask(TaskRepository tasks, CurrentUser user, Clock clock) {
+    return new CreateTask(tasks, user, clock);
+  }
+
+  @Bean
+  ListMyTasks listMyTasks(TaskRepository tasks, CurrentUser user) {
+    return new ListMyTasks(tasks, user);
+  }
+
+  @Bean
+  CompleteTask completeTask(TaskRepository tasks, CurrentUser user, Clock clock) {
+    return new CompleteTask(tasks, user, clock);
+  }
+}

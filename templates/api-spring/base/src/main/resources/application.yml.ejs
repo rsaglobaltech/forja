@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: <%= config.name %>-api
+<% if (config.db === "postgres-docker") { -%>
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/<%= dbName %>}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+<% } -%>
+<% if (config.auth === "oauth2") { -%>
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Keycloak de docker-compose (infra/keycloak/realm.json). En producción, el emisor real.
+          issuer-uri: ${OIDC_ISSUER:http://localhost:8180/realms/<%= config.name %>}
+<% } -%>
+
+server:
+  port: ${PORT:8080}
+
+app:
+  cors:
+    # El frontend de desarrollo. Separar varios orígenes con comas.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

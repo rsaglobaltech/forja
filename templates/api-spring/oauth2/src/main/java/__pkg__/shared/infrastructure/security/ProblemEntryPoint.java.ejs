@@ -1,0 +1,20 @@
+package <%= pkg %>.shared.infrastructure.security;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+
+/** Sin token o con un token inválido: 401 con el mismo formato RFC 9457 que el resto de errores. */
+class ProblemEntryPoint implements AuthenticationEntryPoint {
+  @Override
+  public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e)
+      throws IOException {
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.setHeader("WWW-Authenticate", "Bearer");
+    response.setContentType("application/problem+json");
+    response.getWriter().write("""
+        {"type":"about:blank","title":"Unauthorized","status":401,"detail":"Falta un token válido.","code":"unauthorized"}""");
+  }
+}

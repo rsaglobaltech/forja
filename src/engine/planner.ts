@@ -1,4 +1,4 @@
-import type { ForjaConfig } from "../config/schema.js";
+import { isJava, type ForjaConfig } from "../config/schema.js";
 import type { Recipe } from "../recipes/types.js";
 import { recipeRegistry } from "../recipes/registry.js";
 
@@ -18,6 +18,7 @@ import { recipeRegistry } from "../recipes/registry.js";
  *   mergea deps encima. Al revés, el copyFile de la app pisaría el merge.
  */
 export function planRecipes(config: ForjaConfig): Recipe[] {
+  if (isJava(config)) return toRecipes(planJava(config));
   const ids: string[] = ["base", "shared"];
 
   if (config.arch === "hexagonal") {
@@ -82,6 +83,49 @@ export function planRecipes(config: ForjaConfig): Recipe[] {
     }
   }
 
+  if (config.extras.includes("specgate")) ids.push("specgate");
+
+  return toRecipes(ids);
+}
+
+/**
+ * Backend Java (spring | quarkus): la lógica vive en apps/api; la web (opcional) es un cliente de esa API.
+ * Orden: la base y la API primero; la web antes que design-tailwind (que mergea sobre su package.json);
+ * los extras al final, porque leen lo que generaron los demás.
+ */
+export function planJava(config: ForjaConfig): string[] {
+  const ids = ["base", `api-${config.backend}`];
+  if (config.db === "postgres-docker" || config.auth === "oauth2") ids.push("compose");
+  if (config.auth === "oauth2") ids.push("keycloak");
+  if (config.platforms.includes("web")) {
+    ids.push("shared", "web-java");
+    if (config.design === "tailwind") ids.push("design-tailwind");
+  }
+  for (const extra of config.extras) {
+    switch (extra) {
+      case "lint":
+        if (config.platforms.includes("web")) ids.push("extras-lint");
+        break;
+      case "ci":
+        ids.push("ci");
+        break;
+      case "docker":
+        ids.push("docker-java");
+        break;
+      case "specgate":
+        ids.push("specgate");
+        break;
+      default:
+        throw new UnsupportedOptionError("extras", extra, "v0.3");
+    }
+  }
+  for (const test of config.tests) {
+    if (test === "e2e-mobile") throw new UnsupportedOptionError("tests", test, "v0.3");
+  }
+  return ids;
+}
+
+function toRecipes(ids: string[]): Recipe[] {
   return ids.map((id) => {
     const recipe = recipeRegistry[id];
     if (!recipe) throw new Error(`Recipe desconocida: "${id}"`);

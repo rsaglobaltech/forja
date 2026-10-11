@@ -1,0 +1,18 @@
+package <%= pkg %>.tasks.domain;
+
+import java.util.UUID;
+
+public record TaskId(UUID value) {
+  public static TaskId random() { return new TaskId(UUID.randomUUID()); }
+
+  public static TaskId of(String text) {
+    try {
+      return new TaskId(UUID.fromString(text));
+    } catch (IllegalArgumentException e) {
+      throw TaskNotFound.withId(text);
+    }
+  }
+
+  @Override
+  public String toString() { return value.toString(); }
+}

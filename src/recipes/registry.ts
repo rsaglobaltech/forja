@@ -12,6 +12,9 @@ import designTailwind from "./design-tailwind.js";
 import web from "./web.js";
 import mobile from "./mobile.js";
 import extrasLint from "./extras-lint.js";
+import apiSpring from "./api-spring.js";
+import compose from "./compose.js";
+import keycloak from "./keycloak.js";
 
 export const recipeRegistry: Record<string, Recipe> = {
   base,
@@ -26,4 +29,7 @@ export const recipeRegistry: Record<string, Recipe> = {
   web,
   mobile,
   "extras-lint": extrasLint,
+  "api-spring": apiSpring,
+  compose,
+  keycloak,
 };

@@ -3,7 +3,7 @@ import { Command } from "commander";
 import path from "node:path";
 import fs from "node:fs";
 import * as p from "@clack/prompts";
-import { defaultConfig, parseForjaConfig, type ForjaConfig } from "./config/schema.js";
+import { defaultConfig, defaultJavaConfig, parseForjaConfig, type ForjaConfig } from "./config/schema.js";
 import { runWizard, confirmGit, confirmInstall } from "./prompts/wizard.js";
 import { planRecipes, UnsupportedOptionError } from "./engine/planner.js";
 import { renderProject, writeToDisk } from "./engine/renderer.js";
@@ -15,6 +15,12 @@ const program = new Command();
 program.name("forja").description("CLI de scaffolding para monorepos web + móvil con DDD / Hexagonal");
 
 interface InitFlags {
+  backend?: string;
+  javaPackage?: string;
+  archunit?: boolean;
+  platforms?: string;
+  skipInstall?: boolean;
+  skipGit?: boolean;
   db?: string;
   auth?: string;
   mailer?: string;
@@ -34,24 +40,37 @@ function applyFlags(base: ForjaConfig, flags: InitFlags): ForjaConfig {
     auth: flags.auth ?? base.auth,
     mailer: flags.mailer ?? base.mailer,
     design: flags.design ?? base.design,
-    tests: flags.tests ? flags.tests.split(",").map((s) => s.trim()) : base.tests,
-    extras: flags.extras ? flags.extras.split(",").map((s) => s.trim()) : base.extras,
+    tests: flags.tests !== undefined ? flags.tests.split(",").map((s) => s.trim()).filter(Boolean) : base.tests,
+    extras: flags.extras !== undefined ? flags.extras.split(",").map((s) => s.trim()).filter(Boolean) : base.extras,
     pm: flags.pm ?? base.pm,
+    platforms: flags.platforms !== undefined
+      ? flags.platforms.split(",").map((s) => s.trim()).filter(Boolean)
+      : base.platforms,
+    javaPackage: flags.javaPackage ?? base.javaPackage,
+    // commander pone archunit = true por defecto al existir --no-archunit: solo cuenta con backend Java.
+    archunit: base.backend === "node" ? base.archunit : (flags.archunit ?? base.archunit),
   });
 }
 
 program
   .command("init [name]")
   .description("Crea un proyecto nuevo")
+  .option("--backend <backend>", "node | spring | quarkus")
+  .option("--java-package <pkg>", "paquete raíz Java, p. ej. com.acme.tienda")
+  .option("--archunit", "reglas de arquitectura con ArchUnit (backend Java)")
+  .option("--no-archunit", "sin ArchUnit")
+  .option("--platforms <platforms>", "web,mobile (con Java: web o vacío para solo API)")
   .option("--db <db>", "postgres-docker | none")
-  .option("--auth <auth>", "sessions | none")
+  .option("--auth <auth>", "sessions | oauth2 | none")
   .option("--mailer <mailer>", "console")
   .option("--design <design>", "tailwind | none")
   .option("--tests <tests>", "lista separada por comas: unit,integration")
-  .option("--extras <extras>", "lista separada por comas: lint")
+  .option("--extras <extras>", "lista separada por comas: lint, ci, docker, specgate")
   .option("--pm <pm>", "npm | pnpm | bun")
   .option("--yes", "no preguntar, usar defaults + flags")
   .option("--dry-run", "imprimir el árbol sin escribir nada")
+  .option("--skip-install", "no instalar dependencias")
+  .option("--skip-git", "no inicializar git")
   .option("--config <path>", "leer un forja.config.json existente")
   .action(async (name: string | undefined, flags: InitFlags) => {
     try {
@@ -65,13 +84,17 @@ program
           console.error('Falta el nombre del proyecto: "forja init <name> --yes"');
           process.exit(1);
         }
-        config = applyFlags(defaultConfig(name), flags);
+        const backend = flags.backend ?? "node";
+        const base =
+          backend === "spring" || backend === "quarkus" ? defaultJavaConfig(name, backend) : defaultConfig(name);
+        config = applyFlags(base, flags);
       } else {
         config = await runWizard(name);
       }
 
       const recipes = planRecipes(config);
-      const { vol, tree } = await renderProject(config, recipes);
+      const rendered = await renderProject(config, recipes);
+      const { tree } = rendered;
 
       if (flags.dryRun) {
         console.log(tree.join("\n"));
@@ -84,10 +107,10 @@ program
         process.exit(1);
       }
 
-      writeToDisk(vol, targetDir);
+      writeToDisk(rendered, targetDir);
 
-      let installDeps = flags.yes ? true : await confirmInstall();
-      const initGit = flags.yes ? true : await confirmGit();
+      let installDeps = flags.skipInstall ? false : flags.yes ? true : await confirmInstall();
+      const initGit = flags.skipGit ? false : flags.yes ? true : await confirmGit();
 
       const spinner = p.spinner();
       if (initGit || installDeps) {

@@ -1,0 +1,27 @@
+package <%= pkg %>.tasks.application;
+
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskId;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+/** Doble de prueba del puerto: los casos de uso se prueban sin Spring ni base de datos. */
+class InMemoryTasks implements TaskRepository {
+  private final Map<TaskId, Task> tasks = new HashMap<>();
+
+  @Override
+  public void save(Task task) { tasks.put(task.id(), task); }
+
+  @Override
+  public Optional<Task> findById(TaskId id) { return Optional.ofNullable(tasks.get(id)); }
+
+  @Override
+  public List<Task> findByOwner(String owner) {
+    return tasks.values().stream().filter(t -> t.ownedBy(owner)).sorted(Comparator.comparing(Task::createdAt).reversed())
+        .toList();
+  }
+}

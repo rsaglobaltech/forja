@@ -1,0 +1,20 @@
+package <%= pkg %>.tasks.application;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import java.util.List;
+
+public final class ListMyTasks {
+  private final TaskRepository tasks;
+  private final CurrentUser user;
+
+  public ListMyTasks(TaskRepository tasks, CurrentUser user) {
+    this.tasks = tasks;
+    this.user = user;
+  }
+
+  public List<Task> execute() {
+    return tasks.findByOwner(user.id());
+  }
+}
