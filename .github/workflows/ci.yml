@@ -33,14 +33,14 @@ jobs:
         with:
           node-version: "22"
           cache: npm
+      # Sin caché de Maven: el pom.xml no existe hasta generar el proyecto.
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
-          cache: maven
       - run: npm ci && npm run build
       - name: Generar un proyecto completo (PostgreSQL, OAuth2, ArchUnit, web, extras)
-        run: node dist/cli.js init demo --yes --backend ${{ matrix.backend }} --java-package com.acme.demo --skip-git
+        run: node "$GITHUB_WORKSPACE/dist/cli.js" init demo --yes --backend ${{ matrix.backend }} --java-package com.acme.demo --skip-git
         working-directory: ${{ runner.temp }}
       - name: Tests del proyecto generado (API + web)
         run: npm test
