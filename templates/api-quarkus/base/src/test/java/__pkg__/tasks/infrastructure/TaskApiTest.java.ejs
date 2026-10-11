@@ -1,0 +1,76 @@
+package <%= pkg %>.tasks.infrastructure;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.notNullValue;
+
+import io.quarkus.test.junit.QuarkusTest;
+<% if (config.auth === "oauth2") { -%>
+import io.quarkus.test.security.TestSecurity;
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskTitle;
+import jakarta.inject.Inject;
+import java.time.Instant;
+import java.util.UUID;
+import static org.hamcrest.Matchers.not;
+<% } -%>
+import io.restassured.http.ContentType;
+import org.junit.jupiter.api.Test;
+
+/** La API de punta a punta: HTTP → caso de uso → adaptador<%= config.db === "postgres-docker" ? " JDBC (PostgreSQL real, Dev Services)" : "" %>. */
+@QuarkusTest
+class TaskApiTest {
+  private String create(String title) {
+    return given().contentType(ContentType.JSON).body("{\"title\":\"" + title + "\"}").post("/api/tasks")
+        .then().statusCode(201).body("done", equalTo(false)).extract().path("id");
+  }
+
+  @Test
+<% if (config.auth === "oauth2") { -%>
+  @TestSecurity(user = "ana")
+<% } -%>
+  void createListAndComplete() {
+    String id = create("Preparar la demo");
+    given().get("/api/tasks").then().statusCode(200).body("id", hasItem(id));
+    given().post("/api/tasks/" + id + "/completion").then().statusCode(200).body("done", equalTo(true));
+    given().post("/api/tasks/" + id + "/completion").then().statusCode(409).body("code", equalTo("task_already_done"));
+  }
+
+  @Test
+<% if (config.auth === "oauth2") { -%>
+  @TestSecurity(user = "ana")
+<% } -%>
+  void errorsAreProblemDetails() {
+    given().contentType(ContentType.JSON).body("{\"title\":\"  \"}").post("/api/tasks")
+        .then().statusCode(422).contentType("application/problem+json").body("code", equalTo("invalid_title"));
+    given().contentType(ContentType.JSON).body("{\"title\":").post("/api/tasks")
+        .then().statusCode(400).body("code", equalTo("invalid_request"));
+    given().post("/api/tasks/no-es-un-id/completion").then().statusCode(404).body("code", equalTo("task_not_found"));
+  }
+<% if (config.auth === "oauth2") { -%>
+
+  @Inject TaskRepository tasks;
+
+  @Test
+  @TestSecurity(user = "luis")
+  void someoneElsesTaskDoesNotExistForMe() {
+    Task ajena = Task.create("ana-" + UUID.randomUUID(), new TaskTitle("Privada"), Instant.now());
+    tasks.save(ajena);
+    given().post("/api/tasks/" + ajena.id() + "/completion").then().statusCode(404).body("code", equalTo("task_not_found"));
+    given().get("/api/tasks").then().body("id", not(hasItem(ajena.id().toString())));
+  }
+
+  @Test
+  void withoutATokenIs401() {
+    given().get("/api/tasks").then().statusCode(401).body("code", equalTo("unauthorized"));
+  }
+<% } -%>
+
+  @Test
+  void healthAndOpenApiAreOpen() {
+    given().get("/q/health").then().statusCode(200);
+    given().get("/q/openapi?format=json").then().statusCode(200).body("paths.'/api/tasks'", notNullValue());
+  }
+}

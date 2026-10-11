@@ -13,6 +13,7 @@ import web from "./web.js";
 import mobile from "./mobile.js";
 import extrasLint from "./extras-lint.js";
 import apiSpring from "./api-spring.js";
+import apiQuarkus from "./api-quarkus.js";
 import compose from "./compose.js";
 import keycloak from "./keycloak.js";
 
@@ -30,6 +31,7 @@ export const recipeRegistry: Record<string, Recipe> = {
   mobile,
   "extras-lint": extrasLint,
   "api-spring": apiSpring,
+  "api-quarkus": apiQuarkus,
   compose,
   keycloak,
 };

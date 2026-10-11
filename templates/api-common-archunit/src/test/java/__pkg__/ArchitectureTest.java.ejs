@@ -18,11 +18,11 @@ class ArchitectureTest {
   @ArchTest
   static final ArchRule domainIsPureJava = noClasses().that().resideInAPackage("..domain..")
       .should().dependOnClassesThat().resideInAnyPackage("..application..", "..infrastructure..",
-          "org.springframework..", "jakarta..", "io.swagger..");
+          <%- frameworks %>);
 
   @ArchTest
   static final ArchRule applicationHasNoFrameworkNorAdapters = noClasses().that().resideInAPackage("..application..")
-      .should().dependOnClassesThat().resideInAnyPackage("..infrastructure..", "org.springframework..", "jakarta..");
+      .should().dependOnClassesThat().resideInAnyPackage("..infrastructure..", <%- frameworks %>);
 
   @ArchTest
   static final ArchRule portsAreInterfaces = classes().that().resideInAPackage("..application.port..")

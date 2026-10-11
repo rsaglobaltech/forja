@@ -1,0 +1,65 @@
+package <%= pkg %>.tasks.infrastructure.web;
+
+import <%= pkg %>.tasks.application.CompleteTask;
+import <%= pkg %>.tasks.application.CreateTask;
+import <%= pkg %>.tasks.application.ListMyTasks;
+import <%= pkg %>.tasks.domain.Task;
+<% if (config.auth === "oauth2") { -%>
+import io.quarkus.security.Authenticated;
+<% } -%>
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.List;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+
+/** Adaptador de entrada REST: traduce HTTP ⇄ casos de uso. */
+@Path("/api/tasks")
+@Tag(name = "tasks")
+<% if (config.auth === "oauth2") { -%>
+@Authenticated
+<% } -%>
+public class TaskResource {
+  public record CreateTaskRequest(@NotNull String title) {}
+
+  public record TaskResponse(String id, String title, boolean done, Instant createdAt, Instant doneAt) {
+    static TaskResponse of(Task t) {
+      return new TaskResponse(t.id().toString(), t.title().value(), t.done(), t.createdAt(), t.doneAt());
+    }
+  }
+
+  private final CreateTask createTask;
+  private final ListMyTasks listMyTasks;
+  private final CompleteTask completeTask;
+
+  public TaskResource(CreateTask createTask, ListMyTasks listMyTasks, CompleteTask completeTask) {
+    this.createTask = createTask;
+    this.listMyTasks = listMyTasks;
+    this.completeTask = completeTask;
+  }
+
+  @GET
+  @Operation(summary = "Mis tareas, de la más reciente a la más antigua")
+  public List<TaskResponse> mine() {
+    return listMyTasks.execute().stream().map(TaskResponse::of).toList();
+  }
+
+  @POST
+  @Operation(summary = "Crear una tarea")
+  public Response create(@Valid CreateTaskRequest request) {
+    return Response.status(201).entity(TaskResponse.of(createTask.execute(request.title()))).build();
+  }
+
+  @POST
+  @Path("/{id}/completion")
+  @Operation(summary = "Marcar una tarea como hecha")
+  public TaskResponse complete(@PathParam("id") String id) {
+    return TaskResponse.of(completeTask.execute(id));
+  }
+}

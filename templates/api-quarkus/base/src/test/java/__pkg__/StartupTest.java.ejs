@@ -1,0 +1,28 @@
+package <%= pkg %>;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import java.time.Clock;
+import org.junit.jupiter.api.Test;
+
+/**
+ * La aplicación arranca con sus piezas reales, sin dobles de prueba. Otros tests sustituyen piezas;
+ * este comprueba que las de verdad existen y se cablean.
+ */
+@QuarkusTest
+class StartupTest {
+  @Inject TaskRepository tasks;
+  @Inject CurrentUser user;
+  @Inject Clock clock;
+
+  @Test
+  void theRealPiecesAreWired() {
+    assertThat(tasks.getClass().getSimpleName()).startsWith("<%= config.db === "postgres-docker" ? "JdbcTaskRepository" : "InMemoryTaskRepository" %>");
+    assertThat(user.getClass().getSimpleName()).startsWith("<%= config.auth === "oauth2" ? "JwtCurrentUser" : "LocalUser" %>");
+    assertThat(clock.getZone().getId()).isEqualTo("Z");
+  }
+}
