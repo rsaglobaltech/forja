@@ -12,7 +12,7 @@ import { runPostinstall, nextSteps, type PostinstallResult } from "./engine/post
 
 const program = new Command();
 
-program.name("forja").description("CLI de scaffolding para monorepos web + móvil con DDD / Hexagonal");
+program.name("forja").description("Scaffolding hexagonal: monorepos web + móvil en TypeScript o API Java (Spring Boot / Quarkus) con web, OAuth2 y Specgate");
 
 interface InitFlags {
   backend?: string;

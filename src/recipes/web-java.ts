@@ -12,7 +12,7 @@ export default defineRecipe({
     if (ctx.config.design !== "tailwind") ctx.copyFile("web/app/globals.css", "apps/web/app/globals.css");
 
     const env: [string, string, string][] = [
-      ["API_URL", "http://localhost:8080", "La API Java (apps/api)."],
+      ["API_URL", "http://127.0.0.1:8080", "La API Java (apps/api). 127.0.0.1 y no localhost: Node prueba antes IPv6 (::1)."],
     ];
     if (oauth2) {
       env.push(

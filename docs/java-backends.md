@@ -28,7 +28,7 @@ apps/api/                     # Spring Boot 4.1 o Quarkus 3.40, Java 21, Maven W
       infrastructure/         #   REST, JDBC/memoria, configuración
   src/test/java/...           # dominio, casos de uso, API, arranque real, ArchUnit
 apps/web/                     # Next.js 16 + Auth.js (Keycloak) que consume la API
-infra/keycloak/realm.json     # realm de desarrollo con un cliente para la web
+infra/keycloak/<nombre>-realm.json   # realm de desarrollo: clientes web y dev-cli, usuarios demo/otra
 docker-compose.yml            # Postgres + Keycloak
 .github/workflows/ci.yml      # API (Maven) + web (Node)
 docs/brief.md + Specgate      # con el extra `specgate`
@@ -46,3 +46,17 @@ docs/brief.md + Specgate      # con el extra `specgate`
 - **Un test que arranca la aplicación real** sin dobles (lección de los
   pilotos de Specgate: tests verdes con la app sin arrancar).
 - **OpenAPI y health** de serie.
+
+## Probado
+
+Cada combinación (backend × base de datos × auth × ArchUnit × web) se renderiza en los tests de forja.
+Además se generan y se prueban de verdad (Maven, Next.js build, lint, Docker) seis combinaciones
+representativas, y la combinación completa se probó en un navegador real: login en Keycloak, crear y
+completar tareas, cierre de sesión federado, aislamiento entre usuarios y sesión pública sin tokens.
+
+## Pedir un token a mano (desarrollo)
+
+```bash
+curl -s -d grant_type=password -d client_id=dev-cli -d username=demo -d password=demo \
+  http://localhost:8180/realms/<nombre>/protocol/openid-connect/token | jq -r .access_token
+```

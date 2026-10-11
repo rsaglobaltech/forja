@@ -5,6 +5,8 @@
   <groupId><%= pkg %></groupId>
   <artifactId><%= config.name %>-api</artifactId>
   <version>0.1.0-SNAPSHOT</version>
+  <!-- Sin esto, Maven construye un jar normal: ni target/quarkus-app ni quarkus:dev (los tests pasan igual). -->
+  <packaging>quarkus</packaging>
   <name><%= config.name %>-api</name>
   <description>API de <%= config.name %> — Quarkus, arquitectura hexagonal (generado con forja)</description>
 

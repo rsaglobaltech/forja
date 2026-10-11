@@ -4,7 +4,7 @@ import type { Task } from "<%= config.scope %>/shared";
 import { accessToken } from "./access-token";
 <% } -%>
 
-const API_URL = process.env.API_URL ?? "http://localhost:8080";
+const API_URL = process.env.API_URL ?? "http://127.0.0.1:8080";
 
 /** Un error de la API (RFC 9457): la web decide por el `code`, no por el texto. */
 export class ApiError extends Error {

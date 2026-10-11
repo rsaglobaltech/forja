@@ -62,6 +62,7 @@ describe("renderizado Java", () => {
 
   it("pom de Quarkus: dependencias según las opciones", async () => {
     const full = (await render({}, "quarkus")).read("apps/api/pom.xml");
+    expect(full).toContain("<packaging>quarkus</packaging>");
     expect(full).toMatch(/quarkus-oidc[\s\S]*quarkus-flyway|quarkus-flyway[\s\S]*quarkus-oidc/);
     expect(full).toContain("quarkus-test-security");
     const min = (await render({ db: "none", auth: "none", archunit: false }, "quarkus")).read("apps/api/pom.xml");
