@@ -8,7 +8,7 @@ export const versions = {
   quarkus: "3.40.1",
   archunit: "1.5.1",
   assertj: "3.27.6",
-  specgate: "0.17.9",
+  specgate: "0.17.10",
   keycloak: "26.8",
   postgres: "17-alpine",
 } as const;
