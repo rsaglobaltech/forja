@@ -1,0 +1,42 @@
+import "server-only";
+import type { Task } from "<%= config.scope %>/shared";
+<% if (config.auth === "oauth2") { -%>
+import { accessToken } from "./access-token";
+<% } -%>
+
+const API_URL = process.env.API_URL ?? "http://127.0.0.1:8080";
+
+/** Un error de la API (RFC 9457): la web decide por el `code`, no por el texto. */
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly code: string,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+/** Cliente de la API, solo de servidor<% if (config.auth === "oauth2") { %>: añade el access token del usuario (que nunca llega al navegador)<% } %>. */
+async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
+  headers.set("Accept", "application/json, application/problem+json");
+  if (init.body) headers.set("Content-Type", "application/json");
+<% if (config.auth === "oauth2") { -%>
+  const token = await accessToken();
+  if (!token) throw new ApiError(401, "unauthorized", "Sin sesión");
+  headers.set("Authorization", `Bearer ${token}`);
+<% } -%>
+  const res = await fetch(`${API_URL}${path}`, { ...init, headers, cache: "no-store" });
+  if (!res.ok) {
+    const problem = await res.json().catch(() => ({}));
+    throw new ApiError(res.status, problem.code ?? "unexpected", problem.detail ?? res.statusText);
+  }
+  return res.json() as Promise<T>;
+}
+
+export const api = {
+  myTasks: () => call<Task[]>("/api/tasks"),
+  createTask: (title: string) => call<Task>("/api/tasks", { method: "POST", body: JSON.stringify({ title }) }),
+  completeTask: (id: string) => call<Task>(`/api/tasks/${encodeURIComponent(id)}/completion`, { method: "POST" }),
+};

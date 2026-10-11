@@ -1,0 +1,16 @@
+package <%= pkg %>.tasks.domain;
+
+import <%= pkg %>.shared.domain.DomainException;
+
+/** Value object: un título de 1 a 120 caracteres, sin espacios sobrantes. */
+public record TaskTitle(String value) {
+  public static final int MAX = 120;
+
+  public TaskTitle {
+    value = value == null ? "" : value.strip();
+    if (value.isEmpty() || value.length() > MAX) {
+      throw new DomainException("invalid_title", DomainException.Kind.INVALID,
+          "El título debe tener entre 1 y " + MAX + " caracteres.");
+    }
+  }
+}

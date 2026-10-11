@@ -1,0 +1,103 @@
+package <%= pkg %>.tasks.infrastructure;
+
+<% if (config.auth === "oauth2") { -%>
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+<% } -%>
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+<% if (config.db === "postgres-docker") { -%>
+import <%= pkg %>.TestcontainersConfiguration;
+<% } -%>
+import com.jayway.jsonpath.JsonPath;
+<% if (config.auth === "oauth2") { -%>
+import java.util.UUID;
+<% } -%>
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+<% if (config.db === "postgres-docker") { -%>
+import org.springframework.context.annotation.Import;
+<% } -%>
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+
+/** La API de punta a punta: HTTP → caso de uso → adaptador<%= config.db === "postgres-docker" ? " JDBC (PostgreSQL real)" : "" %>. */
+@SpringBootTest
+@AutoConfigureMockMvc
+<% if (config.db === "postgres-docker") { -%>
+@Import(TestcontainersConfiguration.class)
+<% } -%>
+class TaskApiTest {
+  @Autowired MockMvc mvc;
+<% if (config.auth === "oauth2") { -%>
+
+  /** Cada test, un usuario distinto: los tests no se pisan aunque compartan base de datos. */
+  private final String ana = "ana-" + UUID.randomUUID();
+  private final String luis = "luis-" + UUID.randomUUID();
+
+  private MockHttpServletRequestBuilder as(String user, MockHttpServletRequestBuilder request) {
+    return request.with(jwt().jwt(j -> j.subject(user)));
+  }
+<% } else { -%>
+
+  private final String ana = "local-user";
+
+  private MockHttpServletRequestBuilder as(String user, MockHttpServletRequestBuilder request) {
+    return request;
+  }
+<% } -%>
+
+  private String create(String user, String title) throws Exception {
+    String body = mvc.perform(as(user, post("/api/tasks")).contentType(MediaType.APPLICATION_JSON)
+            .content("{\"title\":\"" + title + "\"}"))
+        .andExpect(status().isCreated()).andExpect(jsonPath("$.done").value(false))
+        .andReturn().getResponse().getContentAsString();
+    return JsonPath.read(body, "$.id");
+  }
+
+  @Test
+  void createListAndComplete() throws Exception {
+    String id = create(ana, "Preparar la demo");
+    mvc.perform(as(ana, get("/api/tasks"))).andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.id == '" + id + "')].title").value("Preparar la demo"));
+    mvc.perform(as(ana, post("/api/tasks/" + id + "/completion"))).andExpect(status().isOk())
+        .andExpect(jsonPath("$.done").value(true));
+    mvc.perform(as(ana, post("/api/tasks/" + id + "/completion"))).andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("task_already_done"));
+  }
+
+  @Test
+  void errorsAreProblemDetails() throws Exception {
+    mvc.perform(as(ana, post("/api/tasks")).contentType(MediaType.APPLICATION_JSON).content("{\"title\":\"  \"}"))
+        .andExpect(status().isUnprocessableContent()).andExpect(jsonPath("$.code").value("invalid_title"));
+    mvc.perform(as(ana, post("/api/tasks")).contentType(MediaType.APPLICATION_JSON).content("{\"title\":"))
+        .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("invalid_request"));
+    mvc.perform(as(ana, post("/api/tasks/no-es-un-id/completion"))).andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("task_not_found"));
+  }
+<% if (config.auth === "oauth2") { -%>
+
+  @Test
+  void someoneElsesTaskDoesNotExistForMe() throws Exception {
+    String id = create(ana, "Privada");
+    mvc.perform(as(luis, post("/api/tasks/" + id + "/completion"))).andExpect(status().isNotFound());
+    mvc.perform(as(luis, get("/api/tasks"))).andExpect(jsonPath("$.length()").value(0));
+  }
+
+  @Test
+  void withoutATokenIs401() throws Exception {
+    mvc.perform(get("/api/tasks")).andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value("unauthorized"));
+  }
+<% } -%>
+
+  @Test
+  void healthAndOpenApiAreOpen() throws Exception {
+    mvc.perform(get("/actuator/health")).andExpect(status().isOk());
+    mvc.perform(get("/v3/api-docs")).andExpect(status().isOk()).andExpect(jsonPath("$.paths['/api/tasks']").exists());
+  }
+}

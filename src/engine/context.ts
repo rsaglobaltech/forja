@@ -11,6 +11,7 @@ export interface EngineState {
   config: ForjaConfig;
   templatesRoot: string;
   envVars: EnvVar[];
+  executables: Set<string>;
 }
 
 /** flags que `ctx.has()` puede resolver contra arrays del config. */
@@ -49,12 +50,17 @@ export class RecipeContext {
    * proyecto generado. Archivos `*.ejs` se renderizan con `{ config, ...data }`
    * y pierden el sufijo `.ejs`; el resto se copia literal.
    */
-  copyDir(srcDir: string, destDir: string, data: Record<string, unknown> = {}): void {
+  copyDir(
+    srcDir: string,
+    destDir: string,
+    data: Record<string, unknown> = {},
+    mapPath: (relPath: string) => string = (relPath) => relPath,
+  ): void {
     const absoluteSrc = path.join(this.state.templatesRoot, srcDir);
     if (!fs.existsSync(absoluteSrc)) {
       throw new Error(`Template no encontrado: ${absoluteSrc}`);
     }
-    this.copyDirRecursive(absoluteSrc, absoluteSrc, destDir, data);
+    this.copyDirRecursive(absoluteSrc, absoluteSrc, destDir, data, mapPath);
   }
 
   private copyDirRecursive(
@@ -62,18 +68,19 @@ export class RecipeContext {
     currentDir: string,
     destDir: string,
     data: Record<string, unknown>,
+    mapPath: (relPath: string) => string,
   ): void {
     for (const entry of fs.readdirSync(currentDir, { withFileTypes: true })) {
       const abs = path.join(currentDir, entry.name);
       const rel = path.relative(root, abs);
 
       if (entry.isDirectory()) {
-        this.copyDirRecursive(root, abs, destDir, data);
+        this.copyDirRecursive(root, abs, destDir, data, mapPath);
         continue;
       }
 
       const isEjs = entry.name.endsWith(".ejs");
-      const relDest = isEjs ? rel.slice(0, -4) : rel;
+      const relDest = mapPath(isEjs ? rel.slice(0, -4) : rel);
       const destPath = path.join(destDir, relDest);
       const raw = fs.readFileSync(abs, "utf-8");
       const content = isEjs ? ejs.render(raw, { config: this.config, ...data }, { filename: abs }) : raw;
@@ -96,6 +103,11 @@ export class RecipeContext {
     const current = currentRaw ? JSON.parse(currentRaw) : {};
     const merged = mergePackageJson(current, patch);
     this.write(pkgPath, JSON.stringify(merged, null, 2) + "\n");
+  }
+
+  /** Marca un archivo como ejecutable al escribirlo a disco (p. ej. `mvnw`). */
+  markExecutable(destPath: string): void {
+    this.state.executables.add(destPath.replace(/^\/+/, ""));
   }
 
   addEnv(key: string, def: string, comment?: string, section = "otros"): void {

@@ -1,0 +1,82 @@
+package <%= pkg %>.shared.infrastructure.web;
+
+import <%= pkg %>.shared.domain.DomainException;
+<% if (config.auth === "oauth2") { -%>
+import io.quarkus.security.AuthenticationFailedException;
+import io.quarkus.security.ForbiddenException;
+import io.quarkus.security.UnauthorizedException;
+<% } -%>
+import jakarta.validation.ValidationException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
+
+/**
+ * Todos los errores salen como RFC 9457 ({@code application/problem+json}) con un {@code code} estable,
+ * también los que produce el framework (cuerpo ilegible, ruta o método inexistentes<%= config.auth === "oauth2" ? ", sin token" : "" %>).
+ */
+public class ProblemDetails {
+  @ServerExceptionMapper
+  public Response domain(DomainException e) {
+    int status = switch (e.kind()) {
+      case INVALID -> 422;
+      case NOT_FOUND -> 404;
+      case CONFLICT -> 409;
+      case FORBIDDEN -> 403;
+    };
+    return problem(status, e.code(), e.getMessage());
+  }
+
+  @ServerExceptionMapper
+  public Response validation(ValidationException e) {
+    return problem(400, "invalid_request", "La petición no es válida.");
+  }
+
+  @ServerExceptionMapper
+  public Response unreadable(com.fasterxml.jackson.core.JsonProcessingException e) {
+    return problem(400, "invalid_request", "La petición no se puede leer.");
+  }
+
+  /** Quarkus trae su propio mapeo, más específico, para un tipo equivocado en el JSON: se sustituye. */
+  @ServerExceptionMapper
+  public Response mismatched(com.fasterxml.jackson.databind.exc.MismatchedInputException e) {
+    return problem(400, "invalid_request", "La petición no se puede leer.");
+  }
+<% if (config.auth === "oauth2") { -%>
+
+  @ServerExceptionMapper({UnauthorizedException.class, AuthenticationFailedException.class})
+  public Response unauthorized(RuntimeException e) {
+    return Response.fromResponse(problem(401, "unauthorized", "Falta un token válido."))
+        .header("WWW-Authenticate", "Bearer").build();
+  }
+
+  @ServerExceptionMapper
+  public Response forbidden(ForbiddenException e) {
+    return problem(403, "forbidden", "No tienes permiso.");
+  }
+<% } -%>
+
+  @ServerExceptionMapper
+  public Response web(WebApplicationException e) {
+    int status = e.getResponse().getStatus();
+    String code = switch (status) {
+      case 404 -> "route_not_found";
+      case 405 -> "method_not_allowed";
+      case 415 -> "unsupported_media_type";
+      default -> "invalid_request";
+    };
+    return problem(status, code, "Petición no atendida.");
+  }
+
+  static Response problem(int status, String code, String detail) {
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("type", "about:blank");
+    body.put("title", Response.Status.fromStatusCode(status) == null ? "Error" : Response.Status.fromStatusCode(status).getReasonPhrase());
+    body.put("status", status);
+    body.put("detail", detail);
+    body.put("code", code);
+    return Response.status(status).type("application/problem+json").entity(body).build();
+  }
+}

@@ -1,0 +1,14 @@
+package <%= pkg %>.shared.infrastructure.time;
+
+import java.time.Clock;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration(proxyBeanMethods = false)
+class TimeConfiguration {
+  /** Los casos de uso reciben la hora por aquí; los tests pueden fijarla. */
+  @Bean
+  Clock clock() {
+    return Clock.systemUTC();
+  }
+}

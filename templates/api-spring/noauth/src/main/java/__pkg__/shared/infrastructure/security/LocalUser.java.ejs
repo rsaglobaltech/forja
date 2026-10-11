@@ -1,0 +1,13 @@
+package <%= pkg %>.shared.infrastructure.security;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import org.springframework.stereotype.Component;
+
+/** Sin autenticación (auth = none): todas las peticiones son del mismo usuario local. */
+@Component
+class LocalUser implements CurrentUser {
+  static final String ID = "local-user";
+
+  @Override
+  public String id() { return ID; }
+}

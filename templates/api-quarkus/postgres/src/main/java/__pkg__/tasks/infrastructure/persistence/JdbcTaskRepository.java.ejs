@@ -1,0 +1,71 @@
+package <%= pkg %>.tasks.infrastructure.persistence;
+
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskId;
+import <%= pkg %>.tasks.domain.TaskTitle;
+import io.agroal.api.AgroalDataSource;
+import jakarta.enterprise.context.ApplicationScoped;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+/** Adaptador JDBC sobre PostgreSQL. El esquema lo crea Flyway (db/migration). */
+@ApplicationScoped
+class JdbcTaskRepository implements TaskRepository {
+  private final AgroalDataSource db;
+
+  JdbcTaskRepository(AgroalDataSource db) { this.db = db; }
+
+  @Override
+  public void save(Task t) {
+    try (Connection c = db.getConnection(); PreparedStatement p = c.prepareStatement("""
+        INSERT INTO task (id, owner, title, done, created_at, done_at) VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, done = EXCLUDED.done, done_at = EXCLUDED.done_at
+        """)) {
+      p.setObject(1, t.id().value());
+      p.setString(2, t.owner());
+      p.setString(3, t.title().value());
+      p.setBoolean(4, t.done());
+      p.setTimestamp(5, Timestamp.from(t.createdAt()));
+      p.setTimestamp(6, t.doneAt() == null ? null : Timestamp.from(t.doneAt()));
+      p.executeUpdate();
+    } catch (SQLException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  @Override
+  public Optional<Task> findById(TaskId id) {
+    return query("SELECT * FROM task WHERE id = ?", id.value()).stream().findFirst();
+  }
+
+  @Override
+  public List<Task> findByOwner(String owner) {
+    return query("SELECT * FROM task WHERE owner = ? ORDER BY created_at DESC, id", owner);
+  }
+
+  private List<Task> query(String sql, Object arg) {
+    try (Connection c = db.getConnection(); PreparedStatement p = c.prepareStatement(sql)) {
+      p.setObject(1, arg);
+      List<Task> tasks = new ArrayList<>();
+      try (ResultSet rs = p.executeQuery()) {
+        while (rs.next()) {
+          Timestamp doneAt = rs.getTimestamp("done_at");
+          tasks.add(new Task(new TaskId(rs.getObject("id", UUID.class)), rs.getString("owner"),
+              new TaskTitle(rs.getString("title")), rs.getBoolean("done"), rs.getTimestamp("created_at").toInstant(),
+              doneAt == null ? null : doneAt.toInstant()));
+        }
+      }
+      return tasks;
+    } catch (SQLException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+}

@@ -1,0 +1,19 @@
+package <%= pkg %>.tasks.domain;
+
+import <%= pkg %>.shared.domain.DomainException;
+import java.time.Instant;
+
+/** Agregado de ejemplo: una tarea de un usuario. Java puro: sin framework. */
+public record Task(TaskId id, String owner, TaskTitle title, boolean done, Instant createdAt, Instant doneAt) {
+
+  public static Task create(String owner, TaskTitle title, Instant now) {
+    return new Task(TaskId.random(), owner, title, false, now, null);
+  }
+
+  public boolean ownedBy(String user) { return owner.equals(user); }
+
+  public Task complete(Instant now) {
+    if (done) throw new DomainException("task_already_done", DomainException.Kind.CONFLICT, "La tarea ya está hecha.");
+    return new Task(id, owner, title, true, createdAt, now);
+  }
+}
