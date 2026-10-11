@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-500: #4cc13b;
+  --color-brand-600: #3ea22f;
+  --color-surface: #ffffff;
+  --color-app: #f7f7f8;
+  --color-text: #111114;
+
+  --radius-md: 0.5rem;
+}
+
+body {
+  background-color: var(--color-app);
+  color: var(--color-text);
+}

@@ -1,0 +1,28 @@
+import { redirect } from "next/navigation";
+import { container } from "<%= config.scope %>/core";
+import { getCurrentUserId } from "../../../lib/session.js";
+import { logoutAction } from "../../../src/app/actions/auth.actions.js";
+
+export default async function DashboardPage() {
+  const userId = await getCurrentUserId();
+  if (!userId) redirect("/login");
+
+  const user = await container.userRepository.findById(userId);
+  if (!user) redirect("/login");
+
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-app px-4">
+      <div className="w-full max-w-sm rounded-md bg-surface p-6 text-center shadow-sm">
+        <h1 className="mb-6 text-xl font-semibold text-text">Hola, {user.email.toString()}</h1>
+        <form action={logoutAction}>
+          <button
+            type="submit"
+            className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-text transition hover:bg-app"
+          >
+            Cerrar sesión
+          </button>
+        </form>
+      </div>
+    </main>
+  );
+}

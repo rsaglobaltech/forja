@@ -1,0 +1,31 @@
+import type { ExpoConfig } from "expo/config";
+
+const config: ExpoConfig = {
+  name: "<%= config.name %>",
+  slug: "<%= config.name %>",
+  scheme: "<%= config.name.replace(/-/g, "") %>",
+  version: "1.0.0",
+  orientation: "portrait",
+  userInterfaceStyle: "automatic",
+  newArchEnabled: true,
+  ios: {
+    supportsTablet: true,
+    bundleIdentifier: "com.<%= config.scope.replace(/^@/, "") %>.<%= config.name.replace(/-/g, "") %>",
+  },
+  android: {
+    package: "com.<%= config.scope.replace(/^@/, "") %>.<%= config.name.replace(/-/g, "") %>",
+  },
+  web: {
+    bundler: "metro",
+    output: "single",
+  },
+  plugins: ["expo-router", "expo-secure-store"],
+  experiments: {
+    typedRoutes: true,
+  },
+  extra: {
+    apiUrl: process.env.EXPO_PUBLIC_API_URL ?? null,
+  },
+};
+
+export default config;

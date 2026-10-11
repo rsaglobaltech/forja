@@ -1,0 +1,33 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { container } from "<%= config.scope %>/core";
+import { LoginSchema } from "<%= config.scope %>/shared";
+import { corsHeaders } from "../../_lib/cors.js";
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders() });
+}
+
+export async function POST(request: NextRequest) {
+  const json = await request.json().catch(() => null);
+  const parsed = LoginSchema.safeParse(json);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "validation_error", message: parsed.error.issues[0]?.message ?? "Datos inválidos" },
+      { status: 400, headers: corsHeaders() },
+    );
+  }
+
+  const result = await container.loginUseCase.execute(parsed.data);
+  if (!result.ok) {
+    return NextResponse.json(
+      { error: result.error.code, message: result.error.message },
+      { status: 401, headers: corsHeaders() },
+    );
+  }
+
+  const session = await container.createSessionUseCase.execute(result.value.userId);
+  return NextResponse.json(
+    { userId: result.value.userId, token: session.token, expiresAt: session.expiresAt.toISOString() },
+    { headers: corsHeaders() },
+  );
+}

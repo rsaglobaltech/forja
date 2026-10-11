@@ -1,0 +1,41 @@
+# <%= config.name %>
+
+Generado con [forja](https://forja.dev). Arquitectura: **<%= config.arch %>**.
+Plataformas: <%= config.platforms.join(", ") %>.
+
+## Primeros 5 minutos
+
+```bash
+<%= config.pm %> install
+<% if (config.db === "postgres-docker") { -%>
+docker compose up -d
+<%= config.pm %> run db:push
+<% } -%>
+<%= config.pm %> run dev
+```
+
+<% if (config.platforms.includes("web")) { -%>
+Web en http://localhost:3000/login.
+<% } -%>
+
+## Tests
+
+```bash
+<%= config.pm %> test              # unit + integration
+```
+
+## Estructura
+
+- `apps/web` — Next.js (App Router).
+- `packages/core` — dominio, casos de uso, puertos y adaptadores (<%= config.arch %>).
+- `packages/shared` — tipos y validaciones isomorfas entre apps.
+
+Ver `docs/architecture.md` para el detalle de capas y dónde se valida la sesión de verdad.
+
+## Comandos de forja
+
+```bash
+forja add usecase <contexto>/<Nombre>
+forja add port <Nombre> --adapters drizzle,in-memory
+forja doctor
+```

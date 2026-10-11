@@ -1,0 +1,23 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { container } from "<%= config.scope %>/core";
+import { ForgotPasswordSchema } from "<%= config.scope %>/shared";
+import { corsHeaders } from "../../_lib/cors.js";
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders() });
+}
+
+export async function POST(request: NextRequest) {
+  const json = await request.json().catch(() => null);
+  const parsed = ForgotPasswordSchema.safeParse(json);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "validation_error", message: parsed.error.issues[0]?.message ?? "Datos inválidos" },
+      { status: 400, headers: corsHeaders() },
+    );
+  }
+
+  // Siempre 200, exista o no el email (anti-enumeración).
+  await container.requestPasswordResetUseCase.execute(parsed.data.email);
+  return NextResponse.json(null, { headers: corsHeaders() });
+}

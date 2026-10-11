@@ -1,0 +1,35 @@
+import { cookies } from "next/headers";
+import { container } from "<%= config.scope %>/core";
+
+const COOKIE_NAME = "session";
+
+export async function getSessionToken(): Promise<string | null> {
+  const store = await cookies();
+  return store.get(COOKIE_NAME)?.value ?? null;
+}
+
+/**
+ * Esta es la validación real de sesión — a diferencia de `middleware.ts`,
+ * que solo mira si la cookie existe (ver docs/architecture.md).
+ */
+export async function getCurrentUserId(): Promise<string | null> {
+  const token = await getSessionToken();
+  if (!token) return null;
+  return container.validateSessionUseCase.execute(token);
+}
+
+export async function setSessionCookie(token: string, expiresAt: Date): Promise<void> {
+  const store = await cookies();
+  store.set(COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    expires: expiresAt,
+  });
+}
+
+export async function clearSessionCookie(): Promise<void> {
+  const store = await cookies();
+  store.delete(COOKIE_NAME);
+}

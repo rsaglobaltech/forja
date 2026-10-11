@@ -1,0 +1,35 @@
+# Arquitectura
+
+`<%= config.name %>` usa arquitectura **<%= config.arch %>**.
+
+## Capas de `packages/core`
+
+```
+domain/          # entidades, value objects, eventos — sin dependencias externas
+application/     # casos de uso: orquestan puertos, no conocen infraestructura
+ports/           # interfaces que la aplicación necesita (repos, mailer, clock…)
+infrastructure/  # adaptadores reales (Drizzle, bcrypt, mailers) + composition root
+```
+
+Regla dura, forzada en CI: `packages/core` no puede importar `next`, `react`
+ni `expo`. El dominio no sabe que existe un framework web.
+
+## Dónde se valida la sesión de verdad
+
+`apps/web/middleware.ts` corre en el Edge runtime y **solo** chequea que la
+cookie `session` exista, para poder redirigir rápido sin abrir conexión a la
+base de datos (el Edge runtime no tiene el driver de Postgres). Eso **no** es
+control de acceso real.
+
+La validación real —¿el token existe, no venció, a qué usuario pertenece?—
+pasa en `getCurrentUserId()` / `resolveUserId()`, que llaman a
+`ValidateSessionUseCase` con el `ISessionRepository` real. Cualquier ruta que
+devuelva datos sensibles debe llamar a esa función, no confiar en que
+`middleware.ts` ya filtró todo.
+
+## Composition root
+
+`packages/core/src/infrastructure/config/container.ts` elige el adaptador
+real o el in-memory por **switches independientes** (`hasDatabase()`,
+`hasMailer()`), nunca un flag global tipo `isDemo`. Así se puede prender la
+base de datos sin tener todavía el mailer configurado, por ejemplo.

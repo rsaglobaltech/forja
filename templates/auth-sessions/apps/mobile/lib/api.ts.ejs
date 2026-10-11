@@ -1,0 +1,57 @@
+import Constants from "expo-constants";
+import type {
+  ApiError,
+  ForgotPasswordRequest,
+  LoginRequest,
+  LoginResponse,
+  MeResponse,
+  RegisterRequest,
+  RegisterResponse,
+  ResetPasswordRequest,
+} from "<%= config.scope %>/shared";
+
+/**
+ * En Expo Go, `Constants.expoConfig.hostUri` es el host:puerto que sirve
+ * Metro (misma red que el teléfono) — usarlo de default evita tener que
+ * hardcodear la IP de la máquina a mano en cada dev distinto.
+ */
+function defaultApiUrl(): string {
+  const extraUrl = Constants.expoConfig?.extra?.apiUrl as string | null | undefined;
+  if (extraUrl) return extraUrl;
+  const hostUri = Constants.expoConfig?.hostUri;
+  if (hostUri) return `http://${hostUri.split(":")[0]}:3000`;
+  return "http://localhost:3000";
+}
+
+const API_URL = defaultApiUrl();
+
+async function request<T>(path: string, options: RequestInit & { token?: string } = {}): Promise<T> {
+  const { token, headers, ...rest } = options;
+  const res = await fetch(`${API_URL}${path}`, {
+    ...rest,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...headers,
+    },
+  });
+
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new Error((body as ApiError | null)?.message ?? `Error de red (${res.status})`);
+  }
+  return body as T;
+}
+
+export const api = {
+  register: (input: RegisterRequest) =>
+    request<RegisterResponse>("/api/auth/register", { method: "POST", body: JSON.stringify(input) }),
+  login: (input: LoginRequest) =>
+    request<LoginResponse>("/api/auth/login", { method: "POST", body: JSON.stringify(input) }),
+  logout: (token: string) => request<null>("/api/auth/logout", { method: "POST", token }),
+  me: (token: string) => request<MeResponse>("/api/auth/me", { token }),
+  forgotPassword: (input: ForgotPasswordRequest) =>
+    request<null>("/api/auth/forgot-password", { method: "POST", body: JSON.stringify(input) }),
+  resetPassword: (input: ResetPasswordRequest) =>
+    request<null>("/api/auth/reset-password", { method: "POST", body: JSON.stringify(input) }),
+};

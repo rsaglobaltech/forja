@@ -1,0 +1,115 @@
+<% if (config.auth === "sessions") { -%>
+import { env, hasDatabase } from "./env.js";
+import { SystemClock } from "../clock/SystemClock.js";
+import { ConsoleLogger } from "../logging/ConsoleLogger.js";
+import { BcryptPasswordHasher } from "../security/BcryptPasswordHasher.js";
+import { InMemoryUserRepository } from "../database/repositories/InMemoryUserRepository.js";
+import { InMemorySessionRepository } from "../database/repositories/InMemorySessionRepository.js";
+import { InMemoryPasswordResetTokenRepository } from "../database/repositories/InMemoryPasswordResetTokenRepository.js";
+<% if (config.db === "postgres-docker") { -%>
+import { DrizzleUserRepository } from "../database/repositories/DrizzleUserRepository.js";
+import { DrizzleSessionRepository } from "../database/repositories/DrizzleSessionRepository.js";
+import { DrizzlePasswordResetTokenRepository } from "../database/repositories/DrizzlePasswordResetTokenRepository.js";
+<% } -%>
+<% if (config.mailer === "console") { -%>
+import { ConsoleMailer } from "../mail/ConsoleMailer.js";
+<% } -%>
+import { RegisterUseCase } from "../../application/auth/RegisterUseCase.js";
+import { LoginUseCase } from "../../application/auth/LoginUseCase.js";
+import { CreateSessionUseCase } from "../../application/auth/CreateSessionUseCase.js";
+import { ValidateSessionUseCase } from "../../application/auth/ValidateSessionUseCase.js";
+import { LogoutUseCase } from "../../application/auth/LogoutUseCase.js";
+import { RequestPasswordResetUseCase } from "../../application/auth/RequestPasswordResetUseCase.js";
+import { ResetPasswordUseCase } from "../../application/auth/ResetPasswordUseCase.js";
+
+/**
+ * Composition root. Cada adaptador se elige con un switch INDEPENDIENTE
+ * (`hasDatabase()`), nunca un flag global tipo `isDemo`: así se puede
+ * prender la base de datos sin tener el mailer configurado, o viceversa,
+ * sin que un flag apague todo junto.
+ */
+function buildContainer() {
+  const clock = new SystemClock();
+  const logger = new ConsoleLogger();
+  const passwordHasher = new BcryptPasswordHasher();
+<% if (config.mailer === "console") { -%>
+  const mailer = new ConsoleMailer();
+<% } -%>
+
+<% if (config.db === "postgres-docker") { -%>
+  const userRepository = hasDatabase() ? new DrizzleUserRepository() : new InMemoryUserRepository();
+  const sessionRepository = hasDatabase()
+    ? new DrizzleSessionRepository()
+    : new InMemorySessionRepository();
+  const resetTokenRepository = hasDatabase()
+    ? new DrizzlePasswordResetTokenRepository()
+    : new InMemoryPasswordResetTokenRepository();
+  if (!hasDatabase()) {
+    logger.info("DATABASE_URL no está seteada: usando repositorios in-memory (no persisten al reiniciar)");
+  }
+<% } else { -%>
+  const userRepository = new InMemoryUserRepository();
+  const sessionRepository = new InMemorySessionRepository();
+  const resetTokenRepository = new InMemoryPasswordResetTokenRepository();
+<% } -%>
+
+  return {
+    clock,
+    logger,
+    passwordHasher,
+    userRepository,
+    sessionRepository,
+    resetTokenRepository,
+    registerUseCase: new RegisterUseCase(userRepository, passwordHasher),
+    loginUseCase: new LoginUseCase(userRepository, passwordHasher),
+    createSessionUseCase: new CreateSessionUseCase(sessionRepository, clock, env.SESSION_TTL_DAYS),
+    validateSessionUseCase: new ValidateSessionUseCase(sessionRepository, clock),
+    logoutUseCase: new LogoutUseCase(sessionRepository),
+    requestPasswordResetUseCase: new RequestPasswordResetUseCase(
+      userRepository,
+      resetTokenRepository,
+<% if (config.mailer === "console") { -%>
+      mailer,
+<% } -%>
+      clock,
+      env.APP_URL,
+    ),
+    resetPasswordUseCase: new ResetPasswordUseCase(
+      userRepository,
+      resetTokenRepository,
+      sessionRepository,
+      passwordHasher,
+      clock,
+    ),
+  };
+}
+
+export type Container = ReturnType<typeof buildContainer>;
+
+/**
+ * Un bundler como el de Next.js puede compilar `packages/core` por separado
+ * para el bundle de Server Actions y para el de páginas/route handlers —
+ * cada uno con su propia copia del módulo. Sin este singleton en
+ * `globalThis`, cada bundle termina con SU PROPIO Map in-memory y los
+ * usuarios "desaparecen" según qué código los consultó. Mismo truco que usa
+ * Prisma Client para sobrevivir a HMR en Next.js.
+ */
+const globalForContainer = globalThis as unknown as { __forjaContainer?: Container };
+export const container = globalForContainer.__forjaContainer ?? buildContainer();
+globalForContainer.__forjaContainer = container;
+<% } else { -%>
+import { SystemClock } from "../clock/SystemClock.js";
+import { ConsoleLogger } from "../logging/ConsoleLogger.js";
+
+// auth = "none": no hay casos de uso de sesión que componer todavía.
+// Agregá acá los tuyos con `forja add usecase <contexto>/<Nombre>`.
+function buildContainer() {
+  return {
+    clock: new SystemClock(),
+    logger: new ConsoleLogger(),
+  };
+}
+
+export const container = buildContainer();
+export type Container = ReturnType<typeof buildContainer>;
+<% } -%>

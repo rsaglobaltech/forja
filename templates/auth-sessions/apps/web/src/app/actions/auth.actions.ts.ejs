@@ -1,0 +1,81 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { container } from "<%= config.scope %>/core";
+import {
+  RegisterSchema,
+  LoginSchema,
+  ForgotPasswordSchema,
+  ResetPasswordSchema,
+} from "<%= config.scope %>/shared";
+import { getSessionToken, setSessionCookie, clearSessionCookie } from "../../../lib/session.js";
+
+export interface ActionState {
+  error?: string;
+  ok?: boolean;
+}
+
+export async function registerAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = RegisterSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+
+  const result = await container.registerUseCase.execute(parsed.data);
+  if (!result.ok) return { error: result.error.message };
+
+  const session = await container.createSessionUseCase.execute(result.value.userId);
+  await setSessionCookie(session.token, session.expiresAt);
+  redirect("/dashboard");
+}
+
+export async function loginAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = LoginSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+
+  const result = await container.loginUseCase.execute(parsed.data);
+  if (!result.ok) return { error: result.error.message };
+
+  const session = await container.createSessionUseCase.execute(result.value.userId);
+  await setSessionCookie(session.token, session.expiresAt);
+  redirect("/dashboard");
+}
+
+export async function logoutAction(): Promise<void> {
+  const token = await getSessionToken();
+  if (token) await container.logoutUseCase.execute(token);
+  await clearSessionCookie();
+  redirect("/login");
+}
+
+export async function forgotPasswordAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = ForgotPasswordSchema.safeParse({ email: formData.get("email") });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+
+  // Siempre responde OK, exista o no el email (anti-enumeración).
+  await container.requestPasswordResetUseCase.execute(parsed.data.email);
+  return { ok: true };
+}
+
+export async function resetPasswordAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = ResetPasswordSchema.safeParse({
+    token: formData.get("token"),
+    newPassword: formData.get("newPassword"),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+
+  const result = await container.resetPasswordUseCase.execute(parsed.data.token, parsed.data.newPassword);
+  if (!result.ok) return { error: result.error.message };
+
+  redirect("/login");
+}

@@ -1,0 +1,17 @@
+import type { NextRequest } from "next/server";
+import { container } from "<%= config.scope %>/core";
+
+const COOKIE_NAME = "session";
+
+/** Bearer (móvil) ∨ cookie (web) → token crudo. */
+export function extractToken(request: NextRequest): string | null {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) return authHeader.slice(7);
+  return request.cookies.get(COOKIE_NAME)?.value ?? null;
+}
+
+export async function resolveUserId(request: NextRequest): Promise<string | null> {
+  const token = extractToken(request);
+  if (!token) return null;
+  return container.validateSessionUseCase.execute(token);
+}
