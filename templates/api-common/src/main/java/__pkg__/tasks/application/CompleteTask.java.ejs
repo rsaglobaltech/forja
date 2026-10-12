@@ -7,7 +7,7 @@ import <%= pkg %>.tasks.domain.TaskId;
 import <%= pkg %>.tasks.domain.TaskNotFound;
 import java.time.Clock;
 
-/** La tarea de otro usuario responde como si no existiera: no se revela qué ids existen. */
+/** Another user's task responds as if it did not exist: which ids exist is never revealed. */
 public final class CompleteTask {
   private final TaskRepository tasks;
   private final CurrentUser user;

@@ -10,8 +10,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 /**
- * Resource server OAuth2: la API valida el JWT que emite el proveedor (Keycloak en desarrollo) y no guarda
- * sesión. Salud y documentación quedan abiertas; todo /api/** exige token.
+ * OAuth2 resource server: the API validates the JWT issued by the provider (Keycloak in development) and keeps
+ * no session. Health and docs stay open; all of /api/** requires a token.
  */
 @Configuration(proxyBeanMethods = false)
 class SecurityConfiguration {

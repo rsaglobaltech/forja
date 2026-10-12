@@ -1,4 +1,4 @@
-# Imagen de producción de la API (Quarkus, JVM). Desde la raíz: docker build -t api apps/api
+# Production image for the API (Quarkus, JVM). From the root: docker build -t api apps/api
 FROM eclipse-temurin:21-jdk AS build
 WORKDIR /src
 COPY .mvn .mvn

@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import java.time.Clock;
 
-/** El único sitio que conoce a la vez los casos de uso y CDI: aquí se cablean. */
+/** The only place that knows both the use cases and CDI: they are wired here. */
 class TasksConfiguration {
   @Produces
   @ApplicationScoped

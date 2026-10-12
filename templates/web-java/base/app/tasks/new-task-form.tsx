@@ -10,8 +10,8 @@ export function NewTaskForm() {
       <div className="flex gap-2">
         <input
           name="title"
-          aria-label="Nueva tarea"
-          placeholder="Nueva tarea"
+          aria-label="New task"
+          placeholder="New task"
           maxLength={120}
           className="flex-1 rounded-md border border-black/10 bg-surface px-3 py-2 text-sm"
         />
@@ -20,7 +20,7 @@ export function NewTaskForm() {
           disabled={pending}
           className="rounded-md bg-brand-600 px-4 py-2 text-sm text-white disabled:opacity-50"
         >
-          Añadir
+          Add
         </button>
       </div>
       {state.error ? (

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en" data-slug="contributing">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contributing — forja</title>
+<meta name="description" content="Develop forja, write a recipe, verify what it generates.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Contributing — forja">
+<meta property="og:description" content="Develop forja, write a recipe, verify what it generates.">
+<link rel="stylesheet" href="assets/docs.css">
+<link rel="stylesheet" href="assets/forja.css">
+<script>
+  (function () {
+    try { var t = localStorage.getItem("forja-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="top">
+  <button class="top__menu" type="button" aria-label="Open navigation" aria-expanded="false"><span aria-hidden="true">☰</span></button>
+  <a class="top__brand" href="index.html"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true" width="18" height="18"><path d="M8 20h42v9h-7c-3 0-5 2-5 5v5h6v7H20v-7h6v-5c0-3-3-5-7-5-6 0-10-4-11-9Z" fill="currentColor"/></svg> forja<span class="top__brand-sub">/docs</span></a>
+  <span class="top__version">v0.2.0</span>
+  <button class="top__search" id="search" type="button" aria-label="Search documentation" aria-keyshortcuts="Meta+K Control+K">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <span class="top__search-label">search docs</span>
+    <kbd class="top__kbd"><span class="top__kbd-mod">⌘</span>K</kbd>
+  </button>
+  <nav class="top__links">
+    <a href="docs.html">Docs</a>
+    <a href="https://github.com/rsaglobaltech/forja" target="_blank" rel="noreferrer">GitHub</a>
+    <a href="https://www.npmjs.com/package/@rsaglobaltech/forja" target="_blank" rel="noreferrer">npm</a>
+  </nav>
+  <button class="top__theme" type="button" aria-label="Switch theme">◐</button>
+</header>
+
+<div class="shell">
+  <aside class="side" id="side"><nav aria-label="Documentation"><details class="side__group" data-group="Start"><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 2 5 5.5 5 9l-5 4-5-4c0-3.5 2-7 5-9Z"/><circle cx="12" cy="10" r="1.6"/><path d="M9 17l-2 4 4-2M15 17l2 4-4-2"/></svg><span>Start</span></summary><ul><li><a href="getting-started.html">Getting started</a></li><li><a href="java.html">Java backends</a></li><li><a href="daily-use.html">Daily use</a></li><li><a href="specgate.html">forja + Specgate</a></li><li><a href="e2e.html">End-to-end tests</a></li></ul></details><details class="side__group" data-group="Reference"><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 5.5v15"/></svg><span>Reference</span></summary><ul><li><a href="cli.html">Command line</a></li><li><a href="config.html">forja.config.json</a></li><li><a href="generated-project.html">What it generates</a></li></ul></details><details class="side__group" data-group="Background" open><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg><span>Background</span></summary><ul><li><a href="architecture.html">Architecture</a></li><li><a href="contributing.html" class="is-active" aria-current="page">Contributing</a></li></ul></details></nav></aside>
+  <main class="content" id="content">
+    <nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="docs.html">Docs</a></li><li>Background</li><li aria-current="page">Contributing</li></ol></nav>
+    <article class="prose">
+<h1 id="contributing">Contributing<a class="anchor" href="#contributing" aria-label="Link to this section">#</a></h1>
+<p>This page is for working on forja itself. You need Node.js 22 or newer. To check what forja generates
+for Java, you also need a JDK 21 and Docker.</p>
+<h2 id="set-up">Set up<a class="anchor" href="#set-up" aria-label="Link to this section">#</a></h2>
+<figure class="code" data-lang="bash"><figcaption class="code__head"><span class="code__lang">bash</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-bash"><span class="tok tok--f">git</span> clone https://github.com/rsaglobaltech/forja.git
+<span class="tok tok--k">cd</span> forja
+<span class="tok tok--f">npm</span> install
+<span class="tok tok--f">npm</span> run build
+<span class="tok tok--f">npm</span> link          <span class="tok tok--c"># puts your local build on the PATH as `forja`</span></code></pre></figure>
+<h2 id="day-to-day">Day to day<a class="anchor" href="#day-to-day" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>What it does</th></tr></thead><tbody><tr><td><code>npm run dev -- &lt;args&gt;</code></td><td>runs the CLI from <code>src/</code> with tsx, no build needed</td></tr><tr><td><code>npm test</code></td><td>the vitest suite in <code>tests/</code></td></tr><tr><td><code>npm run test:watch</code></td><td>the same, in watch mode</td></tr><tr><td><code>npm run typecheck</code></td><td><code>tsc --noEmit</code></td></tr><tr><td><code>npm run lint</code></td><td>ESLint over <code>src</code> and <code>tests</code></td></tr><tr><td><code>npm run build</code></td><td>compiles to <code>dist/</code>, which the <code>forja</code> binary runs</td></tr><tr><td><code>npm run site</code></td><td>builds this documentation site from <code>site/</code> into <code>_site/</code>, to look at locally</td></tr><tr><td><code>npm run site:publish</code></td><td>builds it into <code>docs/</code>, which GitHub Pages serves from <code>main</code>: commit the result</td></tr></tbody></table></div>
+<p><code>--dry-run</code> is the quickest way to see what a change does:</p>
+<figure class="code" data-lang="bash"><figcaption class="code__head"><span class="code__lang">bash</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-bash"><span class="tok tok--f">npm</span> run dev -- init demo <span class="tok tok--o">--yes</span> <span class="tok tok--o">--dry-run</span>
+<span class="tok tok--f">npm</span> run dev -- init demo <span class="tok tok--o">--yes</span> <span class="tok tok--o">--backend</span> quarkus <span class="tok tok--o">--dry-run</span></code></pre></figure>
+<p>The tests cover the configuration rules (<code>schema.test.ts</code>), the recipe order (<code>planner.test.ts</code>), the
+rendering of every Java combination and of the Node path (<code>render.test.ts</code>, <code>render-node.test.ts</code>),
+the end-to-end recipe (<code>e2e-web.test.ts</code>), the next steps (<code>postinstall.test.ts</code>), <code>forja add</code>
+(<code>add.test.ts</code>) and <code>forja doctor</code> (<code>doctor.test.ts</code>).</p>
+<h2 id="proving-a-generated-project-works">Proving a generated project works<a class="anchor" href="#proving-a-generated-project-works" aria-label="Link to this section">#</a></h2>
+<p>The unit tests show that forja renders the right files. <code>scripts/verify-generated.sh</code> shows that those
+files work: it generates a project with the built CLI, installs it and runs everything.</p>
+<figure class="code" data-lang="bash"><figcaption class="code__head"><span class="code__lang">bash</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-bash"><span class="tok tok--f">npm</span> run build
+<span class="tok tok--f">scripts</span>/verify-generated.sh node
+<span class="tok tok--f">scripts</span>/verify-generated.sh spring
+<span class="tok tok--f">scripts</span>/verify-generated.sh quarkus</code></pre></figure>
+<p>For each backend it runs <code>forja init</code> with Playwright and the extras, then <code>forja add usecase</code>,
+<code>add entity</code> and <code>add port</code>, <code>forja doctor</code>, the tests, the type check and lint. On Node it also builds
+the web app for production, bundles the mobile app for iOS, Android and web, and runs <code>expo-doctor</code>.
+Then it runs the Playwright tests in a real browser, and last <code>specgate validate --strict</code>.</p>
+<p>What it needs:</p>
+<ul>
+<li>Docker running. The Java paths start PostgreSQL and Keycloak with <code>docker compose up -d --wait</code>, and
+Testcontainers or Dev Services start their own PostgreSQL.</li>
+<li>Ports 3000, 5432, 8080 and 8180 free. Run one backend at a time.</li>
+<li>A JDK 21 for the Java paths.</li>
+</ul>
+<p>A second argument sets the working directory; without it the script uses a new temporary directory.</p>
+<h2 id="how-a-recipe-works">How a recipe works<a class="anchor" href="#how-a-recipe-works" aria-label="Link to this section">#</a></h2>
+<p>A recipe is one concern of the generated project. It lives in <code>src/recipes/&lt;id&gt;.ts</code>, and its templates
+in <code>templates/&lt;id&gt;/</code>.</p>
+<figure class="code" data-lang="ts"><figcaption class="code__head"><span class="code__lang">src/recipes/keycloak.ts</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-ts"><span class="tok tok--k">import</span> { defineRecipe } <span class="tok tok--k">from</span> <span class="tok tok--s">&quot;./types.js&quot;</span>;
+
+<span class="tok tok--k">export</span> default defineRecipe({
+  id: <span class="tok tok--s">&quot;keycloak&quot;</span>,
+  apply(ctx) {
+    ctx.copyFile(<span class="tok tok--s">&quot;keycloak/realm.json.ejs&quot;</span>, <span class="tok tok--s">`infra/keycloak/${ctx.config.name}-realm.json`</span>);
+  },
+});</code></pre></figure>
+<p><code>apply</code> receives a <code>RecipeContext</code>. Everything it writes goes to an in-memory file system; nothing
+reaches the disk until every recipe has run and Prettier has formatted the result.</p>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>What it does</th></tr></thead><tbody><tr><td><code>ctx.config</code></td><td>the validated configuration</td></tr><tr><td><code>ctx.has(flag)</code></td><td>whether <code>flag</code> is in <code>platforms</code>, <code>tests</code> or <code>extras</code></td></tr><tr><td><code>ctx.copyFile(src, dest, data?)</code></td><td>copies one template file; a <code>.ejs</code> file is rendered with <code>{ config, ...data }</code></td></tr><tr><td><code>ctx.copyDir(src, dest, data?, mapPath?)</code></td><td>copies a template folder recursively; <code>.ejs</code> files are rendered and lose the suffix; <code>mapPath</code> renames paths</td></tr><tr><td><code>ctx.mergePackageJson(dir, patch)</code></td><td>merges <code>dependencies</code>, <code>devDependencies</code> and <code>scripts</code> into <code>&lt;dir&gt;/package.json</code></td></tr><tr><td><code>ctx.addEnv(key, default, comment?, section?)</code></td><td>declares a variable for the root <code>.env.example</code></td></tr><tr><td><code>ctx.write(path, content)</code> / <code>ctx.read(path)</code></td><td>writes or reads a file in the generated project</td></tr><tr><td><code>ctx.markExecutable(path)</code></td><td>sets the executable bit when written to disk, as for <code>mvnw</code></td></tr></tbody></table></div>
+<p>Two details matter:</p>
+<ul>
+<li><code>mergePackageJson</code> throws if two recipes set the same script to different values. A recipe owns its
+scripts.</li>
+<li><code>copyFile</code> replaces a file, <code>mergePackageJson</code> merges into one. A recipe that creates a
+<code>package.json</code> with <code>copyFile</code> has to run before any recipe that merges into it. The planner&#39;s order
+takes care of that.</li>
+</ul>
+<p>The Java recipes use two helpers from <code>src/recipes/java.ts</code>: <code>copyJava</code>, which turns <code>__pkg__</code> in a
+template path into the package path (<code>com/acme/shop</code>), and the <code>versions</code> object that pins Spring Boot,
+Quarkus, ArchUnit, Keycloak, PostgreSQL and Specgate.</p>
+<h2 id="adding-a-recipe">Adding a recipe<a class="anchor" href="#adding-a-recipe" aria-label="Link to this section">#</a></h2>
+<ol>
+<li>Write <code>src/recipes/&lt;id&gt;.ts</code> with <code>defineRecipe</code>, and its templates in <code>templates/&lt;id&gt;/</code>.</li>
+<li>Register it in <code>src/recipes/registry.ts</code>.</li>
+<li>Plan it in <code>src/engine/planner.ts</code>: <code>planRecipes</code> for Node, <code>planJava</code> for Java. The order is
+written by hand; put the recipe after the ones whose files it merges into.</li>
+<li>If it adds a choice, add the value to <code>src/config/schema.ts</code>, with a cross-field rule if some
+combination cannot work. The schema accepts only what a recipe implements, so a value without a
+recipe never reaches the planner.</li>
+<li>Offer it in <code>src/prompts/wizard.ts</code> and in the <code>init</code> options in <code>src/cli.ts</code>.</li>
+<li>If the user has to run something afterwards, add it to <code>nextSteps</code> in <code>src/engine/postinstall.ts</code>.</li>
+<li>Add tests: the schema rule, the planner order, and the rendered files.</li>
+<li>Run <code>scripts/verify-generated.sh</code> on the paths the recipe touches.</li>
+</ol>
+<h2 id="releases">Releases<a class="anchor" href="#releases" aria-label="Link to this section">#</a></h2>
+<p>Releases are published from a local machine:</p>
+<figure class="code" data-lang="bash"><figcaption class="code__head"><span class="code__lang">bash</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-bash"><span class="tok tok--f">npm</span> publish</code></pre></figure>
+<p><code>prepublishOnly</code> runs the build, the type check and the tests first, and <code>publishConfig</code> makes the
+package <code>@rsaglobaltech/forja</code> public. There is no release pipeline. The repository contains a
+<code>.github/workflows/ci.yml</code>, but it is not used: GitHub Actions stay off, and every check above runs
+locally.</p>
+<p>Record each change in <code>CHANGELOG.md</code>, and tick the matching box in <code>ROADMAP.md</code>, in the same pull
+request.</p>
+
+    </article>
+    <nav class="pager" aria-label="Neighbouring pages"><a class="pager__prev" href="architecture.html"><span>Previous</span>Architecture</a><span></span></nav>
+    <footer class="page-foot">
+      <a href="https://github.com/rsaglobaltech/forja/edit/develop/site/docs/contributing.md" target="_blank" rel="noreferrer">Edit this page</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/rsaglobaltech/forja/issues/new" target="_blank" rel="noreferrer">Something wrong? Open an issue</a>
+    </footer>
+  </main>
+  <div class="rail"><nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc__l2"><a href="#set-up">Set up</a></li><li class="toc__l2"><a href="#day-to-day">Day to day</a></li><li class="toc__l2"><a href="#proving-a-generated-project-works">Proving a generated project works</a></li><li class="toc__l2"><a href="#how-a-recipe-works">How a recipe works</a></li><li class="toc__l2"><a href="#adding-a-recipe">Adding a recipe</a></li><li class="toc__l2"><a href="#releases">Releases</a></li></ul></nav></div>
+</div>
+
+<div class="palette" id="palette" hidden>
+  <div class="palette__scrim" data-close="1"></div>
+  <div class="palette__box" role="dialog" aria-modal="true" aria-label="Search documentation">
+    <div class="palette__field">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="palette-input" placeholder="Search the documentation…" autocomplete="off" spellcheck="false" aria-label="Search documentation" aria-controls="results" aria-expanded="true">
+      <kbd class="palette__esc">Esc</kbd>
+    </div>
+    <div class="palette__results" id="results" role="listbox" aria-label="Results"></div>
+    <p class="palette__hint"><kbd>↑</kbd><kbd>↓</kbd> to navigate · <kbd>↵</kbd> to open · <kbd>Esc</kbd> to close</p>
+  </div>
+</div>
+
+<script src="assets/docs.js" defer></script>
+</body>
+</html>

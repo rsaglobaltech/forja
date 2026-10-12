@@ -1,9 +1,9 @@
 # <%= config.name %>
 
-Generado con [forja](https://forja.dev). Arquitectura: **<%= config.arch %>**.
-Plataformas: <%= config.platforms.join(", ") %>.
+Generated with [forja](https://rsaglobaltech.github.io/forja/). Architecture: **<%= config.arch %>**.
+Platforms: <%= config.platforms.join(", ") %>.
 
-## Primeros 5 minutos
+## First 5 minutes
 
 ```bash
 <%= config.pm %> install
@@ -15,7 +15,7 @@ docker compose up -d
 ```
 
 <% if (config.platforms.includes("web")) { -%>
-Web en http://localhost:3000/login.
+Web at http://localhost:3000/login.
 <% } -%>
 
 ## Tests
@@ -24,18 +24,18 @@ Web en http://localhost:3000/login.
 <%= config.pm %> test              # unit + integration
 ```
 
-## Estructura
+## Structure
 
 - `apps/web` — Next.js (App Router).
-- `packages/core` — dominio, casos de uso, puertos y adaptadores (<%= config.arch %>).
-- `packages/shared` — tipos y validaciones isomorfas entre apps.
+- `packages/core` — domain, use cases, ports and adapters (<%= config.arch %>).
+- `packages/shared` — isomorphic types and validation shared across apps.
 
-Ver `docs/architecture.md` para el detalle de capas y dónde se valida la sesión de verdad.
+See `docs/architecture.md` for the layers in detail and where the session is really validated.
 
-## Comandos de forja
+## forja commands
 
 ```bash
-forja add usecase <contexto>/<Nombre>
-forja add port <Nombre> --adapters drizzle,in-memory
+forja add usecase <context>/<Name>
+forja add port <Name>                # the port and an in-memory adapter (--no-adapter: the port only)
 forja doctor
 ```

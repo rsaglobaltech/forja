@@ -3,7 +3,7 @@ package <%= pkg %>.tasks.domain;
 import <%= pkg %>.shared.domain.DomainException;
 import java.time.Instant;
 
-/** Agregado de ejemplo: una tarea de un usuario. Java puro: sin framework. */
+/** Example aggregate: a user's task. Pure Java: no framework. */
 public record Task(TaskId id, String owner, TaskTitle title, boolean done, Instant createdAt, Instant doneAt) {
 
   public static Task create(String owner, TaskTitle title, Instant now) {
@@ -13,7 +13,7 @@ public record Task(TaskId id, String owner, TaskTitle title, boolean done, Insta
   public boolean ownedBy(String user) { return owner.equals(user); }
 
   public Task complete(Instant now) {
-    if (done) throw new DomainException("task_already_done", DomainException.Kind.CONFLICT, "La tarea ya está hecha.");
+    if (done) throw new DomainException("task_already_done", DomainException.Kind.CONFLICT, "The task is already done.");
     return new Task(id, owner, title, true, createdAt, now);
   }
 }

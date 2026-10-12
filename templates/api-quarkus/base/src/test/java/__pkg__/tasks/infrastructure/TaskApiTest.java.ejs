@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.not;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
-/** La API de punta a punta: HTTP → caso de uso → adaptador<%= config.db === "postgres-docker" ? " JDBC (PostgreSQL real, Dev Services)" : "" %>. */
+/** The API end to end: HTTP → use case → adapter<%= config.db === "postgres-docker" ? " JDBC (real PostgreSQL, Dev Services)" : "" %>. */
 @QuarkusTest
 class TaskApiTest {
   private String create(String title) {
@@ -32,7 +32,7 @@ class TaskApiTest {
   @TestSecurity(user = "ana")
 <% } -%>
   void createListAndComplete() {
-    String id = create("Preparar la demo");
+    String id = create("Prepare the demo");
     given().get("/api/tasks").then().statusCode(200).body("id", hasItem(id));
     given().post("/api/tasks/" + id + "/completion").then().statusCode(200).body("done", equalTo(true));
     given().post("/api/tasks/" + id + "/completion").then().statusCode(409).body("code", equalTo("task_already_done"));
@@ -47,7 +47,7 @@ class TaskApiTest {
         .then().statusCode(422).contentType("application/problem+json").body("code", equalTo("invalid_title"));
     given().contentType(ContentType.JSON).body("{\"title\":").post("/api/tasks")
         .then().statusCode(400).body("code", equalTo("invalid_request"));
-    given().post("/api/tasks/no-es-un-id/completion").then().statusCode(404).body("code", equalTo("task_not_found"));
+    given().post("/api/tasks/not-an-id/completion").then().statusCode(404).body("code", equalTo("task_not_found"));
   }
 <% if (config.auth === "oauth2") { -%>
 
@@ -56,10 +56,10 @@ class TaskApiTest {
   @Test
   @TestSecurity(user = "luis")
   void someoneElsesTaskDoesNotExistForMe() {
-    Task ajena = Task.create("ana-" + UUID.randomUUID(), new TaskTitle("Privada"), Instant.now());
-    tasks.save(ajena);
-    given().post("/api/tasks/" + ajena.id() + "/completion").then().statusCode(404).body("code", equalTo("task_not_found"));
-    given().get("/api/tasks").then().body("id", not(hasItem(ajena.id().toString())));
+    Task theirs = Task.create("ana-" + UUID.randomUUID(), new TaskTitle("Private"), Instant.now());
+    tasks.save(theirs);
+    given().post("/api/tasks/" + theirs.id() + "/completion").then().statusCode(404).body("code", equalTo("task_not_found"));
+    given().get("/api/tasks").then().body("id", not(hasItem(theirs.id().toString())));
   }
 
   @Test

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const userId = await resolveUserId(request);
   if (!userId) {
     return NextResponse.json(
-      { error: "unauthorized", message: "No autenticado" },
+      { error: "unauthorized", message: "Not authenticated" },
       { status: 401, headers: corsHeaders() },
     );
   }
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   const user = await container.userRepository.findById(userId);
   if (!user) {
     return NextResponse.json(
-      { error: "unauthorized", message: "No autenticado" },
+      { error: "unauthorized", message: "Not authenticated" },
       { status: 401, headers: corsHeaders() },
     );
   }

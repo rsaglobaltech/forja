@@ -1,4 +1,4 @@
-/** Lo que devuelve la API Java (TaskResponse). Mantener en sincronía con apps/api o generarlo del OpenAPI. */
+/** What the Java API returns (TaskResponse). Keep in sync with apps/api, or generate it from the OpenAPI spec. */
 export interface Task {
   id: string;
   title: string;

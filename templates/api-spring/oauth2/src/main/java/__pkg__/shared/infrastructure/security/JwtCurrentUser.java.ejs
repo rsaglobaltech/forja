@@ -6,13 +6,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
-/** El usuario actual es el {@code sub} del JWT: estable aunque cambie su nombre o su email. */
+/** The current user is the JWT {@code sub}: stable even if their name or email changes. */
 @Component
 class JwtCurrentUser implements CurrentUser {
   @Override
   public String id() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth != null && auth.getPrincipal() instanceof Jwt jwt) return jwt.getSubject();
-    throw new IllegalStateException("Sin usuario autenticado: la ruta debería exigir token");
+    throw new IllegalStateException("No authenticated user: the route should require a token");
   }
 }

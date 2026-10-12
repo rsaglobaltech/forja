@@ -1,4 +1,4 @@
-# Imagen de producción de la API (Spring Boot). Desde la raíz: docker build -t api apps/api
+# Production image for the API (Spring Boot). From the root: docker build -t api apps/api
 FROM eclipse-temurin:21-jdk AS build
 WORKDIR /src
 COPY .mvn .mvn

@@ -4,8 +4,8 @@ import { getToken } from "next-auth/jwt";
 import { refreshTokens } from "@/auth";
 
 /**
- * El access token del usuario, leído del lado del servidor de la cookie de sesión cifrada. Si está a punto
- * de caducar se renueva para esta petición (el proxy lo persiste en la siguiente navegación).
+ * The user's access token, read server-side from the encrypted session cookie. If it is about to expire,
+ * it is renewed for this request (the proxy persists it on the next navigation).
  */
 export async function accessToken(): Promise<string | undefined> {
   const secureCookie = (process.env.AUTH_URL ?? "").startsWith("https://");

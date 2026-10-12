@@ -14,7 +14,7 @@ export interface EngineState {
   executables: Set<string>;
 }
 
-/** flags que `ctx.has()` puede resolver contra arrays del config. */
+/** Flags that `ctx.has()` can resolve against the config's arrays. */
 function inConfigArrays(config: ForjaConfig, flag: string): boolean {
   return (
     (config.platforms as string[]).includes(flag) ||
@@ -36,7 +36,7 @@ export class RecipeContext {
     return inConfigArrays(this.config, flag);
   }
 
-  /** Escribe un archivo tal cual, resolviendo path relativo a la raíz del proyecto generado. */
+  /** Writes a file as-is; the path is relative to the root of the generated project. */
   write(destPath: string, content: string): void {
     vfsWrite(this.state.vol, destPath, content);
   }
@@ -46,9 +46,9 @@ export class RecipeContext {
   }
 
   /**
-   * Copia recursiva desde `templates/<srcDir>` hacia `<destDir>` dentro del
-   * proyecto generado. Archivos `*.ejs` se renderizan con `{ config, ...data }`
-   * y pierden el sufijo `.ejs`; el resto se copia literal.
+   * Recursively copies `templates/<srcDir>` into `<destDir>` in the generated
+   * project. `*.ejs` files are rendered with `{ config, ...data }` and lose the
+   * `.ejs` suffix; everything else is copied verbatim.
    */
   copyDir(
     srcDir: string,
@@ -58,7 +58,7 @@ export class RecipeContext {
   ): void {
     const absoluteSrc = path.join(this.state.templatesRoot, srcDir);
     if (!fs.existsSync(absoluteSrc)) {
-      throw new Error(`Template no encontrado: ${absoluteSrc}`);
+      throw new Error(`Template not found: ${absoluteSrc}`);
     }
     this.copyDirRecursive(absoluteSrc, absoluteSrc, destDir, data, mapPath);
   }
@@ -88,7 +88,7 @@ export class RecipeContext {
     }
   }
 
-  /** Copia un único archivo, permitiendo renombrarlo (útil para dotfiles como `gitignore` → `.gitignore`). */
+  /** Copies a single file, optionally renaming it (handy for dotfiles such as `gitignore` → `.gitignore`). */
   copyFile(srcRelPath: string, destPath: string, data: Record<string, unknown> = {}): void {
     const abs = path.join(this.state.templatesRoot, srcRelPath);
     const raw = fs.readFileSync(abs, "utf-8");
@@ -105,12 +105,12 @@ export class RecipeContext {
     this.write(pkgPath, JSON.stringify(merged, null, 2) + "\n");
   }
 
-  /** Marca un archivo como ejecutable al escribirlo a disco (p. ej. `mvnw`). */
+  /** Marks a file as executable when it is written to disk (e.g. `mvnw`). */
   markExecutable(destPath: string): void {
     this.state.executables.add(destPath.replace(/^\/+/, ""));
   }
 
-  addEnv(key: string, def: string, comment?: string, section = "otros"): void {
+  addEnv(key: string, def: string, comment?: string, section = "other"): void {
     this.state.envVars.push({ key, default: def, comment, section });
   }
 }

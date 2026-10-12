@@ -3,7 +3,7 @@ import { container } from "<%= config.scope %>/core";
 
 const COOKIE_NAME = "session";
 
-/** Bearer (móvil) ∨ cookie (web) → token crudo. */
+/** Bearer (mobile) ∨ cookie (web) → raw token. */
 export function extractToken(request: NextRequest): string | null {
   const authHeader = request.headers.get("authorization");
   if (authHeader?.startsWith("Bearer ")) return authHeader.slice(7);

@@ -15,10 +15,10 @@ export default function ForgotPasswordPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-app px-4">
       <div className="w-full max-w-sm rounded-md bg-surface p-6 shadow-sm">
-        <h1 className="mb-6 text-xl font-semibold text-text">Recuperar contraseña</h1>
+        <h1 className="mb-6 text-xl font-semibold text-text">Reset password</h1>
         {submitted ? (
           <p className="text-sm text-text">
-            Si ese email existe, te mandamos un link para elegir una contraseña nueva.
+            If that email exists, we've sent you a link to choose a new password.
           </p>
         ) : (
           <form action={formAction} className="space-y-4">
@@ -34,13 +34,13 @@ export default function ForgotPasswordPage() {
               disabled={pending}
               className="w-full rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600 disabled:opacity-50"
             >
-              {pending ? "Enviando…" : "Enviar link"}
+              {pending ? "Sending…" : "Send link"}
             </button>
           </form>
         )}
         <p className="mt-4 text-center text-sm text-gray-600">
           <Link href="/login" className="text-brand-600 hover:underline">
-            Volver a iniciar sesión
+            Back to sign in
           </Link>
         </p>
       </div>

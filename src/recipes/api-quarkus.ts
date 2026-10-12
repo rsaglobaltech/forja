@@ -1,7 +1,7 @@
 import { defineRecipe } from "./types.js";
 import { copyJava, copyMavenWrapper, javaData } from "./java.js";
 
-/** API Java con Quarkus en apps/api: hexagonal, con el módulo de ejemplo `tasks`. */
+/** Java API with Quarkus in apps/api: hexagonal, with the sample `tasks` module. */
 export default defineRecipe({
   id: "api-quarkus",
   apply(ctx) {

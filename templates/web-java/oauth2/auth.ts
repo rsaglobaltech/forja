@@ -3,8 +3,8 @@ import type { JWT } from "next-auth/jwt";
 import Keycloak from "next-auth/providers/keycloak";
 
 /**
- * Login con Keycloak (OIDC, Authorization Code + PKCE). Los tokens van en la cookie de sesión cifrada
- * (estrategia "jwt"); la sesión pública (/api/auth/session) solo lleva nombre y email, nunca el access token.
+ * Sign-in with Keycloak (OIDC, Authorization Code + PKCE). The tokens live in the encrypted session cookie
+ * ("jwt" strategy); the public session (/api/auth/session) carries only name and email, never the access token.
  * Variables: AUTH_SECRET, AUTH_KEYCLOAK_ID, AUTH_KEYCLOAK_SECRET, AUTH_KEYCLOAK_ISSUER.
  */
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -35,7 +35,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 });
 
-/** Renueva el access token con el refresh token (Keycloak). Exportada para el cliente de la API. */
+/** Renews the access token with the refresh token (Keycloak). Exported for the API client. */
 export async function refreshTokens(token: JWT): Promise<JWT> {
   if (!token.refreshToken) return { ...token, error: "RefreshTokenError" };
   const res = await fetch(`${process.env.AUTH_KEYCLOAK_ISSUER}/protocol/openid-connect/token`, {

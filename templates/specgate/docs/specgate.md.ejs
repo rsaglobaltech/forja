@@ -1,35 +1,49 @@
-# Desarrollo guiado por especificaciones (Specgate)
+# Spec-driven development with Specgate
 
-Este proyecto se generó preparado para [Specgate](https://www.npmjs.com/package/@rsaglobaltech/specgate):
-requisitos con escenarios, tests que los nombran y un gate que no deja cerrar nada en rojo.
+This project was generated ready for
+[Specgate](https://rsaglobaltech.github.io/specgate/): requirements with
+scenarios, tests that name them, and a gate that will not call anything done
+while it is red.
 
-## Una vez
+Lost at any point? Run `npx specgate` on its own: it shows where the
+specification stands, and the one command to run next.
+
+## Once
+
+forja ran these for you when it installed the dependencies. If it could not:
 
 ```bash
-npx @rsaglobaltech/specgate init --no-capabilities    # si forja no lo hizo al generar
-npx @rsaglobaltech/specgate config set test_cmd "npm test"
-npx @rsaglobaltech/specgate done REQ-001              # la línea base
+npx specgate adopt --no-capabilities
+npx specgate config set test_cmd "npm test"
 ```
 
-El CI (`.github/workflows/ci.yml`) ya incluye el job de la especificación.
+## Each module of the product
 
-## Por cada módulo
+1. **Write the brief.** Paste the client's brief into `docs/brief.md` as it
+   is, and fill in the four fields at its top (product, surfaces, actors,
+   modules). `npx specgate draft` explains each field, and
+   `npx specgate draft --agent "claude -p"` lets your agent propose them.
+2. **Draft the module.** `npx specgate draft <module> --agent "claude -p"` —
+   your agent writes the requirements and scenarios, and Specgate checks them
+   against the brief: a value the brief never gave, a missing scenario, a
+   question nobody asked. Without an agent, `npx specgate draft <module>`
+   prints the line to paste into one.
+3. **Repeat `npx specgate draft <module>`** until it says *Ready to review*.
+   It ends with **What now**: numbered steps, and where every module stands.
+4. **Review it** with whoever knows the business; the questions go to the
+   client.
+5. **Archive it**: `npx specgate change archive draft-<module>`. The
+   requirements join the specification.
+6. **Build each requirement, test first.** A test that names `REQ-007` is the
+   link<% if (java) { %> — in Java, put it in the test's `@DisplayName`<% } %>.
+   `forja add usecase <module>/<Name> --req REQ-007` writes the use case and
+   that test for you (without `--req`, it creates a new requirement).
+   Then `npx specgate done REQ-007`: it refuses while the suite is red.
+7. **Before every pull request:** `npx specgate check`. With the `ci` extra,
+   the generated CI validates the specification on every push.
 
-1. Pega la ficha en `docs/brief.md` y completa la cabecera (actores, superficies, módulos).
-2. `npx @rsaglobaltech/specgate change new draft-<módulo> --capability <módulo> --reserve 10`
-   y añade `brief: docs/brief.md` a su `change.yaml`.
-3. Redacta el borrador (requisitos, escenarios con valores concretos, `assumptions.md`, `questions.md`).
-4. `npx @rsaglobaltech/specgate draft --check draft-<módulo>` hasta que salga en verde.
-5. **Revisión humana** del borrador; las preguntas, al cliente.
-6. `npx @rsaglobaltech/specgate change archive draft-<módulo>`
-7. Por requisito: el test primero, nombrando `REQ-xxx SCN-xxx` (en Java, en el `@DisplayName`), y
-   `npx @rsaglobaltech/specgate done REQ-xxx`: se niega mientras la suite esté en rojo.
-8. Antes de cada PR: `npx @rsaglobaltech/specgate check`.
-9. Prueba la aplicación arrancada: lo que encuentre es un cambio nuevo (vuelta al paso 2).
+## Where it meets the architecture
 
-`npx @rsaglobaltech/specgate status` dice en cualquier momento qué le falta a cada requisito.
-
-## Dónde encaja con la arquitectura
-
-Cada módulo de la especificación es un módulo hexagonal en `apps/api/.../<módulo>/`: los escenarios se
-prueban en sus tests de casos de uso y de API.
+Each module of the specification is a hexagonal module of the code<% if (java) { %>
+(`apps/api/.../<module>/`)<% } else { %> (`packages/core/src/application/<module>/`)<% } %>:
+its scenarios are proven by the tests of its use cases and its API.

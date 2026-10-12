@@ -21,7 +21,7 @@ export default function LoginScreen() {
       const result = await api.login({ email, password });
       await signIn(result.token);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error de red");
+      setError(e instanceof Error ? e.message : "Network error");
     } finally {
       setLoading(false);
     }
@@ -30,7 +30,7 @@ export default function LoginScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-app px-4">
       <View className="w-full max-w-sm rounded-md bg-surface p-6">
-        <Text className="mb-6 text-xl font-semibold text-text">Iniciar sesión</Text>
+        <Text className="mb-6 text-xl font-semibold text-text">Sign in</Text>
 
         <Text className={labelClass}>Email</Text>
         <TextInput
@@ -42,7 +42,7 @@ export default function LoginScreen() {
           className={inputClass}
         />
 
-        <Text className={labelClass}>Contraseña</Text>
+        <Text className={labelClass}>Password</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
@@ -61,17 +61,17 @@ export default function LoginScreen() {
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text className="text-sm font-medium text-white">Entrar</Text>
+            <Text className="text-sm font-medium text-white">Sign in</Text>
           )}
         </Pressable>
 
         <View className="mt-4 flex-row justify-center gap-1">
           <Link href="/register" className="text-sm text-brand-600">
-            Crear cuenta
+            Create account
           </Link>
           <Text className="text-sm text-gray-600">·</Text>
           <Link href="/forgot-password" className="text-sm text-brand-600">
-            Olvidé mi contraseña
+            Forgot your password?
           </Link>
         </View>
       </View>

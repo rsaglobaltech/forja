@@ -2,7 +2,7 @@ package <%= pkg %>.tasks.domain;
 
 import <%= pkg %>.shared.domain.DomainException;
 
-/** Value object: un título de 1 a 120 caracteres, sin espacios sobrantes. */
+/** Value object: a title of 1 to 120 characters, with no surrounding whitespace. */
 public record TaskTitle(String value) {
   public static final int MAX = 120;
 
@@ -10,7 +10,7 @@ public record TaskTitle(String value) {
     value = value == null ? "" : value.strip();
     if (value.isEmpty() || value.length() > MAX) {
       throw new DomainException("invalid_title", DomainException.Kind.INVALID,
-          "El título debe tener entre 1 y " + MAX + " caracteres.");
+          "The title must be between 1 and " + MAX + " characters.");
     }
   }
 }

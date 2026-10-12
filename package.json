@@ -1,22 +1,52 @@
 {
-  "name": "forja",
+  "name": "@rsaglobaltech/forja",
   "version": "0.2.0",
-  "description": "CLI de scaffolding hexagonal: monorepos web + móvil en TypeScript o API Java (Spring Boot / Quarkus) con web, OAuth2 y Specgate",
+  "description": "Scaffold hexagonal projects: web + mobile monorepos in TypeScript, or a Java API (Spring Boot / Quarkus) with a web app, OAuth2, ArchUnit and Specgate.",
+  "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rsaglobaltech/forja.git"
+  },
+  "homepage": "https://rsaglobaltech.github.io/forja/",
+  "bugs": {
+    "url": "https://github.com/rsaglobaltech/forja/issues"
+  },
+  "keywords": [
+    "scaffolding",
+    "cli",
+    "hexagonal",
+    "ddd",
+    "monorepo",
+    "nextjs",
+    "expo",
+    "spring-boot",
+    "quarkus",
+    "oauth2",
+    "specgate"
+  ],
   "bin": {
     "forja": "./dist/cli.js"
   },
   "files": [
     "dist",
-    "templates"
+    "templates",
+    "README.md",
+    "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx src/cli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src"
+    "lint": "eslint src tests",
+    "prepublishOnly": "npm run build && npm run typecheck && npm test",
+    "site": "tsx scripts/site/build.ts --out _site",
+    "site:publish": "tsx scripts/site/build.ts --out docs"
   },
   "engines": {
     "node": ">=22"
@@ -32,10 +62,14 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/ejs": "^3.1.5",
     "@types/node": "^22.10.5",
+    "eslint": "^9.39.5",
+    "marked": "^18.0.10",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.71.1",
     "vitest": "^3.0.4"
   }
 }

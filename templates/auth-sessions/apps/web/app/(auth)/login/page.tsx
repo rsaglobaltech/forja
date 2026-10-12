@@ -14,7 +14,7 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-app px-4">
       <div className="w-full max-w-sm rounded-md bg-surface p-6 shadow-sm">
-        <h1 className="mb-6 text-xl font-semibold text-text">Iniciar sesión</h1>
+        <h1 className="mb-6 text-xl font-semibold text-text">Sign in</h1>
         <form action={formAction} className="space-y-4">
           <div>
             <label htmlFor="email" className={label}>
@@ -24,7 +24,7 @@ export default function LoginPage() {
           </div>
           <div>
             <label htmlFor="password" className={label}>
-              Contraseña
+              Password
             </label>
             <input
               id="password"
@@ -41,16 +41,16 @@ export default function LoginPage() {
             disabled={pending}
             className="w-full rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600 disabled:opacity-50"
           >
-            {pending ? "Entrando…" : "Entrar"}
+            {pending ? "Signing in…" : "Sign in"}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
           <Link href="/register" className="text-brand-600 hover:underline">
-            Crear cuenta
+            Create account
           </Link>{" "}
           ·{" "}
           <Link href="/forgot-password" className="text-brand-600 hover:underline">
-            Olvidé mi contraseña
+            Forgot your password?
           </Link>
         </p>
       </div>

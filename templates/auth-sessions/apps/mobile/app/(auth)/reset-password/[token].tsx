@@ -3,7 +3,7 @@ import { View, Text, TextInput, Pressable, ActivityIndicator } from "react-nativ
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { api } from "../../../lib/api.js";
 
-/** Se abre por deep link: <scheme>://reset-password/<token> (mail de recuperación). */
+/** Opened via deep link: <scheme>://reset-password/<token> (from the password reset email). */
 export default function ResetPasswordScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function ResetPasswordScreen() {
       await api.resetPassword({ token, newPassword });
       router.replace("/login");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error de red");
+      setError(e instanceof Error ? e.message : "Network error");
     } finally {
       setLoading(false);
     }
@@ -27,9 +27,9 @@ export default function ResetPasswordScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-app px-4">
       <View className="w-full max-w-sm rounded-md bg-surface p-6">
-        <Text className="mb-6 text-xl font-semibold text-text">Elegí una contraseña nueva</Text>
+        <Text className="mb-6 text-xl font-semibold text-text">Choose a new password</Text>
 
-        <Text className="mb-1 text-sm font-medium text-text">Contraseña nueva</Text>
+        <Text className="mb-1 text-sm font-medium text-text">New password</Text>
         <TextInput
           value={newPassword}
           onChangeText={setNewPassword}
@@ -48,7 +48,7 @@ export default function ResetPasswordScreen() {
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text className="text-sm font-medium text-white">Guardar contraseña</Text>
+            <Text className="text-sm font-medium text-white">Save password</Text>
           )}
         </Pressable>
       </View>

@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
-  // Imagen de Docker mínima (apps/web/Dockerfile).
+  // Minimal Docker image (apps/web/Dockerfile).
   output: "standalone",
   transpilePackages: ["<%= config.scope %>/shared"],
 };

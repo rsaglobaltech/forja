@@ -25,8 +25,8 @@ for (const backend of ["spring", "quarkus"] as const) {
   }
 }
 
-describe("renderizado Java", () => {
-  it.each(combos)("%s: sin restos de plantilla y con el paquete en su sitio", async (_, backend, over) => {
+describe("Java rendering", () => {
+  it.each(combos)("%s: no template leftovers and the package in place", async (_, backend, over) => {
     const { tree, files, executables } = await render(over, backend);
     for (const [path, content] of Object.entries(files)) {
       expect(path, path).not.toContain("__pkg__");
@@ -41,7 +41,7 @@ describe("renderizado Java", () => {
     expect(tree.includes("infra/keycloak/acme-app-realm.json")).toBe(over.auth === "oauth2");
   });
 
-  it("el dominio y la aplicación no importan nada del framework", async () => {
+  it("domain and application import nothing from the framework", async () => {
     for (const backend of ["spring", "quarkus"] as const) {
       const { files } = await render({}, backend);
       for (const [path, content] of Object.entries(files)) {
@@ -51,7 +51,7 @@ describe("renderizado Java", () => {
     }
   });
 
-  it("pom de Spring: dependencias según las opciones", async () => {
+  it("Spring pom: dependencies follow the options", async () => {
     const full = (await render({})).read("apps/api/pom.xml");
     expect(full).toContain("spring-boot-starter-security-oauth2-resource-server");
     expect(full).toContain("testcontainers-postgresql");
@@ -60,7 +60,7 @@ describe("renderizado Java", () => {
     expect(min).not.toMatch(/oauth2|testcontainers|archunit|flyway/);
   });
 
-  it("pom de Quarkus: dependencias según las opciones", async () => {
+  it("Quarkus pom: dependencies follow the options", async () => {
     const full = (await render({}, "quarkus")).read("apps/api/pom.xml");
     expect(full).toContain("<packaging>quarkus</packaging>");
     expect(full).toMatch(/quarkus-oidc[\s\S]*quarkus-flyway|quarkus-flyway[\s\S]*quarkus-oidc/);
@@ -69,14 +69,14 @@ describe("renderizado Java", () => {
     expect(min).not.toMatch(/oidc|flyway|archunit/);
   });
 
-  it("el realm de Keycloak es JSON válido y el cliente web apunta a la web", async () => {
+  it("the Keycloak realm is valid JSON and the web client points at the web app", async () => {
     const realm = JSON.parse((await render({})).read("infra/keycloak/acme-app-realm.json"));
     expect(realm.realm).toBe("acme-app");
     const web = realm.clients.find((c: { clientId: string }) => c.clientId === "web");
     expect(web.redirectUris).toContain("http://localhost:3000/*");
   });
 
-  it("la web con OAuth2 lleva Auth.js y nunca pone el access token en la sesión", async () => {
+  it("the OAuth2 web app uses Auth.js and never puts the access token in the session", async () => {
     const { read } = await render({});
     expect(read("apps/web/package.json")).toContain("next-auth");
     const auth = read("apps/web/auth.ts");
@@ -86,14 +86,14 @@ describe("renderizado Java", () => {
     expect(read("apps/web/.env.example")).toMatch(/AUTH_SECRET=\n/);
   });
 
-  it("Specgate: ficha, guía, scripts y job de CI", async () => {
-    const { read } = await render({});
+  it("Specgate: brief, guide, scripts and CI job", async () => {
+    const { read } = await render({ extras: ["lint", "ci", "docker", "specgate"] });
     expect(read("docs/brief.md")).toContain("surfaces: [api, web]");
     expect(JSON.parse(read("package.json")).devDependencies["@rsaglobaltech/specgate"]).toMatch(/^\^0\./);
     expect(read(".github/workflows/ci.yml")).toContain("specgate");
   });
 
-  it("forja.config.json refleja la configuración", async () => {
+  it("forja.config.json reflects the configuration", async () => {
     const cfg = JSON.parse((await render({}, "quarkus")).read("forja.config.json"));
     expect(cfg).toMatchObject({ backend: "quarkus", javaPackage: "com.acme.app", archunit: true, auth: "oauth2" });
   });

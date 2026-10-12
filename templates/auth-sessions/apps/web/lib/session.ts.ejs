@@ -9,8 +9,8 @@ export async function getSessionToken(): Promise<string | null> {
 }
 
 /**
- * Esta es la validación real de sesión — a diferencia de `middleware.ts`,
- * que solo mira si la cookie existe (ver docs/architecture.md).
+ * This is the real session validation — unlike `proxy.ts`, which
+ * only checks whether the cookie exists (see docs/architecture.md).
  */
 export async function getCurrentUserId(): Promise<string | null> {
   const token = await getSessionToken();

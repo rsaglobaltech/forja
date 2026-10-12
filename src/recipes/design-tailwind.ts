@@ -10,8 +10,8 @@ export default defineRecipe({
       ctx.copyFile("design-tailwind/apps/web/postcss.config.mjs", "apps/web/postcss.config.mjs");
       ctx.mergePackageJson("apps/web", {
         devDependencies: {
-          tailwindcss: "^4.0.0",
-          "@tailwindcss/postcss": "^4.0.0",
+          tailwindcss: "^4.3.3",
+          "@tailwindcss/postcss": "^4.3.3",
         },
       });
     }
@@ -20,17 +20,23 @@ export default defineRecipe({
       ctx.copyFile("design-tailwind/apps/mobile/tailwind.config.ts", "apps/mobile/tailwind.config.ts");
       ctx.copyFile("design-tailwind/apps/mobile/global.css", "apps/mobile/global.css");
       ctx.copyFile("design-tailwind/apps/mobile/nativewind-env.d.ts", "apps/mobile/nativewind-env.d.ts");
-      // Pisan los del recipe "mobile": NativeWind necesita su propio preset
-      // de babel y su propio wrapper de Metro (ver sección 5b.3 del spec).
+      ctx.copyFile("design-tailwind/apps/mobile/css.d.ts", "apps/mobile/css.d.ts");
+      // These override the "mobile" recipe's files: NativeWind needs its own
+      // babel preset and its own Metro wrapper (see spec section 5b.3).
       ctx.copyFile("design-tailwind/apps/mobile/babel.config.js", "apps/mobile/babel.config.js");
       ctx.copyFile("design-tailwind/apps/mobile/metro.config.js", "apps/mobile/metro.config.js");
       ctx.mergePackageJson("apps/mobile", {
         dependencies: {
-          nativewind: "^4.2.0",
+          nativewind: "^4.2.7",
+          // NativeWind 4 animates through Reanimated; Expo 57 ships Reanimated 4,
+          // which moved its worklets into their own package. Versions are the
+          // ones Expo 57 bundles (bundledNativeModules.json).
+          "react-native-reanimated": "4.5.1",
+          "react-native-worklets": "0.10.1",
         },
         devDependencies: {
-          // v3 a propósito: NativeWind 4 no soporta Tailwind v4 todavía.
-          // Es la única desalineación web/móvil aceptada (spec sección 5b.1).
+          // v3 on purpose: NativeWind 4 does not support Tailwind v4 yet.
+          // It is the only accepted web/mobile mismatch (spec section 5b.1).
           tailwindcss: "^3.4.17",
         },
       });

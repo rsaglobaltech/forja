@@ -1,4 +1,4 @@
-# Servicios de desarrollo de <%= config.name %>. `docker compose up -d`
+# Development services for <%= config.name %>. `docker compose up -d`
 services:
 <% if (config.db === "postgres-docker") { -%>
   db:
@@ -7,7 +7,7 @@ services:
       POSTGRES_DB: <%= dbName %>
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    # ¿Otro Postgres local en el 5432? `DB_PORT=5440 docker compose up -d` y la misma DB_PORT para la API.
+    # Another local Postgres on 5432? `DB_PORT=5440 docker compose up -d` and the same DB_PORT for the API.
     ports: ["${DB_PORT:-5432}:5432"]
     volumes: ["db-data:/var/lib/postgresql/data"]
     healthcheck:
@@ -18,7 +18,7 @@ services:
 <% if (config.auth === "oauth2") { -%>
   keycloak:
     image: quay.io/keycloak/keycloak:<%= versions.keycloak %>
-    # Solo desarrollo: base de datos interna, HTTP y el realm de infra/keycloak importado al arrancar.
+    # Development only: embedded database, HTTP, and the infra/keycloak realm imported on startup.
     command: ["start-dev", "--import-realm"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
@@ -27,6 +27,19 @@ services:
       KC_HEALTH_ENABLED: "true"
     ports: ["8180:8080"]
     volumes: ["./infra/keycloak:/opt/keycloak/data/import:ro"]
+    # Ready once the realm is imported (~15 s), so `docker compose up --wait` means it.
+    # The image has no curl: bash's /dev/tcp asks the management port.
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          exec 3<>/dev/tcp/127.0.0.1/9000 &&
+          printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+          grep -q '"UP"' <&3
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
 <% } -%>
 <% if (config.db === "postgres-docker") { -%>
 

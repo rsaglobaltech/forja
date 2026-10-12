@@ -12,7 +12,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          # Keycloak de docker-compose (infra/keycloak/realm.json). En producción, el emisor real.
+          # The docker-compose Keycloak (infra/keycloak/<%= config.name %>-realm.json). In production, the real issuer.
           issuer-uri: ${OIDC_ISSUER:http://localhost:8180/realms/<%= config.name %>}
 <% } -%>
 
@@ -21,7 +21,7 @@ server:
 
 app:
   cors:
-    # El frontend de desarrollo. Separar varios orígenes con comas.
+    # The development frontend. Separate multiple origins with commas.
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
 
 management:

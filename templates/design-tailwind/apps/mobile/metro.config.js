@@ -1,31 +1,22 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const { withNativeWind } = require("nativewind/metro");
-const path = require("node:path");
 
-const projectRoot = __dirname;
-const workspaceRoot = path.resolve(projectRoot, "../..");
+// Expo configures a monorepo by itself (since SDK 52): it watches the
+// workspace root and resolves from both node_modules folders.
+const config = getDefaultConfig(__dirname);
 
-const config = getDefaultConfig(projectRoot);
-
-config.watchFolders = [workspaceRoot];
-config.resolver.nodeModulesPaths = [
-  path.resolve(projectRoot, "node_modules"),
-  path.resolve(workspaceRoot, "node_modules"),
-];
-config.resolver.disableHierarchicalLookup = true;
-
-// packages/core y packages/shared importan entre módulos con extensión .js
-// (ESM en Node/tsx/vitest lo exige), pero los archivos son .ts. A diferencia
-// del resolver de webpack, el de Metro no reintenta con otra extensión
-// cuando el import ya trae una explícita — sin esto tira "Unable to resolve
-// module ... .js".
+// packages/core and packages/shared import each other's modules with a .js
+// extension (ESM in Node/tsx/vitest requires it), but the files are .ts. Unlike
+// webpack's resolver, Metro's does not retry with another extension when the
+// import already has an explicit one — without this it throws "Unable to
+// resolve module ... .js".
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (moduleName.startsWith(".") && moduleName.endsWith(".js")) {
     for (const ext of [".ts", ".tsx", ".js"]) {
       try {
         return context.resolveRequest(context, moduleName.slice(0, -3) + ext, platform);
       } catch {
-        // probá la siguiente extensión
+        // try the next extension
       }
     }
   }

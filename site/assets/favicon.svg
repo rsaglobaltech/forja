@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="forja">
+  <!--
+    The anvil, on the graphite Specgate's mark uses, in the same orange.
+    Literal colours: a favicon is loaded outside the page, so no custom
+    property reaches it.
+  -->
+  <rect width="64" height="64" rx="14" fill="#15161a"/>
+  <path d="M8 20h42v9h-7c-3 0-5 2-5 5v5h6v7H20v-7h6v-5c0-3-3-5-7-5-6 0-10-4-11-9Z" fill="#ff5b1f"/>
+</svg>

@@ -11,9 +11,9 @@ import type {
 } from "<%= config.scope %>/shared";
 
 /**
- * En Expo Go, `Constants.expoConfig.hostUri` es el host:puerto que sirve
- * Metro (misma red que el teléfono) — usarlo de default evita tener que
- * hardcodear la IP de la máquina a mano en cada dev distinto.
+ * In Expo Go, `Constants.expoConfig.hostUri` is the host:port Metro is
+ * served from (same network as the phone) — using it as the default saves
+ * every developer from hardcoding their machine's IP by hand.
  */
 function defaultApiUrl(): string {
   const extraUrl = Constants.expoConfig?.extra?.apiUrl as string | null | undefined;
@@ -38,7 +38,7 @@ async function request<T>(path: string, options: RequestInit & { token?: string 
 
   const body = await res.json().catch(() => null);
   if (!res.ok) {
-    throw new Error((body as ApiError | null)?.message ?? `Error de red (${res.status})`);
+    throw new Error((body as ApiError | null)?.message ?? `Network error (${res.status})`);
   }
   return body as T;
 }

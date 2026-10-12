@@ -11,11 +11,11 @@ export default defineRecipe({
 
     ctx.mergePackageJson("packages/core", {
       dependencies: {
-        "drizzle-orm": "^0.38.3",
-        postgres: "^3.4.5",
+        "drizzle-orm": "^0.45.4",
+        postgres: "^3.4.9",
       },
       devDependencies: {
-        "drizzle-kit": "^0.30.1",
+        "drizzle-kit": "^0.31.11",
       },
       scripts: {
         "db:push": "drizzle-kit push",
@@ -33,7 +33,7 @@ export default defineRecipe({
       "DATABASE_URL",
       `postgresql://postgres:postgres@localhost:5432/${dbName}`,
       undefined,
-      "base de datos (postgres-docker)",
+      "database (postgres-docker)",
     );
   },
 });

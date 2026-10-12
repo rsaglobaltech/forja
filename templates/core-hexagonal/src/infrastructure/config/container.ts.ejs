@@ -1,5 +1,9 @@
 <% if (config.auth === "sessions") { -%>
+<% if (config.db === "postgres-docker") { -%>
 import { env, hasDatabase } from "./env.js";
+<% } else { -%>
+import { env } from "./env.js";
+<% } -%>
 import { SystemClock } from "../clock/SystemClock.js";
 import { ConsoleLogger } from "../logging/ConsoleLogger.js";
 import { BcryptPasswordHasher } from "../security/BcryptPasswordHasher.js";
@@ -23,10 +27,10 @@ import { RequestPasswordResetUseCase } from "../../application/auth/RequestPassw
 import { ResetPasswordUseCase } from "../../application/auth/ResetPasswordUseCase.js";
 
 /**
- * Composition root. Cada adaptador se elige con un switch INDEPENDIENTE
- * (`hasDatabase()`), nunca un flag global tipo `isDemo`: así se puede
- * prender la base de datos sin tener el mailer configurado, o viceversa,
- * sin que un flag apague todo junto.
+ * Composition root. Each adapter is chosen by an INDEPENDENT switch
+ * (`hasDatabase()`), never a global `isDemo`-style flag: that way the
+ * database can be turned on without the mailer being configured, or vice
+ * versa, without one flag switching everything off at once.
  */
 function buildContainer() {
   const clock = new SystemClock();
@@ -45,7 +49,7 @@ function buildContainer() {
     ? new DrizzlePasswordResetTokenRepository()
     : new InMemoryPasswordResetTokenRepository();
   if (!hasDatabase()) {
-    logger.info("DATABASE_URL no está seteada: usando repositorios in-memory (no persisten al reiniciar)");
+    logger.info("DATABASE_URL is not set: using in-memory repositories (data is lost on restart)");
   }
 <% } else { -%>
   const userRepository = new InMemoryUserRepository();
@@ -87,12 +91,12 @@ function buildContainer() {
 export type Container = ReturnType<typeof buildContainer>;
 
 /**
- * Un bundler como el de Next.js puede compilar `packages/core` por separado
- * para el bundle de Server Actions y para el de páginas/route handlers —
- * cada uno con su propia copia del módulo. Sin este singleton en
- * `globalThis`, cada bundle termina con SU PROPIO Map in-memory y los
- * usuarios "desaparecen" según qué código los consultó. Mismo truco que usa
- * Prisma Client para sobrevivir a HMR en Next.js.
+ * A bundler like Next.js's may compile `packages/core` separately for the
+ * Server Actions bundle and for the pages/route handlers bundle — each with
+ * its own copy of the module. Without this singleton on `globalThis`, each
+ * bundle ends up with ITS OWN in-memory Map and users "disappear" depending
+ * on which code looked them up. Same trick Prisma Client uses to survive
+ * HMR in Next.js.
  */
 const globalForContainer = globalThis as unknown as { __forjaContainer?: Container };
 export const container = globalForContainer.__forjaContainer ?? buildContainer();
@@ -101,8 +105,8 @@ globalForContainer.__forjaContainer = container;
 import { SystemClock } from "../clock/SystemClock.js";
 import { ConsoleLogger } from "../logging/ConsoleLogger.js";
 
-// auth = "none": no hay casos de uso de sesión que componer todavía.
-// Agregá acá los tuyos con `forja add usecase <contexto>/<Nombre>`.
+// auth = "none": there are no session use cases to compose yet.
+// Add your own here with `forja add usecase <context>/<Name>`.
 function buildContainer() {
   return {
     clock: new SystemClock(),

@@ -14,7 +14,7 @@ export default function RegisterPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-app px-4">
       <div className="w-full max-w-sm rounded-md bg-surface p-6 shadow-sm">
-        <h1 className="mb-6 text-xl font-semibold text-text">Crear cuenta</h1>
+        <h1 className="mb-6 text-xl font-semibold text-text">Create account</h1>
         <form action={formAction} className="space-y-4">
           <div>
             <label htmlFor="email" className={label}>
@@ -24,7 +24,7 @@ export default function RegisterPage() {
           </div>
           <div>
             <label htmlFor="password" className={label}>
-              Contraseña
+              Password
             </label>
             <input
               id="password"
@@ -35,7 +35,7 @@ export default function RegisterPage() {
               minLength={8}
               className={input}
             />
-            <p className="mt-1 text-xs text-gray-500">Mínimo 8 caracteres.</p>
+            <p className="mt-1 text-xs text-gray-500">At least 8 characters.</p>
           </div>
           {state.error && <p className="text-sm text-red-600">{state.error}</p>}
           <button
@@ -43,13 +43,13 @@ export default function RegisterPage() {
             disabled={pending}
             className="w-full rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600 disabled:opacity-50"
           >
-            {pending ? "Creando…" : "Crear cuenta"}
+            {pending ? "Creating…" : "Create account"}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
-          ¿Ya tenés cuenta?{" "}
+          Already have an account?{" "}
           <Link href="/login" className="text-brand-600 hover:underline">
-            Iniciar sesión
+            Sign in
           </Link>
         </p>
       </div>

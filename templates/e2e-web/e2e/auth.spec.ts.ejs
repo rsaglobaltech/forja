@@ -1,0 +1,37 @@
+import { expect, test } from "@playwright/test";
+
+// The sign-in flow end to end: register, sign out, sign in again, and a wrong
+// password refused. Each run uses a new email, so it needs no clean database.
+const email = `e2e-${Date.now()}@example.com`;
+const password = "correct-horse-battery";
+
+test.describe.configure({ mode: "serial" });
+
+test("register, sign out, sign in", async ({ page }) => {
+  await page.goto("/register");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page.getByRole("heading", { name: `Hello, ${email}` })).toBeVisible();
+
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/login$/);
+
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByRole("heading", { name: `Hello, ${email}` })).toBeVisible();
+});
+
+test("a wrong password is refused", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill("not-the-password");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByText("Invalid email or password")).toBeVisible();
+});
+
+test("a private page sends you to sign in", async ({ page }) => {
+  await page.goto("/dashboard");
+  await expect(page).toHaveURL(/\/login/);
+});

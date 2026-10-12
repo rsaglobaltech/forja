@@ -1,56 +1,57 @@
-# Arquitectura
+# Architecture
 
-Hexagonal (puertos y adaptadores) por módulo. La regla es una sola: **las dependencias apuntan hacia el
-dominio**.
+Hexagonal (ports and adapters) per module. There is a single rule: **dependencies point towards the
+domain**.
 
 ```
 infrastructure  ──►  application  ──►  domain
- (Spring/Quarkus,     (casos de uso,     (entidades, value objects,
-  REST, JDBC,          puertos)           reglas: Java puro)
-  seguridad)
+ (Spring/Quarkus,     (use cases,        (entities, value objects,
+  REST, JDBC,          ports)             rules: pure Java)
+  security)
 ```
 
-| Capa | Paquete | Puede usar | No puede usar |
+| Layer | Package | May use | May not use |
 | --- | --- | --- | --- |
-| Dominio | `<%= pkg %>.<módulo>.domain` | Java estándar, `shared.domain` | framework, aplicación, infraestructura |
-| Aplicación | `<%= pkg %>.<módulo>.application` | dominio, sus puertos (`application.port`) | framework, infraestructura |
-| Infraestructura | `<%= pkg %>.<módulo>.infrastructure` | todo lo anterior y el framework | la infraestructura de otro módulo |
+| Domain | `<%= pkg %>.<module>.domain` | standard Java, `shared.domain` | framework, application, infrastructure |
+| Application | `<%= pkg %>.<module>.application` | domain, its ports (`application.port`) | framework, infrastructure |
+| Infrastructure | `<%= pkg %>.<module>.infrastructure` | all of the above and the framework | another module's infrastructure |
 
-Los casos de uso no llevan anotaciones del framework: se instancian en
-`infrastructure/config`. Así se prueban con dobles en memoria, sin levantar nada.
+Use cases carry no framework annotations: they are instantiated in
+`infrastructure/config`. That way they are tested with in-memory doubles, without starting anything.
 <% if (config.archunit) { -%>
 
-`ArchitectureTest` (ArchUnit) comprueba estas reglas en cada build: dominio sin framework, aplicación sin
-infraestructura, puertos como interfaces, módulos sin dependencias entre sus infraestructuras y sin ciclos.
+`ArchitectureTest` (ArchUnit) checks these rules on every build: a framework-free domain, an application
+without infrastructure, ports as interfaces, and modules with no dependencies between their infrastructures
+and no cycles.
 <% } -%>
 
-## Añadir un módulo
+## Adding a module
 
-1. `domain/`: el agregado y sus value objects, con sus tests unitarios.
-2. `application/port/`: las interfaces que necesita (repositorio, servicios externos).
-3. `application/`: un caso de uso por clase; tests con dobles en memoria.
-4. `infrastructure/`: el adaptador REST, el de persistencia<% if (config.db === "postgres-docker") { %> (y su migración en
-   `src/main/resources/db/migration`)<% } %> y la configuración que los cablea.
-5. Un test de API de punta a punta.
+1. `domain/`: the aggregate and its value objects, with their unit tests.
+2. `application/port/`: the interfaces it needs (repository, external services).
+3. `application/`: one use case per class; tests with in-memory doubles.
+4. `infrastructure/`: the REST adapter, the persistence adapter<% if (config.db === "postgres-docker") { %> (and its migration in
+   `src/main/resources/db/migration`)<% } %> and the configuration that wires them.
+5. An end-to-end API test.
 
-## Errores
+## Errors
 
-Todo error sale como RFC 9457 (`application/problem+json`) con un `code` estable
-(`task_not_found`, `invalid_title`…): los clientes deciden por el `code`, no por el texto.
+Every error comes out as RFC 9457 (`application/problem+json`) with a stable `code`
+(`task_not_found`, `invalid_title`…): clients decide on the `code`, not on the text.
 <% if (config.auth === "oauth2") { -%>
 
-## Seguridad
+## Security
 
-La API es *resource server* OAuth2: valida el JWT del proveedor (Keycloak en desarrollo, variable
-`OIDC_ISSUER` en producción) y el usuario actual es el `sub` del token (puerto `CurrentUser`). Las tareas de
-otro usuario responden 404, como si no existieran.
+The API is an OAuth2 *resource server*: it validates the provider's JWT (Keycloak in development, the
+`OIDC_ISSUER` variable in production) and the current user is the token's `sub` (the `CurrentUser` port).
+Another user's tasks respond 404, as if they did not exist.
 <% if (web) { -%>
-La web hace *Authorization Code + PKCE* con Auth.js y llama a la API con el *access token* desde el
-servidor (el token nunca llega al navegador).
+The web app does *Authorization Code + PKCE* with Auth.js and calls the API with the *access token* from the
+server (the token never reaches the browser).
 <% } -%>
 <% } -%>
 
-## Un test que arranca la aplicación real
+## A test that starts the real application
 
-`StartupTest` arranca la aplicación con sus piezas reales, sin dobles. Los demás tests sustituyen piezas;
-este garantiza que las de verdad existen y se cablean.
+`StartupTest` starts the application with its real pieces, no doubles. The other tests replace pieces;
+this one guarantees that the real ones exist and are wired.

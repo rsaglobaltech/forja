@@ -19,7 +19,7 @@ jobs:
       - run: npm test
       - run: npm run build
 
-  # Lo que genera forja tiene que compilar y pasar sus tests: una combinación por backend.
+  # What forja generates must build and pass its own tests: one combination per backend.
   generated:
     needs: forja
     runs-on: ubuntu-latest
@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-      # Sin caché de Maven: el pom.xml no existe hasta generar el proyecto.
+      # No Maven cache: the pom.xml does not exist until the project is generated.
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
