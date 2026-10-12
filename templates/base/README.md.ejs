@@ -1,6 +1,6 @@
 # <%= config.name %>
 
-Generated with [forja](https://forja.dev). Architecture: **<%= config.arch %>**.
+Generated with [forja](https://rsaglobaltech.github.io/forja/). Architecture: **<%= config.arch %>**.
 Platforms: <%= config.platforms.join(", ") %>.
 
 ## First 5 minutes
@@ -36,6 +36,6 @@ See `docs/architecture.md` for the layers in detail and where the session is rea
 
 ```bash
 forja add usecase <context>/<Name>
-forja add port <Name> --adapters drizzle,in-memory
+forja add port <Name>                # the port and an in-memory adapter (--no-adapter: the port only)
 forja doctor
 ```

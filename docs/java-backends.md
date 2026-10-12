@@ -14,7 +14,7 @@ hexagonal architecture, always.
 | `auth` | `oauth2` · `none` | `oauth2` |
 | `db` | `postgres-docker` · `none` | `postgres-docker` |
 | `platforms` | `web` (optional) | `["web"]` |
-| `extras` | `lint`, `ci`, `docker`, `specgate` | all |
+| `extras` | `lint`, `ci`, `docker`, `specgate` | `lint`, `docker`, `specgate` (`ci` is opt-in) |
 
 ## What it generates
 
@@ -30,7 +30,7 @@ apps/api/                     # Spring Boot 4.1 or Quarkus 3.40, Java 21, Maven 
 apps/web/                     # Next.js 16 + Auth.js (Keycloak) consuming the API
 infra/keycloak/<name>-realm.json     # development realm: web and dev-cli clients, demo/other users
 docker-compose.yml            # Postgres + Keycloak
-.github/workflows/ci.yml      # API (Maven) + web (Node)
+.github/workflows/ci.yml      # with --extras ci: API (Maven) + web (Node)
 docs/brief.md + Specgate      # with the `specgate` extra
 ```
 

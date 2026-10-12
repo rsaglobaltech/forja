@@ -6,7 +6,7 @@
 #
 #   scripts/verify-generated.sh node|spring|quarkus [workdir]
 #
-# Used by .github/workflows/ci.yml and runnable locally (build forja first:
+# Run it locally before a merge or a release (build forja first:
 # `npm run build`). Java backends need a JDK 21 and Docker (Testcontainers,
 # PostgreSQL and Keycloak); ports 3000, 5432, 8080 and 8180 must be free, so
 # run one backend at a time.

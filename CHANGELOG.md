@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Phase 5 — the website
+
+- `site/`: a landing page and ten documentation pages (start, reference, background) on Specgate's
+  design system, with search and both themes. `npm run site` builds it into `_site/`, a static folder
+  for any host.
+- `forja init` ends in the same frame as `add` and `doctor`: the next steps in a box.
+- Fixed: `--backend` with `--config` was ignored; an unknown `--backend` silently became Node; a Java
+  backend accepted `--pm pnpm|bun` although its scripts call npm.
+- Fixed in the generated project: README links and the `forja add port` example, the core import
+  rule's wording (checked by `forja doctor`), the Keycloak realm file name, the Quarkus Swagger path,
+  `docs/specgate.md`'s module path, and no "PostgreSQL" in the Quarkus next steps (Dev Services
+  starts its own). `forja.config.json` no longer points at a schema URL that does not exist.
+
 ### Phase 4 — end to end
 
 - `--tests e2e-web`: Playwright 1.63 in `apps/web`, with `npm run test:e2e` at the root. A smoke test

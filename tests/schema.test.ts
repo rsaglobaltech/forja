@@ -60,6 +60,10 @@ describe("configuration", () => {
     expect(() => parseForjaConfig({ ...node, extras: ["husky"] })).toThrow();
   });
 
+  it("a Java backend uses npm: its root scripts call it", () => {
+    expect(() => parseForjaConfig({ ...defaultJavaConfig("shop", "spring"), pm: "pnpm" })).toThrow(/npm/);
+  });
+
   it("e2e-web needs the web app", () => {
     const node = defaultConfig("acme");
     expect(parseForjaConfig({ ...node, tests: ["unit", "e2e-web"] }).tests).toContain("e2e-web");

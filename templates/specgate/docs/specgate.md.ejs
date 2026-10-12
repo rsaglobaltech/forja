@@ -39,11 +39,11 @@ npx specgate config set test_cmd "npm test"
    `forja add usecase <module>/<Name> --req REQ-007` writes the use case and
    that test for you (without `--req`, it creates a new requirement).
    Then `npx specgate done REQ-007`: it refuses while the suite is red.
-7. **Before every pull request:** `npx specgate check`. The generated CI runs
-   the same gate.
+7. **Before every pull request:** `npx specgate check`. With the `ci` extra,
+   the generated CI validates the specification on every push.
 
 ## Where it meets the architecture
 
 Each module of the specification is a hexagonal module of the code<% if (java) { %>
-(`apps/api/.../<module>/`)<% } else { %> (`packages/core/src/<module>/`)<% } %>:
+(`apps/api/.../<module>/`)<% } else { %> (`packages/core/src/application/<module>/`)<% } %>:
 its scenarios are proven by the tests of its use cases and its API.

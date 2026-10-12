@@ -44,7 +44,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src tests",
-    "prepublishOnly": "npm run build && npm run typecheck && npm test"
+    "prepublishOnly": "npm run build && npm run typecheck && npm test",
+    "site": "tsx scripts/site/build.ts --out _site"
   },
   "engines": {
     "node": ">=22"
@@ -64,6 +65,7 @@
     "@types/ejs": "^3.1.5",
     "@types/node": "^22.10.5",
     "eslint": "^9.39.5",
+    "marked": "^18.0.10",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.71.1",

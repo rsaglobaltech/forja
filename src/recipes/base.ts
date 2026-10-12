@@ -26,7 +26,7 @@ export default defineRecipe({
     ctx.write(
       "forja.config.json",
       JSON.stringify(
-        { $schema: "https://forja.dev/schema.json", version: 1, ...ctx.config },
+        { version: 1, ...ctx.config },
         null,
         2,
       ) + "\n",
@@ -63,7 +63,7 @@ function applyJava(ctx: Parameters<Parameters<typeof defineRecipe>[0]["apply"]>[
     },
   });
 
-  ctx.write("forja.config.json", JSON.stringify({ $schema: "https://forja.dev/schema.json", version: 1, ...ctx.config },
+  ctx.write("forja.config.json", JSON.stringify({ version: 1, ...ctx.config },
     null, 2) + "\n");
 }
 

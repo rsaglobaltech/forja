@@ -5,6 +5,7 @@ import fs from "node:fs";
 import * as p from "@clack/prompts";
 import { ZodError } from "zod";
 import {
+  BackendSchema,
   defaultConfig,
   defaultJavaConfig,
   formatConfigError,
@@ -73,6 +74,7 @@ function applyFlags(
   return parseForjaConfig({
     ...base,
     name: name ?? base.name,
+    backend: flags.backend ?? base.backend,
     scope: name && base.scope === `@${base.name}` ? `@${name}` : base.scope,
     db: flags.db ?? base.db,
     auth: flags.auth ?? base.auth,
@@ -137,6 +139,10 @@ program
           process.exit(1);
         }
         const backend = flags.backend ?? "node";
+        if (!BackendSchema.options.includes(backend as never)) {
+          console.error(`Unknown backend "${backend}": use node, spring or quarkus.`);
+          process.exit(1);
+        }
         const base =
           backend === "spring" || backend === "quarkus"
             ? defaultJavaConfig(name, backend)
@@ -148,6 +154,8 @@ program
 
       const recipes = planRecipes(config);
       const rendered = await renderProject(config, recipes);
+      // The wizard opened its own frame; unattended runs open one here.
+      if ((flags.yes || flags.config) && !flags.dryRun) p.intro(`forja init · ${config.name}`);
 
       if (flags.dryRun) {
         console.log(rendered.tree.join("\n"));
@@ -194,13 +202,8 @@ program
         }
       }
 
-      console.log(`\n${config.name} created in ${targetDir}\n`);
-      console.log("Next steps:\n");
-      for (const step of alignComments(
-        nextSteps(config, installDeps, result),
-      )) {
-        console.log(`  ${step}`);
-      }
+      p.note(alignComments(nextSteps(config, installDeps, result)).join("\n"), "Next steps");
+      p.outro(`${config.name} created in ${targetDir}`);
     } catch (error) {
       if (error instanceof ZodError) {
         console.error(

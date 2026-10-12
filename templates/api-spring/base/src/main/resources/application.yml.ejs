@@ -12,7 +12,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          # The docker-compose Keycloak (infra/keycloak/realm.json). In production, the real issuer.
+          # The docker-compose Keycloak (infra/keycloak/<%= config.name %>-realm.json). In production, the real issuer.
           issuer-uri: ${OIDC_ISSUER:http://localhost:8180/realms/<%= config.name %>}
 <% } -%>
 
