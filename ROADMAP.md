@@ -62,5 +62,7 @@ TypeScript types, Resend/SMTP mailers, rate limiting, `forja upgrade`.
 
 ## Phase 6 — Release 1.0.0
 
-- [ ] Published to npm: `npm i -g @rsaglobaltech/forja`, `npx @rsaglobaltech/forja init`
-- [ ] Release notes; the repository left with `main` and `develop`
+- [ ] Published to npm: `npm i -g @rsaglobaltech/forja`, `npx @rsaglobaltech/forja init` —
+      tarball attached to the v1.0.0 GitHub release; `npm publish` waits for an npm login on the
+      user's machine (Specgate 0.20 first: generated projects pin it)
+- [x] Release notes; the repository left with `main` and `develop` (v1.0.0, 2026-10-12)
