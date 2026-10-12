@@ -3,7 +3,7 @@ import { z } from "zod";
 /*
  * Only what forja generates today is accepted here. A value the planner would
  * then reject used to pass this schema, show up in `--help`, and fail half-way
- * through; the spec's other options (Supabase, shadcn, EAS, e2e, …) come back
+ * through; the spec's other options (Supabase, shadcn, EAS, Maestro, …) come back
  * when a recipe implements them.
  */
 export const PlatformSchema = z.enum(["web", "mobile"]);
@@ -14,7 +14,7 @@ export const AuthSchema = z.enum(["sessions", "oauth2", "none"]);
 export const MailerSchema = z.enum(["console"]);
 export const DesignSchema = z.enum(["tailwind", "none"]);
 export const UiSchema = z.enum(["own"]);
-export const TestSchema = z.enum(["unit", "integration"]);
+export const TestSchema = z.enum(["unit", "integration", "e2e-web"]);
 export const ExtraSchema = z.enum(["lint", "ci", "docker", "specgate"]);
 export const PmSchema = z.enum(["npm", "pnpm", "bun"]);
 
@@ -79,6 +79,10 @@ export const ForjaConfigSchema = baseConfigSchema.superRefine((cfg, ctx) => {
         "docker is for Java backends; a Node project gets docker-compose with --db postgres-docker",
       );
     }
+  }
+
+  if (cfg.tests.includes("e2e-web") && !cfg.platforms.includes("web")) {
+    fail(["tests"], "e2e-web tests the web app: add web to the platforms");
   }
 
   if (cfg.platforms.includes("mobile") && !cfg.platforms.includes("web") && cfg.auth !== "none") {

@@ -70,6 +70,7 @@ export function nextSteps(
   if (config.tests.includes("unit") || config.tests.includes("integration")) {
     steps.push(`${config.pm} test             # unit + integration`);
   }
+  steps.push(...e2eSteps(config));
   steps.push(...specgateSteps(config, result));
   return steps;
 }
@@ -98,8 +99,17 @@ function nextStepsJava(
   );
   if (web) steps.push("npm run dev:web               # http://localhost:3000");
   steps.push("npm test                      # API" + (web ? " + web" : ""));
+  steps.push(...e2eSteps(config));
   steps.push(...specgateSteps(config, result));
   return steps;
+}
+
+function e2eSteps(config: ForjaConfig): string[] {
+  if (!config.tests.includes("e2e-web")) return [];
+  return [
+    "npx playwright install chromium  # once: the browser the end-to-end tests drive",
+    `${config.pm} run test:e2e  # ${isJava(config) ? "the web app, the API" + (config.auth === "oauth2" ? " and Keycloak" : "") : "the sign-in flow"} in a real browser`,
+  ];
 }
 
 function specgateSteps(

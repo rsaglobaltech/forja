@@ -46,7 +46,7 @@ TypeScript types, Resend/SMTP mailers, rate limiting, `forja upgrade`.
 
 ## Phase 4 — End to end
 
-- [ ] `--tests e2e-web`: Playwright smoke and the sign-in flow in the generated
+- [x] `--tests e2e-web`: Playwright smoke and the sign-in flow in the generated
       web app, for Node and Java, wired into the generated CI
 
 ## Phase 5 — Web

@@ -56,8 +56,18 @@ describe("configuration", () => {
     ] as const) {
       expect(() => parseForjaConfig({ ...node, [field]: value }), `${field}: ${value}`).toThrow();
     }
-    expect(() => parseForjaConfig({ ...node, tests: ["e2e-web"] })).toThrow();
+    expect(() => parseForjaConfig({ ...node, tests: ["e2e-mobile"] })).toThrow();
     expect(() => parseForjaConfig({ ...node, extras: ["husky"] })).toThrow();
+  });
+
+  it("e2e-web needs the web app", () => {
+    const node = defaultConfig("acme");
+    expect(parseForjaConfig({ ...node, tests: ["unit", "e2e-web"] }).tests).toContain("e2e-web");
+    expect(() => parseForjaConfig({ ...node, platforms: ["mobile"], auth: "none", tests: ["e2e-web"] })).toThrow(
+      /add web/,
+    );
+    const api = { ...defaultJavaConfig("shop", "spring"), platforms: [] };
+    expect(() => parseForjaConfig({ ...api, tests: ["e2e-web"] })).toThrow(/add web/);
   });
 
   it("docker is a Java extra: a Node project gets compose with --db postgres-docker", () => {

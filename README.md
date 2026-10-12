@@ -65,7 +65,7 @@ Details in [`docs/java-backends.md`](docs/java-backends.md).
 | `--auth` | `sessions` (Node) · `oauth2` (Java) · `none` |
 | `--mailer` | `console` |
 | `--design` | `tailwind` · `none` |
-| `--tests` | `unit,integration` |
+| `--tests` | `unit,integration`, plus `e2e-web`: Playwright in `apps/web` (needs web) |
 | `--extras` | `lint`, `ci` (writes a GitHub Actions workflow — not on by default), `docker` (Java), `specgate` |
 | `--pm` | `npm` · `pnpm` · `bun` |
 | `--yes` | ask nothing: defaults plus flags |
@@ -74,6 +74,18 @@ Details in [`docs/java-backends.md`](docs/java-backends.md).
 | `--skip-install`, `--skip-git` | do not install dependencies / do not run `git init` |
 
 A value that no recipe implements is rejected with a readable error rather than ignored.
+
+## End-to-end tests
+
+`--tests e2e-web` adds Playwright to `apps/web`: a smoke test of the home page and the sign-in flow in
+a real browser. On Node, it registers, signs out and signs in again. With a Java API, it signs in
+through Keycloak (`demo` / `demo`), adds a task, marks it done and signs out, through the real API.
+
+```bash
+npx playwright install chromium   # once
+docker compose up -d --wait       # Java: PostgreSQL and Keycloak
+npm run test:e2e                  # Playwright starts the web app (and the API) itself
+```
 
 ## After `forja init`: `forja add` and `forja doctor`
 

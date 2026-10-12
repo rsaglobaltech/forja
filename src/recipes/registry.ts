@@ -20,6 +20,7 @@ import ci from "./ci.js";
 import dockerJava from "./docker-java.js";
 import specgate from "./specgate.js";
 import keycloak from "./keycloak.js";
+import e2eWeb from "./e2e-web.js";
 
 export const recipeRegistry: Record<string, Recipe> = {
   base,
@@ -42,4 +43,5 @@ export const recipeRegistry: Record<string, Recipe> = {
   ci,
   "docker-java": dockerJava,
   specgate,
+  "e2e-web": e2eWeb,
 };
