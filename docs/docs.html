@@ -1,75 +1,12 @@
 <!doctype html>
-<html lang="en" data-slug="docs">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Documentation — forja</title>
-<meta name="description" content="forja's documentation: generate a hexagonal project, then grow it with forja add.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<meta property="og:title" content="Documentation — forja">
-<meta property="og:description" content="forja's documentation: generate a hexagonal project, then grow it with forja add.">
-<link rel="stylesheet" href="assets/docs.css">
-<link rel="stylesheet" href="assets/forja.css">
-<script>
-  (function () {
-    try { var t = localStorage.getItem("forja-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
-  })();
-</script>
+<meta http-equiv="refresh" content="0; url=https://rsaglobaltech.github.io/specgate/forja/getting-started.html">
+<link rel="canonical" href="https://rsaglobaltech.github.io/specgate/forja/getting-started.html">
 </head>
 <body>
-<a class="skip" href="#content">Skip to content</a>
-
-<header class="top">
-  <button class="top__menu" type="button" aria-label="Open navigation" aria-expanded="false"><span aria-hidden="true">☰</span></button>
-  <a class="top__brand" href="index.html"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true" width="18" height="18"><path d="M8 20h42v9h-7c-3 0-5 2-5 5v5h6v7H20v-7h6v-5c0-3-3-5-7-5-6 0-10-4-11-9Z" fill="currentColor"/></svg> forja<span class="top__brand-sub">/docs</span></a>
-  <span class="top__version">v0.2.0</span>
-  <button class="top__search" id="search" type="button" aria-label="Search documentation" aria-keyshortcuts="Meta+K Control+K">
-    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <span class="top__search-label">search docs</span>
-    <kbd class="top__kbd"><span class="top__kbd-mod">⌘</span>K</kbd>
-  </button>
-  <nav class="top__links">
-    <a href="docs.html">Docs</a>
-    <a href="https://github.com/rsaglobaltech/forja" target="_blank" rel="noreferrer">GitHub</a>
-    <a href="https://www.npmjs.com/package/@rsaglobaltech/forja" target="_blank" rel="noreferrer">npm</a>
-  </nav>
-  <button class="top__theme" type="button" aria-label="Switch theme">◐</button>
-</header>
-
-<div class="shell">
-  <aside class="side" id="side"><nav aria-label="Documentation"><details class="side__group" data-group="Start"><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 2 5 5.5 5 9l-5 4-5-4c0-3.5 2-7 5-9Z"/><circle cx="12" cy="10" r="1.6"/><path d="M9 17l-2 4 4-2M15 17l2 4-4-2"/></svg><span>Start</span></summary><ul><li><a href="getting-started.html">Getting started</a></li><li><a href="java.html">Java backends</a></li><li><a href="daily-use.html">Daily use</a></li><li><a href="specgate.html">forja + Specgate</a></li><li><a href="e2e.html">End-to-end tests</a></li></ul></details><details class="side__group" data-group="Reference"><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 5.5v15"/></svg><span>Reference</span></summary><ul><li><a href="cli.html">Command line</a></li><li><a href="config.html">forja.config.json</a></li><li><a href="generated-project.html">What it generates</a></li></ul></details><details class="side__group" data-group="Background"><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg><span>Background</span></summary><ul><li><a href="architecture.html">Architecture</a></li><li><a href="contributing.html">Contributing</a></li></ul></details></nav></aside>
-  <main class="content" id="content">
-    
-    <article class="prose">
-<h1>Documentation</h1><p class="home__lede">forja generates a project whose architecture is already in place, then adds to it without breaking it. Start with <a href="getting-started.html">Getting started</a>, or <a href="java.html">Java backends</a> for a Spring Boot or Quarkus API.</p><figure class="code" data-lang="bash"><figcaption class="code__head"><span class="code__lang">Try it</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-bash"><span class="tok tok--f">npx</span> @rsaglobaltech/forja init</code></pre></figure>
-<div class="home"><section class="home__group"><h2 id="start"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 2 5 5.5 5 9l-5 4-5-4c0-3.5 2-7 5-9Z"/><circle cx="12" cy="10" r="1.6"/><path d="M9 17l-2 4 4-2M15 17l2 4-4-2"/></svg>Start</h2><p class="home__summary">From an empty folder to a running project, then the commands you use every day.</p><div class="cards" data-cols="2"><a class="card" href="getting-started.html"><strong class="card__title">Getting started</strong><span class="card__body">Install forja and generate a web + mobile monorepo in TypeScript.</span></a><a class="card" href="java.html"><strong class="card__title">Java backends</strong><span class="card__body">A Spring Boot or Quarkus API, a Next.js web app and Keycloak sign-in.</span></a><a class="card" href="daily-use.html"><strong class="card__title">Daily use</strong><span class="card__body">forja add for use cases, entities and ports; forja doctor for the setup.</span></a><a class="card" href="specgate.html"><strong class="card__title">forja + Specgate</strong><span class="card__body">Requirements with scenarios, and tests that name them.</span></a><a class="card" href="e2e.html"><strong class="card__title">End-to-end tests</strong><span class="card__body">Playwright drives the sign-in flow in a real browser.</span></a></div></section><section class="home__group"><h2 id="reference"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 5.5v15"/></svg>Reference</h2><p class="home__summary">Every command, flag and configuration field, and what each one generates.</p><div class="cards" data-cols="2"><a class="card" href="cli.html"><strong class="card__title">Command line</strong><span class="card__body">init, add, doctor: every flag and the values it accepts.</span></a><a class="card" href="config.html"><strong class="card__title">forja.config.json</strong><span class="card__body">Every field, its values and its defaults.</span></a><a class="card" href="generated-project.html"><strong class="card__title">What it generates</strong><span class="card__body">Recipe by recipe: the folders, the files, the versions.</span></a></div></section><section class="home__group"><h2 id="background"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg>Background</h2><p class="home__summary">Why the projects look the way they do, and how to work on forja itself.</p><div class="cards" data-cols="2"><a class="card" href="architecture.html"><strong class="card__title">Architecture</strong><span class="card__body">The hexagon forja generates and the rules that keep it.</span></a><a class="card" href="contributing.html"><strong class="card__title">Contributing</strong><span class="card__body">Develop forja, write a recipe, verify what it generates.</span></a></div></section></div>
-    </article>
-    <nav class="pager" aria-label="Neighbouring pages"></nav>
-    <footer class="page-foot">
-      <a href="https://github.com/rsaglobaltech/forja/edit/develop/site/docs/docs.md" target="_blank" rel="noreferrer">Edit this page</a>
-      <span aria-hidden="true">·</span>
-      <a href="https://github.com/rsaglobaltech/forja/issues/new" target="_blank" rel="noreferrer">Something wrong? Open an issue</a>
-    </footer>
-  </main>
-  <div class="rail"><nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc__l2"><a href="#start">Start</a></li><li class="toc__l2"><a href="#reference">Reference</a></li><li class="toc__l2"><a href="#background">Background</a></li></ul></nav></div>
-</div>
-
-<div class="palette" id="palette" hidden>
-  <div class="palette__scrim" data-close="1"></div>
-  <div class="palette__box" role="dialog" aria-modal="true" aria-label="Search documentation">
-    <div class="palette__field">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input type="search" id="palette-input" placeholder="Search the documentation…" autocomplete="off" spellcheck="false" aria-label="Search documentation" aria-controls="results" aria-expanded="true">
-      <kbd class="palette__esc">Esc</kbd>
-    </div>
-    <div class="palette__results" id="results" role="listbox" aria-label="Results"></div>
-    <p class="palette__hint"><kbd>↑</kbd><kbd>↓</kbd> to navigate · <kbd>↵</kbd> to open · <kbd>Esc</kbd> to close</p>
-  </div>
-</div>
-
-<script src="assets/docs.js" defer></script>
+<p>forja's documentation moved to <a href="https://rsaglobaltech.github.io/specgate/forja/getting-started.html">https://rsaglobaltech.github.io/specgate/forja/getting-started.html</a>.</p>
 </body>
 </html>

@@ -4,17 +4,16 @@ A scaffolding CLI for projects built on **hexagonal architecture**: web + mobile
 a **Java API (Spring Boot or Quarkus)** with its web front end, OAuth2 and everything you need to work with
 tests, CI and specifications from the first commit.
 
-**Website and documentation: https://rsaglobaltech.github.io/forja/**
+**Website: https://rsaglobaltech.github.io/forja/ · Documentation: https://rsaglobaltech.github.io/specgate/forja/getting-started.html** (forja's docs live on Specgate's site; `specgate init --forja` runs forja for you)
 
 ## Install
 
-Once published:
 
 ```bash
 npm install -g @rsaglobaltech/forja    # or, without installing: npx @rsaglobaltech/forja init
 ```
 
-Until then, from source:
+From source:
 
 ```bash
 npm install && npm run build && npm link     # installs the `forja` command
