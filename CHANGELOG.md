@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### The architecture in Specgate's gate (ADR-0033, phase A)
+
+- `npm run arch` in every generated project that has rules to check: on Node a dependency-free
+  `scripts/check-architecture.mjs` with the core's import rules; on Java the ArchUnit test alone.
+- With Specgate, the install sets `arch_cmd` to it, so `specgate check`, `done` and the harness gate
+  run the architecture before the tests (Specgate 0.20+; an older one ignores it).
+
 ### Phase 5 — the website
 
 - Published at https://rsaglobaltech.github.io/forja/ by GitHub Pages from `docs/` on `main`

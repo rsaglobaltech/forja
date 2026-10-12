@@ -79,9 +79,11 @@ build when one of these rules breaks:
 `io.quarkus..`, `jakarta..`, `org.eclipse.microprofile..` and `io.smallrye..` on Quarkus. Test classes
 are not analysed.
 
-## What forja doctor checks on Node
+## What npm run arch and forja doctor check on Node
 
-Node has no ArchUnit, so `forja doctor` checks the core's imports. It reads every `.ts` and `.tsx` file
+Node has no ArchUnit, so the generated project carries `scripts/check-architecture.mjs`, run with
+`npm run arch`, and `forja doctor` runs the same check. The script has no dependencies, so it runs
+wherever the project does, and Specgate's gate runs it as `arch_cmd`. Both check the core's imports. It reads every `.ts` and `.tsx` file
 under `packages/core/src` and fails when:
 
 - any file imports `next`, `react`, `react-dom`, `react-native` or `expo`, or a subpath of them;

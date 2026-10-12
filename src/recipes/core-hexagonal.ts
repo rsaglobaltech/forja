@@ -12,6 +12,10 @@ export default defineRecipe({
     // auth "none" it used to be missing and `tsc` failed. bcryptjs 3 ships its
     // own types; @types/bcryptjs is an empty stub now.
     ctx.mergePackageJson("packages/core", { dependencies: { bcryptjs: "^3.0.3" } });
+    // The hexagon's rules, checked by `npm run arch` (and by Specgate's gate
+    // through arch_cmd when the project uses it).
+    ctx.copyFile("core-hexagonal-root/scripts/check-architecture.mjs", "scripts/check-architecture.mjs");
+    ctx.mergePackageJson(".", { scripts: { arch: "node scripts/check-architecture.mjs" } });
 
     if (ctx.has("unit")) {
       ctx.copyDir("core-hexagonal/tests/unit", "packages/core/tests/unit");
