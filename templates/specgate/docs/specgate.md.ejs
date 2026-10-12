@@ -13,7 +13,7 @@ specification stands, and the one command to run next.
 forja ran these for you when it installed the dependencies. If it could not:
 
 ```bash
-npx specgate init --no-capabilities
+npx specgate adopt --no-capabilities
 npx specgate config set test_cmd "npm test"
 ```
 
@@ -36,6 +36,8 @@ npx specgate config set test_cmd "npm test"
    requirements join the specification.
 6. **Build each requirement, test first.** A test that names `REQ-007` is the
    link<% if (java) { %> — in Java, put it in the test's `@DisplayName`<% } %>.
+   `forja add usecase <module>/<Name> --req REQ-007` writes the use case and
+   that test for you (without `--req`, it creates a new requirement).
    Then `npx specgate done REQ-007`: it refuses while the suite is red.
 7. **Before every pull request:** `npx specgate check`. The generated CI runs
    the same gate.

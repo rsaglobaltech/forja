@@ -4,7 +4,7 @@ import { versions } from "./java.js";
 
 /**
  * Ready for Specgate: the client's brief (docs/brief.md), the day-to-day guide
- * and the scripts. The adoption itself (`specgate init`) runs in postinstall,
+ * and the scripts. The adoption itself (`specgate adopt`) runs in postinstall,
  * because it writes its own files.
  */
 export default defineRecipe({

@@ -9,7 +9,7 @@ export interface PostinstallOptions {
 }
 
 export interface PostinstallResult {
-  /** Specgate was adopted (init + test_cmd). When not, nextSteps gives the commands. */
+  /** Specgate was adopted (adopt + test_cmd). When not, nextSteps gives the commands. */
   specgateAdopted: boolean;
 }
 
@@ -34,12 +34,12 @@ export async function runPostinstall(
     try {
       const specgate = (...args: string[]) =>
         execa("npx", ["--no-install", "specgate", ...args], { cwd: targetDir });
-      await specgate("init", "--no-capabilities");
+      await specgate("adopt", "--no-capabilities");
       await specgate("config", "set", "test_cmd", "npm test");
       specgateAdopted = true;
       if (initGit) {
         await git("add", "-A");
-        await git("commit", "-m", "chore: adopt Specgate (init, test_cmd)");
+        await git("commit", "-m", "chore: adopt Specgate");
       }
     } catch {
       // No network or no npm: the project works anyway, and nextSteps gives the commands.
@@ -107,12 +107,12 @@ function specgateSteps(
   result?: PostinstallResult,
 ): string[] {
   if (!config.extras.includes("specgate")) return [];
-  // Specgate's own next step after `init` is the brief: forja wrote a
+  // Specgate's own next step after `adopt` is the brief: forja wrote a
   // docs/brief.md to fill in, and `specgate draft` takes it from there.
   const adopt = result?.specgateAdopted
     ? []
     : [
-        "npx specgate init --no-capabilities",
+        "npx specgate adopt --no-capabilities",
         'npx specgate config set test_cmd "npm test"',
       ];
   return [

@@ -75,6 +75,36 @@ Details in [`docs/java-backends.md`](docs/java-backends.md).
 
 A value that no recipe implements is rejected with a readable error rather than ignored.
 
+## After `forja init`: `forja add` and `forja doctor`
+
+Run these anywhere inside the project; they read its `forja.config.json`.
+
+```bash
+forja add usecase orders/PlaceOrder      # the use case, its test, and its wiring
+forja add entity orders/Order            # a domain entity and its test
+forja add port orders/OrderRepository    # an outbound port and an in-memory adapter
+forja doctor                             # tools, .env files and the architecture rules
+```
+
+| | Node (`packages/core`) | Java (`apps/api`, one module per package) |
+| --- | --- | --- |
+| `usecase` | `application/<module>/<Name>UseCase.ts`, exported from `index.ts`, registered in `container.ts` | `<module>/application/<Name>.java`, a bean in `<Module>Configuration` (created the first time) |
+| `entity` | `domain/entities/<Name>.ts` | `<module>/domain/<Name>.java` (a record) |
+| `port` | `ports/I<Name>.ts` + `InMemory<Name>` in `infrastructure/` | `<module>/application/port/<Name>.java` + `InMemory<Name>` in `infrastructure/` |
+
+Each comes with a passing test. Nothing is overwritten: if a file exists, the command stops before
+writing anything. `--dry-run` prints what would change.
+
+**With Specgate in the project**, `add usecase` also creates the requirement (`specgate new`) and names
+it in the test — `describe("REQ-003 Place order")` in TypeScript, `@DisplayName` in Java — so
+`specgate check` sees the link. `--req REQ-007` names an existing requirement instead; `--no-spec`
+leaves the specification alone.
+
+`forja doctor` checks Node, the package manager, the JDK (Java), Docker (when the database, Keycloak
+or Testcontainers need it), every `.env` against its `.env.example`, one React across web and mobile,
+that `packages/core` imports no UI framework and its domain no infrastructure, and that Specgate is
+adopted. It exits 1 when something must be fixed.
+
 ## Further reading
 
 - [`ROADMAP.md`](ROADMAP.md) — the plan to 1.0 and its progress.
