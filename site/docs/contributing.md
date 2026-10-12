@@ -23,7 +23,8 @@ npm link          # puts your local build on the PATH as `forja`
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint over `src` and `tests` |
 | `npm run build` | compiles to `dist/`, which the `forja` binary runs |
-| `npm run site` | builds this documentation site from `site/` into `_site/` |
+| `npm run site` | builds this documentation site from `site/` into `_site/`, to look at locally |
+| `npm run site:publish` | builds it into `docs/`, which GitHub Pages serves from `main`: commit the result |
 
 `--dry-run` is the quickest way to see what a change does:
 

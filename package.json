@@ -45,7 +45,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src tests",
     "prepublishOnly": "npm run build && npm run typecheck && npm test",
-    "site": "tsx scripts/site/build.ts --out _site"
+    "site": "tsx scripts/site/build.ts --out _site",
+    "site:publish": "tsx scripts/site/build.ts --out docs"
   },
   "engines": {
     "node": ">=22"

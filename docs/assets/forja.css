@@ -1,0 +1,28 @@
+/*
+ * forja on top of Specgate's design system (docs.css + home.css): the same
+ * tokens, type and components, so the two tools read as one family. Only
+ * what forja has and Specgate does not lives here.
+ */
+
+/* The anvil mark, drawn in SVG: in the header, the footer and the favicon. */
+.mark { display: inline-block; color: var(--brand); vertical-align: -0.2em; flex: none; }
+.top__brand { display: inline-flex; align-items: center; gap: 0.45em; }
+
+/* The two generated trees, side by side; one column on a phone. */
+.fj-trees {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+.fj-trees .code { margin: 0; }
+.fj-trees pre { overflow-x: auto; font-size: 0.82rem; line-height: 1.55; }
+
+/* Two recorded terminals, one under the other. */
+.fj-terms { display: grid; gap: var(--space-6); min-width: 0; }
+.fj-terms .code { margin: 0; }
+.fj-terms pre { overflow-x: auto; font-size: 0.8rem; }
+
+@media (max-width: 900px) {
+  .fj-trees { grid-template-columns: minmax(0, 1fr); }
+}

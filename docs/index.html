@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>forja — hexagonal projects, generated</title>
+<meta name="description" content="forja generates a Next.js + Expo monorepo in TypeScript, or a Spring Boot or Quarkus API with a Next.js web app, with the hexagonal architecture in place, sign-in working and the tests green. Then forja add grows it inside the rules.">
+<meta property="og:title" content="forja">
+<meta property="og:description" content="Architecture first, features next. Hexagonal projects in TypeScript or Java, generated with sign-in working and the tests green.">
+<meta property="og:type" content="website">
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/docs.css">
+<link rel="stylesheet" href="./assets/home.css">
+<link rel="stylesheet" href="./assets/forja.css">
+<script>
+  (function () {
+    try { var t = localStorage.getItem("forja-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+    document.documentElement.classList.add("js");
+  })();
+</script>
+</head>
+<body class="landing">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <a class="top__brand" href="./"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true" width="18" height="18"><path d="M8 20h42v9h-7c-3 0-5 2-5 5v5h6v7H20v-7h6v-5c0-3-3-5-7-5-6 0-10-4-11-9Z" fill="currentColor"/></svg> forja</a>
+  <span class="top__version">v0.2.0</span>
+  <button class="top__search" id="search" type="button" aria-label="Search documentation" aria-keyshortcuts="Meta+K Control+K">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <span class="top__search-label">search docs</span>
+    <kbd class="top__kbd"><span class="top__kbd-mod">⌘</span>K</kbd>
+  </button>
+  <nav class="top__links">
+    <a href="./docs.html">Docs</a>
+    <a href="./daily-use.html">Daily use</a>
+    <a href="./specgate.html">Specgate</a>
+    <a href="https://github.com/rsaglobaltech/forja" target="_blank" rel="noreferrer">GitHub</a>
+  </nav>
+  <button class="top__theme" type="button" aria-label="Switch theme">◐</button>
+</header>
+
+<main id="main">
+
+<section class="mx">
+  <div class="ed-wrap mx__grid">
+    <div class="mx__copy">
+      <p class="mx__eyebrow">[ v0.2.0 ] Hexagonal projects, generated</p>
+      <h1 class="mx__title">Architecture first.<br>Features <span>next.</span></h1>
+      <p class="mx__lede">
+        forja generates a TypeScript monorepo with Next.js and Expo, or a
+        Spring Boot or Quarkus API with a Next.js web app. The hexagonal
+        architecture is in place, sign-in works, and every test is green on the
+        first run. Then <code>forja add</code> grows it one use case at a time,
+        inside the rules.
+      </p>
+      <p class="ed-actions">
+        <a class="ed-btn ed-btn--primary" href="./getting-started.html">Get started</a>
+        <a class="ed-btn" href="./java.html">Java backends</a>
+      </p>
+      <figure class="code ed-install" data-lang="bash">
+        <figcaption class="code__head"><span class="code__lang">Three commands</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption>
+        <pre><code class="language-bash">npm install -g @rsaglobaltech/forja
+forja init shop             <span class="tok tok--c"># the wizard</span>
+forja add usecase orders/PlaceOrder</code></pre>
+      </figure>
+    </div>
+
+    <div class="mx__art" role="img" aria-label="The four layers forja generates, stacked: the domain, the application with its ports, the infrastructure with its adapters, and the apps on top.">
+      <div class="iso" aria-hidden="true">
+        <div class="iso__stack">
+          <div class="iso__slab iso__slab--1"><div class="iso__top"></div><div class="iso__front"><span>01</span> domain/</div><div class="iso__side"></div></div>
+          <div class="iso__slab iso__slab--2"><div class="iso__top"></div><div class="iso__front"><span>02</span> application/ · ports</div><div class="iso__side"></div></div>
+          <div class="iso__slab iso__slab--3"><div class="iso__top"></div><div class="iso__front"><span>03</span> infrastructure/</div><div class="iso__side"></div></div>
+          <div class="iso__slab iso__slab--4"><div class="iso__top"><span>npm test</span> ✔ green</div><div class="iso__front"><span>04</span> apps/ web · mobile · api</div><div class="iso__side"></div></div>
+        </div>
+      </div>
+      <ol class="iso__keys" aria-label="The four layers">
+        <li class="iso__key iso__key--1" tabindex="0"><b>01</b> Domain <span>Entities and value objects. Plain TypeScript or plain Java: no framework.</span></li>
+        <li class="iso__key iso__key--2" tabindex="0"><b>02</b> Application <span>Use cases, and the ports they need from the outside world.</span></li>
+        <li class="iso__key iso__key--3" tabindex="0"><b>03</b> Infrastructure <span>Adapters for the ports, and the one place that wires them together.</span></li>
+        <li class="iso__key iso__key--4" tabindex="0"><b>04</b> Apps <span>Next.js, Expo, or the API. They call use cases; they hold no rules.</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<div class="band" aria-hidden="true">
+  <p class="band__words">INIT → ADD → TEST → DOCTOR → SHIP → INIT → ADD → TEST → DOCTOR → SHIP → INIT → ADD → TEST → DOCTOR → SHIP → INIT → ADD</p>
+</div>
+
+<section class="pb" aria-label="What forja generates">
+  <div class="ed-wrap">
+    <dl class="pb__stats">
+      <div><dt>3</dt><dd>backends: Node, Spring&nbsp;Boot, Quarkus</dd></div>
+      <div><dt>2</dt><dd>apps on one core: Next.js&nbsp;16 and Expo&nbsp;SDK&nbsp;57</dd></div>
+      <div><dt>1</dt><dd>command from an empty folder to green tests</dd></div>
+      <div><dt>0</dt><dd>runtime dependencies on forja in what it writes</dd></div>
+    </dl>
+    <p class="pb__claims">
+      <span>Plain code you own</span><span>MIT</span><span>Every path generated, installed, tested, built and driven in a browser before a release</span>
+    </p>
+  </div>
+</section>
+
+<section class="ed-band">
+  <div class="ed-wrap ed-split">
+    <h2 class="ed-h2 reveal">A template is where a project starts. The rules are what keep it standing.</h2>
+    <div class="ed-prose reveal">
+      <p>A starter template gets copied once. A month later the first shortcut
+         lands: a page that queries the database, a use case that imports
+         React. Nothing fails, so nothing stops it.</p>
+      <p>forja generates the rules with the code. On Java, ArchUnit fails the
+         build when the domain reaches for Spring or one module uses another's
+         infrastructure. On Node, <code>forja doctor</code> catches a UI import
+         in the core. And <code>forja add</code> writes each new use case, entity
+         and port where those rules expect it, already wired and already tested.</p>
+      <p><a class="ed-link" href="./architecture.html">The architecture, and every rule it keeps →</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="ed-band ed-band--paper" id="output">
+  <div class="ed-wrap">
+    <div class="ed-head reveal">
+      <p class="ed-eyebrow">What you get</p>
+      <h2 class="ed-h2">Two shapes. The same hexagon.</h2>
+    </div>
+    <div class="fj-trees">
+      <figure class="code reveal" data-lang="text">
+        <figcaption class="code__head"><span class="code__lang">forja init shop · Node</span></figcaption>
+        <pre><code class="language-text">shop/
+├── apps/
+│   ├── web/        <span class="tok tok--c">Next.js 16: pages, server actions, auth API</span>
+│   └── mobile/     <span class="tok tok--c">Expo SDK 57 + NativeWind</span>
+├── packages/
+│   ├── core/       <span class="tok tok--c">the hexagon, shared by both apps</span>
+│   │   └── src/
+│   │       ├── domain/          <span class="tok tok--c">User, Email, Password</span>
+│   │       ├── application/     <span class="tok tok--c">Register, Login, Logout…</span>
+│   │       ├── ports/           <span class="tok tok--c">IUserRepository, IMailer…</span>
+│   │       └── infrastructure/  <span class="tok tok--c">Drizzle, bcrypt, container.ts</span>
+│   └── shared/     <span class="tok tok--c">design tokens</span>
+├── docker-compose.yml  <span class="tok tok--c">PostgreSQL</span>
+└── forja.config.json</code></pre>
+      </figure>
+      <figure class="code reveal" data-lang="text">
+        <figcaption class="code__head"><span class="code__lang">forja init shop --backend spring</span></figcaption>
+        <pre><code class="language-text">shop/
+├── apps/
+│   ├── api/        <span class="tok tok--c">Spring Boot 4 (or Quarkus 3)</span>
+│   │   └── src/main/java/com/shop/
+│   │       ├── tasks/
+│   │       │   ├── domain/          <span class="tok tok--c">Task, TaskTitle</span>
+│   │       │   ├── application/     <span class="tok tok--c">CreateTask… + port/</span>
+│   │       │   └── infrastructure/  <span class="tok tok--c">web, persistence, config</span>
+│   │       └── shared/
+│   └── web/        <span class="tok tok--c">Next.js 16, signs in with Keycloak</span>
+├── infra/keycloak/ <span class="tok tok--c">a realm with demo / demo</span>
+├── docker-compose.yml  <span class="tok tok--c">PostgreSQL + Keycloak</span>
+└── forja.config.json</code></pre>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="ed-band ed-band--ink" id="watch">
+  <div class="ed-wrap ed-split">
+    <div class="ed-split__head reveal">
+      <p class="ed-eyebrow">The day after</p>
+      <h2 class="ed-h2">One command per feature.</h2>
+      <p class="ed-muted">Run <code>forja add</code> anywhere inside the project.
+         It reads <code>forja.config.json</code>, writes the class and its test,
+         wires it into the composition root, and overwrites nothing. With
+         Specgate in the project, the requirement comes with it.</p>
+      <p><a class="ed-link" href="./daily-use.html">forja add and forja doctor →</a></p>
+    </div>
+    <div class="fj-terms">
+      <figure class="code code--term reveal" data-lang="text">
+        <figcaption class="code__head"><span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code__lang">Terminal</span></figcaption>
+        <pre><code class="language-text"><span class="t-line t-prompt">$ forja add usecase orders/PlaceOrder</span>
+<span class="t-line t-brand">┌  forja add usecase</span>
+<span class="t-line t-ok">◆  created  packages/core/src/application/orders/PlaceOrderUseCase.ts</span>
+<span class="t-line t-ok">◆  created  packages/core/tests/unit/orders/PlaceOrderUseCase.test.ts</span>
+<span class="t-line t-info">●  updated  packages/core/src/index.ts</span>
+<span class="t-line t-info">●  updated  packages/core/src/infrastructure/config/container.ts</span>
+<span class="t-line t-next">◇  REQ-003 · Place order</span>
+<span class="t-line t-dim">│  scenario to write: features/place-order.feature</span>
+<span class="t-line t-out">└  Next: write the scenario, make the test prove it (npm test),</span>
+<span class="t-line t-out">   then npx specgate done REQ-003</span></code></pre>
+      </figure>
+      <figure class="code code--term reveal" data-lang="text">
+        <figcaption class="code__head"><span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code__lang">Terminal</span></figcaption>
+        <pre><code class="language-text"><span class="t-line t-prompt">$ forja doctor</span>
+<span class="t-line t-brand">┌  forja doctor · shop</span>
+<span class="t-line t-ok">◆  Node.js        v24.14.0</span>
+<span class="t-line t-ok">◆  Docker         engine 29.5.3</span>
+<span class="t-line t-warn">▲  env (root)     no .env yet: the defaults in the code apply</span>
+<span class="t-line t-dim">│  cp .env.example .env</span>
+<span class="t-line t-ok">◆  React          one version everywhere (19.2.3)</span>
+<span class="t-line t-err">■  core imports   packages/core/src/domain/entities/Order.ts:31 imports react</span>
+<span class="t-line t-dim">│  Move that code to apps/* or infrastructure/, and reach it through a port</span>
+<span class="t-line t-out">└  1 to fix, 1 to look at</span></code></pre>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="ed-band ed-band--paper" id="why">
+  <div class="ed-wrap">
+    <div class="ed-head reveal">
+      <p class="ed-eyebrow">On the first run</p>
+      <h2 class="ed-h2">What works before you write a line.</h2>
+    </div>
+    <div class="sx">
+      <article class="sx__card reveal">
+        <svg class="sx__icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="12" y="22" width="24" height="18" rx="3"/><path d="M17 22v-6a7 7 0 0 1 14 0v6"/><circle cx="24" cy="31" r="2"/></svg>
+        <h3>Sign-in, end to end</h3>
+        <p>On Node: register, sign in, sessions in an httpOnly cookie, password
+           reset. On Java: OAuth2 with Keycloak, the API as a resource server,
+           and a realm with a demo user.</p>
+      </article>
+      <article class="sx__card reveal">
+        <svg class="sx__icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M10 26l9 9 19-21"/></svg>
+        <h3>Tests from the first commit</h3>
+        <p>vitest for the core's use cases; JUnit, Testcontainers and a real
+           PostgreSQL for the API. Add <code>--tests e2e-web</code> and
+           Playwright drives the sign-in in a browser.</p>
+      </article>
+      <article class="sx__card reveal">
+        <svg class="sx__icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 40 15v18L24 42 8 33V15Z"/><path d="M24 24v18M24 24 8 15M24 24l16-9"/></svg>
+        <h3>Rules that are checked</h3>
+        <p>ArchUnit on the API: a pure domain, no framework in the application,
+           ports as interfaces, no cycles. <code>forja doctor</code> keeps the
+           Node core free of UI imports.</p>
+      </article>
+      <article class="sx__card reveal">
+        <svg class="sx__icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="10" width="22" height="16" rx="2"/><rect x="32" y="14" width="10" height="20" rx="2"/><path d="M17 26v6h-6M17 32h8"/></svg>
+        <h3>Web and mobile, one core</h3>
+        <p>Next.js and Expo import the same <code>packages/core</code>. One React
+           version for both, the one Expo pins, so hooks never meet two copies.</p>
+      </article>
+      <article class="sx__card reveal">
+        <svg class="sx__icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M12 6h18l8 8v28H12z"/><path d="M30 6v8h8"/><path d="M18 26l4 4 8-8"/></svg>
+        <h3>Specgate, adopted</h3>
+        <p>With the <code>specgate</code> extra, the project starts with a brief
+           to fill in and a gate that runs your tests. Each use case you add
+           names its requirement.</p>
+      </article>
+      <article class="sx__card reveal">
+        <svg class="sx__icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M16 14 6 24l10 10M32 14l10 10-10 10M27 10l-6 28"/></svg>
+        <h3>Plain code, no lock-in</h3>
+        <p>What forja writes is yours: no runtime package, no generated folder to
+           leave alone. Delete <code>forja.config.json</code> and the project
+           still builds.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="ed-band" id="specgate">
+  <div class="ed-wrap ed-split">
+    <div class="ed-split__head reveal">
+      <p class="ed-eyebrow">forja + Specgate</p>
+      <h2 class="ed-h2">The use case and its requirement, in one step.</h2>
+      <p class="ed-muted">forja builds the structure. <a class="ed-link" href="https://rsaglobaltech.github.io/specgate/" target="_blank" rel="noreferrer">Specgate</a>
+         decides when a requirement is done: a scenario, a test that names it,
+         and a suite that passes. <code>forja add usecase</code> creates the
+         requirement, names it in the test, and regenerates the traceability
+         matrix.</p>
+      <p><a class="ed-link" href="./specgate.html">How the two work together →</a></p>
+    </div>
+    <figure class="code reveal" data-lang="typescript">
+      <figcaption class="code__head"><span class="code__lang">packages/core/tests/unit/orders/PlaceOrderUseCase.test.ts</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption>
+      <pre><code class="language-typescript"><span class="tok tok--k">import</span> { describe, expect, it } <span class="tok tok--k">from</span> <span class="tok tok--s">"vitest"</span>;
+<span class="tok tok--k">import</span> { PlaceOrderUseCase } <span class="tok tok--k">from</span> <span class="tok tok--s">"../../../src/application/orders/PlaceOrderUseCase.js"</span>;
+
+describe(<span class="tok tok--s">"REQ-003 Place order"</span>, () =&gt; {
+  it(<span class="tok tok--s">"runs"</span>, <span class="tok tok--k">async</span> () =&gt; {
+    <span class="tok tok--k">const</span> result = <span class="tok tok--k">await</span> <span class="tok tok--k">new</span> PlaceOrderUseCase().execute();
+    expect(result.ok).toBe(<span class="tok tok--k">true</span>);
+  });
+
+  it.todo(<span class="tok tok--s">"proves the scenario in features/place-order.feature"</span>);
+});</code></pre>
+    </figure>
+  </div>
+</section>
+
+<section class="ed-band ed-band--paper">
+  <div class="ed-wrap ed-split">
+    <div class="ed-split__head reveal">
+      <h2 class="ed-h2">Questions people ask first.</h2>
+    </div>
+    <div class="ed-faq">
+      <details>
+        <summary>Does forja stay in my project?</summary>
+        <p>Only as <code>forja.config.json</code>, which <code>forja add</code>
+           and <code>forja doctor</code> read. The generated code has no
+           dependency on forja; delete the file and the project still builds
+           and tests.</p>
+      </details>
+      <details>
+        <summary>Can I run forja add on a project forja did not generate?</summary>
+        <p>It needs the layout forja generates and a <code>forja.config.json</code>
+           that describes it. On another layout it stops with an error before
+           it writes anything.</p>
+      </details>
+      <details>
+        <summary>Which combinations are supported?</summary>
+        <p>Node with web, mobile or both; Spring Boot or Quarkus with a web app
+           or as an API only. Mobile with a Java backend is not supported yet,
+           and the CLI says so instead of generating half a project. See the
+           <a href="./cli.html">command line reference</a>.</p>
+      </details>
+      <details>
+        <summary>Does it need GitHub Actions?</summary>
+        <p>No. The <code>ci</code> extra writes a workflow if you want one; it is
+           off by default. Everything forja generates runs locally with
+           <code>npm test</code>.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="ed-close">
+  <div class="ed-wrap">
+    <div class="ed-close__box reveal">
+      <h2 class="ed-display ed-display--close">Start at the first feature.</h2>
+      <div class="ed-close__side">
+        <figure class="code ed-close__code" data-lang="bash">
+          <figcaption class="code__head"><span class="code__lang">bash</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption>
+          <pre><code class="language-bash">npx @rsaglobaltech/forja init</code></pre>
+        </figure>
+        <p class="ed-actions">
+          <a class="ed-btn ed-btn--light" href="./getting-started.html">Get started</a>
+          <a class="ed-btn ed-btn--ghost" href="./cli.html">Command line</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="ed-foot">
+  <div class="ed-wrap ed-foot__grid">
+    <div>
+      <p class="ed-foot__brand"><span aria-hidden="true"><svg class="mark" viewBox="0 0 64 64" width="26" height="26"><path d="M8 20h42v9h-7c-3 0-5 2-5 5v5h6v7H20v-7h6v-5c0-3-3-5-7-5-6 0-10-4-11-9Z" fill="currentColor"/></svg></span> forja</p>
+      <p class="ed-muted">Hexagonal projects, generated. MIT.</p>
+    </div>
+    <nav aria-label="Start">
+      <p class="ed-foot__h">Start</p>
+      <a href="./getting-started.html">Getting started</a>
+      <a href="./java.html">Java backends</a>
+      <a href="./daily-use.html">Daily use</a>
+      <a href="./e2e.html">End-to-end tests</a>
+    </nav>
+    <nav aria-label="Reference">
+      <p class="ed-foot__h">Reference</p>
+      <a href="./cli.html">Command line</a>
+      <a href="./config.html">forja.config.json</a>
+      <a href="./generated-project.html">What it generates</a>
+      <a href="./architecture.html">Architecture</a>
+    </nav>
+    <nav aria-label="Project">
+      <p class="ed-foot__h">Project</p>
+      <a href="https://github.com/rsaglobaltech/forja" target="_blank" rel="noreferrer">GitHub</a>
+      <a href="https://www.npmjs.com/package/@rsaglobaltech/forja" target="_blank" rel="noreferrer">npm</a>
+      <a href="https://rsaglobaltech.github.io/specgate/" target="_blank" rel="noreferrer">Specgate</a>
+      <a href="./contributing.html">Contributing</a>
+    </nav>
+  </div>
+  <p class="ed-wrap ed-foot__note">Documentation for v0.2.0.</p>
+</footer>
+
+<div class="palette" id="palette" hidden>
+  <div class="palette__scrim" data-close="1"></div>
+  <div class="palette__box" role="dialog" aria-modal="true" aria-label="Search documentation">
+    <div class="palette__field">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="palette-input" placeholder="Search the documentation…" autocomplete="off" spellcheck="false" aria-label="Search documentation" aria-controls="results" aria-expanded="true">
+      <kbd class="palette__esc">Esc</kbd>
+    </div>
+    <div class="palette__results" id="results" role="listbox" aria-label="Results"></div>
+    <p class="palette__hint"><kbd>↑</kbd><kbd>↓</kbd> to navigate · <kbd>↵</kbd> to open · <kbd>Esc</kbd> to close</p>
+  </div>
+</div>
+
+<script src="./assets/docs.js" defer></script>
+<script src="./assets/home.js" defer></script>
+</body>
+</html>
