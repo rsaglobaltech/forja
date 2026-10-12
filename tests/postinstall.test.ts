@@ -20,7 +20,7 @@ describe("next steps", () => {
     ]) {
       const steps = nextSteps(config, true, { specgateAdopted: true });
       expect(steps.some((s) => s.startsWith("npx specgate draft"))).toBe(true);
-      expect(steps.some((s) => s.includes("specgate init"))).toBe(false);
+      expect(steps.some((s) => s.includes("specgate adopt"))).toBe(false);
     }
   });
 
@@ -28,6 +28,6 @@ describe("next steps", () => {
     const steps = nextSteps(defaultJavaConfig("acme", "quarkus"), false, {
       specgateAdopted: false,
     });
-    expect(steps).toContain("npx specgate init --no-capabilities");
+    expect(steps).toContain("npx specgate adopt --no-capabilities");
   });
 });

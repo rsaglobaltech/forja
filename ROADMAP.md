@@ -36,12 +36,12 @@ TypeScript types, Resend/SMTP mailers, rate limiting, `forja upgrade`.
 
 ## Phase 3 — Daily use: after `forja init`
 
-- [ ] `forja add usecase <Context>/<Name>` — Node hexagonal and Java; reads
+- [x] `forja add usecase <Context>/<Name>` — Node hexagonal and Java; reads
       `forja.config.json`
-- [ ] `forja add port <Name>` and `forja add entity <Name>`
-- [ ] With Specgate in the project, `add usecase` offers the requirement
+- [x] `forja add port <Name>` and `forja add entity <Name>`
+- [x] With Specgate in the project, `add usecase` offers the requirement
       (`specgate new`) and its test names the `REQ-xxx`
-- [ ] `forja doctor`: env keys against `.env.example`, Docker, Node version, the
+- [x] `forja doctor`: env keys against `.env.example`, Docker, Node version, the
       core's import rule
 
 ## Phase 4 — End to end

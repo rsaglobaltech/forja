@@ -27,6 +27,13 @@ else
 fi
 cd "$name"
 
+step "forja add: a use case (with its requirement), an entity, a port"
+node "$forja" add usecase orders/PlaceOrder
+node "$forja" add entity orders/Order
+node "$forja" add port orders/OrderRepository
+
+step "forja doctor";  node "$forja" doctor
+
 step "tests";      npm test
 step "typecheck";  npm run typecheck --if-present
 step "lint";       npm run lint --if-present

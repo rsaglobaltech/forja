@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Phase 3 — daily use after `forja init`
+
+- `forja add usecase <module>/<Name>`, `forja add entity` and `forja add port` on both paths. Node:
+  the use case is exported from the core's `index.ts` and registered in `container.ts` through its AST.
+  Java: the bean joins `<Module>Configuration` (Spring `@Bean` or CDI `@Produces`), which is created for
+  a new module; ArchUnit's rules hold. Every file comes with a passing test; nothing is overwritten.
+- With Specgate adopted, `add usecase` creates the requirement with `specgate new` and names its
+  `REQ-xxx` in the test; `--req` names an existing one, `--no-spec` skips it.
+- `forja doctor`: Node, the package manager, the JDK, Docker, `.env` against `.env.example`, one React,
+  the core's import rule, Specgate adopted.
+- Fixed: the install adopted Specgate with `specgate init`, which scaffolds a new project in a
+  subdirectory; it now runs `specgate adopt --no-capabilities`.
+
 ### Phase 2 — the Node path, up to date
 
 - Next 16.4, React 19.2.3 (one copy for the root, web and mobile — the version

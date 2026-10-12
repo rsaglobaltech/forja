@@ -20,6 +20,9 @@ import {
   nextSteps,
   type PostinstallResult,
 } from "./engine/postinstall.js";
+import { add, type AddKind, type AddResult } from "./add/add.js";
+import { doctor } from "./doctor/doctor.js";
+import { ForjaError, findProject } from "./project/project.js";
 
 const pkg = JSON.parse(
   fs.readFileSync(new URL("../package.json", import.meta.url), "utf-8"),
@@ -206,6 +209,109 @@ program
         process.exit(1);
       }
       throw error;
+    }
+  });
+
+/** Prints a ForjaError (or a bad forja.config.json) readably and exits 1. */
+function fail(error: unknown): never {
+  if (error instanceof ForjaError) {
+    p.log.error(error.message + (error.fix ? `\n${error.fix}` : ""));
+  } else if (error instanceof ZodError) {
+    p.log.error(`forja.config.json is not valid:\n${formatConfigError(error)}`);
+  } else {
+    throw error;
+  }
+  process.exit(1);
+}
+
+interface AddFlags {
+  req?: string;
+  title?: string;
+  spec?: boolean;
+  adapter?: boolean;
+  dryRun?: boolean;
+}
+
+const addCommand = program
+  .command("add")
+  .description("Add a use case, an entity or a port to the project you are in");
+
+const ADD_KINDS: { kind: AddKind; arg: string; what: string }[] = [
+  { kind: "usecase", arg: "<module/Name>", what: "a use case, its test, and its wiring" },
+  { kind: "entity", arg: "<[module/]Name>", what: "a domain entity and its test (Java: module required)" },
+  { kind: "port", arg: "<[module/]Name>", what: "an outbound port and an in-memory adapter (Java: module required)" },
+];
+
+for (const { kind, arg, what } of ADD_KINDS) {
+  const command = addCommand
+    .command(`${kind} ${arg}`)
+    .description(`Add ${what}`)
+    .option("--dry-run", "print what would change, write nothing");
+  if (kind === "usecase") {
+    command
+      .option("--req <id>", "name this existing requirement (REQ-007) in the test")
+      .option("--title <title>", "the requirement's title, when Specgate creates it")
+      .option("--no-spec", "do not create a requirement in Specgate");
+  }
+  if (kind === "port") command.option("--no-adapter", "the port only, no in-memory adapter");
+
+  command.action(async (raw: string, flags: AddFlags) => {
+    try {
+      const project = findProject();
+      const result = await add(project, kind, raw, flags);
+      p.intro(`forja add ${kind}${flags.dryRun ? " (dry run)" : ""}`);
+      for (const f of result.created) p.log.success(`created  ${f}`);
+      for (const f of result.updated) p.log.info(`updated  ${f}`);
+      if (result.requirement) {
+        p.log.step(
+          `${result.requirement.id} · ${result.requirement.title}` +
+            (result.requirement.featureFile ? `\nscenario to write: ${result.requirement.featureFile}` : ""),
+        );
+      } else if (result.specNote) {
+        p.log.warn(`No requirement linked: ${result.specNote}`);
+      }
+      p.outro(addNextStep(kind, project.config.backend, result));
+    } catch (error) {
+      fail(error);
+    }
+  });
+}
+
+function addNextStep(kind: AddKind, backend: string, result: AddResult): string {
+  const test = backend === "node" ? "npm test" : "npm run test:api";
+  if (kind === "usecase" && result.requirement) {
+    return `Next: write the scenario, make the test prove it (${test}), then npx specgate done ${result.requirement.id}`;
+  }
+  if (kind === "port") return "Next: give the port its first method, then pass it to the use case that needs it";
+  return `Next: ${test}`;
+}
+
+program
+  .command("doctor")
+  .description("Check the tools, the .env files and the architecture rules of the project you are in")
+  .action(async () => {
+    try {
+      const project = findProject();
+      p.intro(`forja doctor · ${project.config.name}`);
+      const checks = await doctor(project);
+      for (const c of checks) {
+        const line = `${c.name.padEnd(14)} ${c.detail}` + (c.fix && c.state !== "ok" ? `\n${c.fix}` : "");
+        if (c.state === "ok") p.log.success(line);
+        else if (c.state === "warn") p.log.warn(line);
+        else p.log.error(line);
+      }
+      const failed = checks.filter((c) => c.state === "fail").length;
+      const warned = checks.filter((c) => c.state === "warn").length;
+      p.outro(
+        failed > 0
+          ? `${failed} to fix${warned ? `, ${warned} to look at` : ""}`
+          : warned > 0
+            ? `Ready, with ${warned} to look at`
+            : "Ready",
+      );
+      if (failed > 0) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
     }
   });
 
