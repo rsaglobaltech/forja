@@ -1,37 +1,78 @@
 import { describe, expect, it } from "vitest";
-import { defaultConfig, defaultJavaConfig, javaPackageOf, parseForjaConfig } from "../src/config/schema.js";
+import { ZodError } from "zod";
+import {
+  defaultConfig,
+  defaultJavaConfig,
+  formatConfigError,
+  javaPackageOf,
+  parseForjaConfig,
+} from "../src/config/schema.js";
 
-describe("configuración", () => {
-  it("los valores por defecto son válidos (node, spring, quarkus)", () => {
+describe("configuration", () => {
+  it("the defaults are valid (node, spring, quarkus)", () => {
     expect(() => parseForjaConfig(defaultConfig("acme"))).not.toThrow();
     expect(() => parseForjaConfig(defaultJavaConfig("acme", "spring"))).not.toThrow();
     expect(() => parseForjaConfig(defaultJavaConfig("acme", "quarkus"))).not.toThrow();
   });
 
-  it("un forja.config.json antiguo (sin backend) sigue siendo node", () => {
-    const { backend, javaPackage, archunit, ...antiguo } = defaultConfig("acme");
-    expect(parseForjaConfig(antiguo).backend).toBe("node");
+  it("an older forja.config.json (no backend) is still node", () => {
+    const { backend, javaPackage, archunit, ...older } = defaultConfig("acme");
+    expect(parseForjaConfig(older).backend).toBe("node");
   });
 
-  it("Java: sin móvil, auth oauth2|none, db postgres-docker|none", () => {
+  it("Java: no mobile, auth oauth2 or none, db postgres-docker or none", () => {
     const base = defaultJavaConfig("acme", "spring");
     expect(() => parseForjaConfig({ ...base, platforms: ["web", "mobile"] })).toThrow(/mobile/);
-    expect(() => parseForjaConfig({ ...base, auth: "sessions" })).toThrow(/oauth2 \| none/);
-    expect(() => parseForjaConfig({ ...base, db: "supabase" })).toThrow(/postgres-docker \| none/);
+    expect(() => parseForjaConfig({ ...base, auth: "sessions" })).toThrow(/oauth2 or none/);
     expect(() => parseForjaConfig({ ...base, platforms: [] })).not.toThrow();
   });
 
-  it("ArchUnit, OAuth2 y javaPackage exigen backend Java", () => {
+  it("ArchUnit, OAuth2 and javaPackage need a Java backend", () => {
     const node = defaultConfig("acme");
     expect(() => parseForjaConfig({ ...node, archunit: true })).toThrow(/archunit/);
     expect(() => parseForjaConfig({ ...node, auth: "oauth2" })).toThrow(/oauth2/);
-    expect(() => parseForjaConfig({ ...node, javaPackage: "com.acme" })).toThrow(/javaPackage/);
+    expect(() => parseForjaConfig({ ...node, javaPackage: "com.acme" })).toThrow(/java-package/);
   });
 
-  it("el paquete Java se valida y por defecto sale del nombre", () => {
-    const base = defaultJavaConfig("mi-tienda", "quarkus");
-    expect(javaPackageOf(base)).toBe("com.mitienda");
-    expect(() => parseForjaConfig({ ...base, javaPackage: "Com.Acme" })).toThrow(/Paquete Java/);
-    expect(() => parseForjaConfig({ ...base, javaPackage: "acme" })).toThrow(/Paquete Java/);
+  it("the Java package is validated, and defaults to one made from the name", () => {
+    const base = defaultJavaConfig("my-shop", "quarkus");
+    expect(javaPackageOf(base)).toBe("com.myshop");
+    expect(() => parseForjaConfig({ ...base, javaPackage: "Com.Acme" })).toThrow(/Java package/);
+    expect(() => parseForjaConfig({ ...base, javaPackage: "acme" })).toThrow(/Java package/);
+  });
+
+  // The spec's other options used to pass here and fail half-way through the
+  // generation. Until a recipe implements one, it is not a valid value at all.
+  it("rejects every option no recipe implements yet", () => {
+    const node = defaultConfig("acme");
+    for (const [field, value] of [
+      ["db", "supabase"],
+      ["auth", "supabase-auth"],
+      ["mailer", "resend"],
+      ["ui", "shadcn"],
+      ["arch", "clean"],
+      ["eas", true],
+      ["edgeFunctions", true],
+    ] as const) {
+      expect(() => parseForjaConfig({ ...node, [field]: value }), `${field}: ${value}`).toThrow();
+    }
+    expect(() => parseForjaConfig({ ...node, tests: ["e2e-web"] })).toThrow();
+    expect(() => parseForjaConfig({ ...node, extras: ["husky"] })).toThrow();
+  });
+
+  it("docker is a Java extra: a Node project gets compose with --db postgres-docker", () => {
+    const node = defaultConfig("acme");
+    expect(() => parseForjaConfig({ ...node, extras: ["docker"] })).toThrow(/docker/);
+  });
+
+  it("a configuration error reads as one line per problem", () => {
+    try {
+      parseForjaConfig({ ...defaultConfig("acme"), platforms: [], db: "supabase" });
+      expect.unreachable();
+    } catch (error) {
+      expect(error).toBeInstanceOf(ZodError);
+      const text = formatConfigError(error as ZodError);
+      expect(text).toMatch(/^ {2}db: /m);
+    }
   });
 });

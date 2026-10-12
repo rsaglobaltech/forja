@@ -2,15 +2,22 @@
 product: <%= config.name %>
 surfaces: [api<% if (web) { %>, web<% } %>]
 actors:
-  # Quién usa el producto y por dónde. `specgate draft --check` (regla D3) exige un escenario de cada actor
-  # en cada una de sus superficies.
-  - { name: Cliente, surfaces: [api<% if (web) { %>, web<% } %>] }
+  # Who uses the product, and where. `specgate draft` (rule D3) asks for a
+  # scenario of each actor on each of their surfaces, so no screen is forgotten.
+  - { name: Customer, surfaces: [api<% if (web) { %>, web<% } %>] }
+# The pieces to specify and build, in the order you will build them,
+# e.g. [catalogue, orders]. Each becomes `specgate draft <module>`.
 modules: []
 ---
 
-# Ficha del proyecto
+# Brief
 
-Pega aquí la ficha del cliente **tal cual**, sin reescribirla: `specgate draft --check` (regla D6) comprueba
-que cada valor de un escenario sale de este texto o de `assumptions.md`.
+Paste the client's brief here **as it is**, without rewriting it: `specgate
+draft` (rule D6) checks that every value in a scenario comes from this text or
+from `assumptions.md`.
 
-Si la ficha trae capturas, describe aquí lo que muestran.
+If the brief has screenshots, describe what they show.
+
+Not sure what the four fields above should say? Run `npx specgate draft`: it
+explains each one, and `npx specgate draft --agent "claude -p"` lets your agent
+propose them from the text below.

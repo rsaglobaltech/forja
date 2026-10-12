@@ -3,16 +3,31 @@ import { Command } from "commander";
 import path from "node:path";
 import fs from "node:fs";
 import * as p from "@clack/prompts";
-import { defaultConfig, defaultJavaConfig, parseForjaConfig, type ForjaConfig } from "./config/schema.js";
+import { ZodError } from "zod";
+import {
+  defaultConfig,
+  defaultJavaConfig,
+  formatConfigError,
+  parseForjaConfig,
+  type ForjaConfig,
+} from "./config/schema.js";
 import { runWizard, confirmGit, confirmInstall } from "./prompts/wizard.js";
-import { planRecipes, UnsupportedOptionError } from "./engine/planner.js";
+import { planRecipes } from "./engine/planner.js";
 import { renderProject, writeToDisk } from "./engine/renderer.js";
-import { vfsTree } from "./engine/vfs.js";
 import { runPostinstall, nextSteps, type PostinstallResult } from "./engine/postinstall.js";
+
+const pkg = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf-8")) as {
+  version: string;
+};
 
 const program = new Command();
 
-program.name("forja").description("Scaffolding hexagonal: monorepos web + móvil en TypeScript o API Java (Spring Boot / Quarkus) con web, OAuth2 y Specgate");
+program
+  .name("forja")
+  .description(
+    "Scaffold hexagonal projects: web + mobile monorepos in TypeScript, or a Java API (Spring Boot / Quarkus) with a web app, OAuth2 and Specgate",
+  )
+  .version(pkg.version, "-v, --version", "print the version");
 
 interface InitFlags {
   backend?: string;
@@ -33,60 +48,70 @@ interface InitFlags {
   config?: string;
 }
 
-function applyFlags(base: ForjaConfig, flags: InitFlags): ForjaConfig {
+const list = (value: string) =>
+  value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+/** The flags on top of a base config: a flag given always wins. */
+function applyFlags(base: ForjaConfig, flags: InitFlags, name?: string): ForjaConfig {
   return parseForjaConfig({
     ...base,
+    name: name ?? base.name,
+    scope: name && base.scope === `@${base.name}` ? `@${name}` : base.scope,
     db: flags.db ?? base.db,
     auth: flags.auth ?? base.auth,
     mailer: flags.mailer ?? base.mailer,
     design: flags.design ?? base.design,
-    tests: flags.tests !== undefined ? flags.tests.split(",").map((s) => s.trim()).filter(Boolean) : base.tests,
-    extras: flags.extras !== undefined ? flags.extras.split(",").map((s) => s.trim()).filter(Boolean) : base.extras,
+    tests: flags.tests !== undefined ? list(flags.tests) : base.tests,
+    extras: flags.extras !== undefined ? list(flags.extras) : base.extras,
     pm: flags.pm ?? base.pm,
-    platforms: flags.platforms !== undefined
-      ? flags.platforms.split(",").map((s) => s.trim()).filter(Boolean)
-      : base.platforms,
+    platforms: flags.platforms !== undefined ? list(flags.platforms) : base.platforms,
     javaPackage: flags.javaPackage ?? base.javaPackage,
-    // commander pone archunit = true por defecto al existir --no-archunit: solo cuenta con backend Java.
+    // commander sets archunit = true by default because --no-archunit exists:
+    // it only counts with a Java backend.
     archunit: base.backend === "node" ? base.archunit : (flags.archunit ?? base.archunit),
   });
 }
 
 program
   .command("init [name]")
-  .description("Crea un proyecto nuevo")
+  .description("Create a new project")
   .option("--backend <backend>", "node | spring | quarkus")
-  .option("--java-package <pkg>", "paquete raíz Java, p. ej. com.acme.tienda")
-  .option("--archunit", "reglas de arquitectura con ArchUnit (backend Java)")
-  .option("--no-archunit", "sin ArchUnit")
-  .option("--platforms <platforms>", "web,mobile (con Java: web o vacío para solo API)")
+  .option("--java-package <pkg>", "root Java package, e.g. com.acme.shop")
+  .option("--archunit", "architecture rules with ArchUnit (Java backend)")
+  .option("--no-archunit", "no ArchUnit")
+  .option("--platforms <platforms>", "web,mobile (Java: web, or empty for an API only)")
   .option("--db <db>", "postgres-docker | none")
-  .option("--auth <auth>", "sessions | oauth2 | none")
+  .option("--auth <auth>", "sessions (Node) | oauth2 (Java) | none")
   .option("--mailer <mailer>", "console")
   .option("--design <design>", "tailwind | none")
-  .option("--tests <tests>", "lista separada por comas: unit,integration")
-  .option("--extras <extras>", "lista separada por comas: lint, ci, docker, specgate")
+  .option("--tests <tests>", "comma-separated: unit,integration")
+  .option("--extras <extras>", "comma-separated: lint, ci, docker (Java), specgate")
   .option("--pm <pm>", "npm | pnpm | bun")
-  .option("--yes", "no preguntar, usar defaults + flags")
-  .option("--dry-run", "imprimir el árbol sin escribir nada")
-  .option("--skip-install", "no instalar dependencias")
-  .option("--skip-git", "no inicializar git")
-  .option("--config <path>", "leer un forja.config.json existente")
+  .option("--yes", "ask nothing: defaults plus flags")
+  .option("--dry-run", "print the file tree, write nothing")
+  .option("--skip-install", "do not install dependencies")
+  .option("--skip-git", "do not initialise git")
+  .option("--config <path>", "start from a forja.config.json; the name and flags override it")
   .action(async (name: string | undefined, flags: InitFlags) => {
     try {
       let config: ForjaConfig;
 
       if (flags.config) {
         const raw = JSON.parse(fs.readFileSync(path.resolve(flags.config), "utf-8"));
-        config = parseForjaConfig(raw);
+        config = applyFlags(parseForjaConfig(raw), flags, name);
       } else if (flags.yes) {
         if (!name) {
-          console.error('Falta el nombre del proyecto: "forja init <name> --yes"');
+          console.error('The project needs a name: "forja init <name> --yes"');
           process.exit(1);
         }
         const backend = flags.backend ?? "node";
         const base =
-          backend === "spring" || backend === "quarkus" ? defaultJavaConfig(name, backend) : defaultConfig(name);
+          backend === "spring" || backend === "quarkus"
+            ? defaultJavaConfig(name, backend)
+            : defaultConfig(name);
         config = applyFlags(base, flags);
       } else {
         config = await runWizard(name);
@@ -94,64 +119,51 @@ program
 
       const recipes = planRecipes(config);
       const rendered = await renderProject(config, recipes);
-      const { tree } = rendered;
 
       if (flags.dryRun) {
-        console.log(tree.join("\n"));
+        console.log(rendered.tree.join("\n"));
         return;
       }
 
       const targetDir = path.resolve(process.cwd(), config.name);
       if (fs.existsSync(targetDir) && fs.readdirSync(targetDir).length > 0) {
-        console.error(`"${targetDir}" ya existe y no está vacío.`);
+        console.error(`"${targetDir}" already exists and is not empty.`);
         process.exit(1);
       }
 
       writeToDisk(rendered, targetDir);
 
-      let installDeps = flags.skipInstall ? false : flags.yes ? true : await confirmInstall();
-      const initGit = flags.skipGit ? false : flags.yes ? true : await confirmGit();
+      // --config and --yes both mean "ask nothing".
+      const unattended = Boolean(flags.yes || flags.config);
+      let installDeps = flags.skipInstall ? false : unattended ? true : await confirmInstall();
+      const initGit = flags.skipGit ? false : unattended ? true : await confirmGit();
 
       const spinner = p.spinner();
       let result: PostinstallResult | undefined;
       if (initGit || installDeps) {
-        spinner.start("Corriendo git init / install…");
+        spinner.start("Running git init and the install…");
         try {
           result = await runPostinstall({ targetDir, config, initGit, installDeps });
-          spinner.stop("Listo.");
+          spinner.stop("Done.");
         } catch (error) {
-          spinner.stop("Falló git/install, revisá el error abajo.");
+          spinner.stop("git or the install failed — the error is below.");
           console.error(error);
           installDeps = false;
         }
       }
 
-      console.log(`\n${config.name} generado en ${targetDir}\n`);
-      console.log("Siguientes pasos:\n");
+      console.log(`\n${config.name} created in ${targetDir}\n`);
+      console.log("Next steps:\n");
       for (const step of nextSteps(config, installDeps, result)) {
         console.log(`  ${step}`);
       }
     } catch (error) {
-      if (error instanceof UnsupportedOptionError) {
-        console.error(`\n${error.message}\n`);
+      if (error instanceof ZodError) {
+        console.error(`\nThat configuration is not valid:\n${formatConfigError(error)}\n`);
         process.exit(1);
       }
       throw error;
     }
-  });
-
-program
-  .command("doctor")
-  .description("Chequea el entorno de un proyecto generado (v0.2)")
-  .action(() => {
-    console.log("forja doctor todavía no está implementado. Llega en v0.2.");
-  });
-
-program
-  .command("add")
-  .description("Genera casos de uso, puertos, pantallas, etc. (v0.2)")
-  .action(() => {
-    console.log("forja add todavía no está implementado. Llega en v0.2.");
   });
 
 program.parseAsync(process.argv);
