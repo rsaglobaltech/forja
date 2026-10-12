@@ -90,8 +90,10 @@ build when one of these rules breaks:</p>
 <p>&quot;The framework&quot; means <code>org.springframework..</code>, <code>jakarta..</code> and <code>io.swagger..</code> on Spring Boot, and
 <code>io.quarkus..</code>, <code>jakarta..</code>, <code>org.eclipse.microprofile..</code> and <code>io.smallrye..</code> on Quarkus. Test classes
 are not analysed.</p>
-<h2 id="what-forja-doctor-checks-on-node">What forja doctor checks on Node<a class="anchor" href="#what-forja-doctor-checks-on-node" aria-label="Link to this section">#</a></h2>
-<p>Node has no ArchUnit, so <code>forja doctor</code> checks the core&#39;s imports. It reads every <code>.ts</code> and <code>.tsx</code> file
+<h2 id="what-npm-run-arch-and-forja-doctor-check-on-node">What npm run arch and forja doctor check on Node<a class="anchor" href="#what-npm-run-arch-and-forja-doctor-check-on-node" aria-label="Link to this section">#</a></h2>
+<p>Node has no ArchUnit, so the generated project carries <code>scripts/check-architecture.mjs</code>, run with
+<code>npm run arch</code>, and <code>forja doctor</code> runs the same check. The script has no dependencies, so it runs
+wherever the project does, and Specgate&#39;s gate runs it as <code>arch_cmd</code>. Both check the core&#39;s imports. It reads every <code>.ts</code> and <code>.tsx</code> file
 under <code>packages/core/src</code> and fails when:</p>
 <ul>
 <li>any file imports <code>next</code>, <code>react</code>, <code>react-dom</code>, <code>react-native</code> or <code>expo</code>, or a subpath of them;</li>
@@ -136,7 +138,7 @@ of green unit tests cannot.</p>
       <a href="https://github.com/rsaglobaltech/forja/issues/new" target="_blank" rel="noreferrer">Something wrong? Open an issue</a>
     </footer>
   </main>
-  <div class="rail"><nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc__l2"><a href="#the-layers">The layers</a></li><li class="toc__l3"><a href="#domain">Domain</a></li><li class="toc__l3"><a href="#application">Application</a></li><li class="toc__l3"><a href="#infrastructure">Infrastructure</a></li><li class="toc__l2"><a href="#the-composition-root">The composition root</a></li><li class="toc__l2"><a href="#what-archunit-checks">What ArchUnit checks</a></li><li class="toc__l2"><a href="#what-forja-doctor-checks-on-node">What forja doctor checks on Node</a></li><li class="toc__l2"><a href="#expected-errors-as-values">Expected errors as values</a></li><li class="toc__l2"><a href="#one-test-that-boots-everything">One test that boots everything</a></li></ul></nav></div>
+  <div class="rail"><nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc__l2"><a href="#the-layers">The layers</a></li><li class="toc__l3"><a href="#domain">Domain</a></li><li class="toc__l3"><a href="#application">Application</a></li><li class="toc__l3"><a href="#infrastructure">Infrastructure</a></li><li class="toc__l2"><a href="#the-composition-root">The composition root</a></li><li class="toc__l2"><a href="#what-archunit-checks">What ArchUnit checks</a></li><li class="toc__l2"><a href="#what-npm-run-arch-and-forja-doctor-check-on-node">What npm run arch and forja doctor check on Node</a></li><li class="toc__l2"><a href="#expected-errors-as-values">Expected errors as values</a></li><li class="toc__l2"><a href="#one-test-that-boots-everything">One test that boots everything</a></li></ul></nav></div>
 </div>
 
 <div class="palette" id="palette" hidden>

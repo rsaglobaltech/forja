@@ -37,6 +37,11 @@ export async function runPostinstall(
       await specgate("adopt", "--no-capabilities");
       await specgate("config", "set", "test_cmd", "npm test");
       specgateAdopted = true;
+      // The architecture check joins the gate (Specgate ≥ 0.20, ADR-0028). On
+      // an older Specgate the key is unknown: the gate stays as it was.
+      if (hasArchScript(config)) {
+        await specgate("config", "set", "arch_cmd", "npm run arch").catch(() => undefined);
+      }
       if (initGit) {
         await git("add", "-A");
         await git("commit", "-m", "chore: adopt Specgate");
@@ -127,12 +132,18 @@ function specgateSteps(
     : [
         "npx specgate adopt --no-capabilities",
         'npx specgate config set test_cmd "npm test"',
+        ...(hasArchScript(config) ? ['npx specgate config set arch_cmd "npm run arch"'] : []),
       ];
   return [
     ...adopt,
     "npx specgate draft               # after you fill in docs/brief.md — see docs/specgate.md",
     "npx specgate                     # where the specification stands, and what to run next",
   ];
+}
+
+/** The project has `npm run arch`: the core's rules on Node, ArchUnit on Java. */
+export function hasArchScript(config: ForjaConfig): boolean {
+  return !isJava(config) || config.archunit;
 }
 
 /** `cmd   # why` lines with every `#` in one column, whatever wrote them. */

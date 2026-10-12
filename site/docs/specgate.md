@@ -47,10 +47,16 @@ When forja installs the dependencies, it adopts Specgate in the new project:
 ```bash
 npx specgate adopt --no-capabilities
 npx specgate config set test_cmd "npm test"
+npx specgate config set arch_cmd "npm run arch"
 ```
 
+The third line puts the architecture in the gate: `specgate check`, `specgate done` and the harness
+run `npm run arch` between the specification and the tests, so code in the wrong layer fails the gate
+even when every test passes. On Node, `npm run arch` checks the core's import rules; on Java it runs
+the ArchUnit test alone. It needs Specgate 0.20 or newer; an older one leaves the gate as it was.
+
 With git on, it commits the result as `chore: adopt Specgate`. If you used `--skip-install`, or the
-adoption failed (no network, for example), forja prints those two commands among the next steps
+adoption failed (no network, for example), forja prints those commands among the next steps
 instead. Either way, the next steps end with:
 
 ```bash

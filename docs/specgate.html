@@ -68,9 +68,14 @@ comes from this text or from <code>assumptions.md</code>.</p>
 <h2 id="adoption-after-the-install">Adoption after the install<a class="anchor" href="#adoption-after-the-install" aria-label="Link to this section">#</a></h2>
 <p>When forja installs the dependencies, it adopts Specgate in the new project:</p>
 <figure class="code" data-lang="bash"><figcaption class="code__head"><span class="code__lang">bash</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-bash"><span class="tok tok--f">npx</span> specgate adopt <span class="tok tok--o">--no-capabilities</span>
-<span class="tok tok--f">npx</span> specgate config <span class="tok tok--k">set</span> test_cmd <span class="tok tok--s">&quot;npm test&quot;</span></code></pre></figure>
+<span class="tok tok--f">npx</span> specgate config <span class="tok tok--k">set</span> test_cmd <span class="tok tok--s">&quot;npm test&quot;</span>
+<span class="tok tok--f">npx</span> specgate config <span class="tok tok--k">set</span> arch_cmd <span class="tok tok--s">&quot;npm run arch&quot;</span></code></pre></figure>
+<p>The third line puts the architecture in the gate: <code>specgate check</code>, <code>specgate done</code> and the harness
+run <code>npm run arch</code> between the specification and the tests, so code in the wrong layer fails the gate
+even when every test passes. On Node, <code>npm run arch</code> checks the core&#39;s import rules; on Java it runs
+the ArchUnit test alone. It needs Specgate 0.20 or newer; an older one leaves the gate as it was.</p>
 <p>With git on, it commits the result as <code>chore: adopt Specgate</code>. If you used <code>--skip-install</code>, or the
-adoption failed (no network, for example), forja prints those two commands among the next steps
+adoption failed (no network, for example), forja prints those commands among the next steps
 instead. Either way, the next steps end with:</p>
 <figure class="code" data-lang="bash"><figcaption class="code__head"><span class="code__lang">bash</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-bash"><span class="tok tok--f">npx</span> specgate draft    <span class="tok tok--c"># after you fill in docs/brief.md — see docs/specgate.md</span>
 <span class="tok tok--f">npx</span> specgate          <span class="tok tok--c"># where the specification stands, and what to run next</span></code></pre></figure>
