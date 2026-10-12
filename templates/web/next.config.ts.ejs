@@ -1,14 +1,15 @@
 import type { NextConfig } from "next";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   transpilePackages: ["<%= config.scope %>/shared", "<%= config.scope %>/core"],
   // Stops Next from guessing the wrong monorepo root when tracing files
   // for the build (common in setups with more than one lockfile in the tree).
-  outputFileTracingRoot: path.join(__dirname, "../.."),
+  // Next runs this file from apps/web. (`import.meta.url` cannot be used: Next
+  // compiles next.config.ts to CommonJS, and this package is an ES module.)
+  outputFileTracingRoot: path.join(process.cwd(), "../.."),
+  // `next dev` and `next build` run with --webpack (see package.json): Turbopack,
+  // Next 16's default, does not map these `.js` imports to their `.ts` files.
   webpack(config) {
     // packages/core and packages/shared import each other's modules with a
     // .js extension (ESM in Node/tsx/vitest requires it), but the files are .ts.

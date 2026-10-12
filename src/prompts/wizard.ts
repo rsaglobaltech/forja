@@ -118,7 +118,7 @@ export async function runWizard(nameArg?: string): Promise<ForjaConfig> {
     message: "Extras",
     options: [
       { value: "lint", label: "ESLint + Prettier" },
-      { value: "ci", label: "CI on GitHub Actions" },
+      { value: "ci", label: "CI on GitHub Actions", hint: "a workflow: on a private repository it spends Actions minutes" },
       { value: "specgate", label: "Specgate (spec-driven development)" },
     ],
     initialValues: ["lint"],
@@ -220,12 +220,12 @@ async function runJavaWizard(name: string, backend: "spring" | "quarkus"): Promi
     p.multiselect({
       message: "Extras",
       options: [
-        { value: "ci", label: "CI on GitHub Actions" },
+        { value: "ci", label: "CI on GitHub Actions", hint: "a workflow: on a private repository it spends Actions minutes" },
         { value: "docker", label: "Production Dockerfiles" },
         { value: "specgate", label: "Specgate (spec-driven development)" },
         ...(web ? [{ value: "lint", label: "ESLint + Prettier (web)" }] : []),
       ],
-      initialValues: ["ci", "docker", "specgate", ...(web ? ["lint"] : [])],
+      initialValues: ["docker", "specgate", ...(web ? ["lint"] : [])],
       required: false,
     }),
   );

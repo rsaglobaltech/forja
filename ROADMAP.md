@@ -29,10 +29,10 @@ TypeScript types, Resend/SMTP mailers, rate limiting, `forja upgrade`.
 
 ## Phase 2 — Up to date: what forja generates works today
 
-- [ ] Node path on current versions: Next 16, React 19, a current Expo SDK
-- [ ] ESLint 10 on the Node path, if Expo accepts it
-- [ ] forja's CI generates, installs and tests a Node project as well as the
-      Java ones
+- [x] Node path on current versions: Next 16, React 19, a current Expo SDK
+- [x] ESLint 10 on the Node path, if Expo accepts it
+- [x] `scripts/verify-generated.sh node|spring|quarkus` generates, installs and
+      proves a project locally (no GitHub Actions: the user's quota is spent)
 
 ## Phase 3 — Daily use: after `forja init`
 
@@ -55,7 +55,8 @@ TypeScript types, Resend/SMTP mailers, rate limiting, `forja upgrade`.
 - [ ] Landing page and documentation in English, on Specgate's design
 - [ ] A "forja + Specgate" page: generate, write the brief, `specgate draft`,
       build, `done`
-- [ ] Deployed with GitHub Pages actions: `rsaglobaltech.github.io/forja`
+- [ ] Published without creating or enabling any GitHub Actions workflow (the
+      user's rule since 2026-10-12) — how, to be decided with the user
 
 ## Phase 6 — Release 1.0.0
 

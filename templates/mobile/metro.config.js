@@ -1,18 +1,8 @@
 const { getDefaultConfig } = require("expo/metro-config");
-const path = require("node:path");
 
-const projectRoot = __dirname;
-const workspaceRoot = path.resolve(projectRoot, "../..");
-
-const config = getDefaultConfig(projectRoot);
-
-// Monorepo: by default Metro only looks at this package's node_modules.
-config.watchFolders = [workspaceRoot];
-config.resolver.nodeModulesPaths = [
-  path.resolve(projectRoot, "node_modules"),
-  path.resolve(workspaceRoot, "node_modules"),
-];
-config.resolver.disableHierarchicalLookup = true;
+// Expo configures a monorepo by itself (since SDK 52): it watches the
+// workspace root and resolves from both node_modules folders.
+const config = getDefaultConfig(__dirname);
 
 // packages/core and packages/shared import each other's modules with a .js
 // extension (ESM in Node/tsx/vitest requires it), but the files are .ts. Unlike

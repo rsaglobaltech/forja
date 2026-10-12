@@ -3,14 +3,6 @@ import { defineRecipe } from "./types.js";
 export default defineRecipe({
   id: "auth-sessions",
   apply(ctx) {
-    ctx.mergePackageJson("packages/core", {
-      dependencies: {
-        bcryptjs: "^3.0.0",
-      },
-      devDependencies: {
-        "@types/bcryptjs": "^2.4.6",
-      },
-    });
 
     if (ctx.has("integration")) {
       ctx.copyDir(
@@ -27,7 +19,7 @@ export default defineRecipe({
         "auth-sessions/apps/web/src/app/actions/auth.actions.ts.ejs",
         "apps/web/src/app/actions/auth.actions.ts",
       );
-      ctx.copyFile("auth-sessions/apps/web/middleware.ts", "apps/web/middleware.ts");
+      ctx.copyFile("auth-sessions/apps/web/proxy.ts", "apps/web/proxy.ts");
 
       ctx.copyFile(
         "auth-sessions/apps/web/app/(auth)/login/page.tsx",

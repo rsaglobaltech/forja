@@ -1,5 +1,9 @@
 <% if (config.auth === "sessions") { -%>
+<% if (config.db === "postgres-docker") { -%>
 import { env, hasDatabase } from "./env.js";
+<% } else { -%>
+import { env } from "./env.js";
+<% } -%>
 import { SystemClock } from "../clock/SystemClock.js";
 import { ConsoleLogger } from "../logging/ConsoleLogger.js";
 import { BcryptPasswordHasher } from "../security/BcryptPasswordHasher.js";

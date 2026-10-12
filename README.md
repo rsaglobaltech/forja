@@ -66,7 +66,7 @@ Details in [`docs/java-backends.md`](docs/java-backends.md).
 | `--mailer` | `console` |
 | `--design` | `tailwind` · `none` |
 | `--tests` | `unit,integration` |
-| `--extras` | `lint`, `ci`, `docker` (Java), `specgate` |
+| `--extras` | `lint`, `ci` (writes a GitHub Actions workflow — not on by default), `docker` (Java), `specgate` |
 | `--pm` | `npm` · `pnpm` · `bun` |
 | `--yes` | ask nothing: defaults plus flags |
 | `--config <path>` | start from a `forja.config.json`; the name and flags override it |
