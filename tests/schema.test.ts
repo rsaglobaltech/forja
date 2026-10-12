@@ -16,7 +16,7 @@ describe("configuration", () => {
   });
 
   it("an older forja.config.json (no backend) is still node", () => {
-    const { backend, javaPackage, archunit, ...older } = defaultConfig("acme");
+    const { backend: _b, javaPackage: _j, archunit: _a, ...older } = defaultConfig("acme");
     expect(parseForjaConfig(older).backend).toBe("node");
   });
 
