@@ -4,6 +4,8 @@ A scaffolding CLI for projects built on **hexagonal architecture**: web + mobile
 a **Java API (Spring Boot or Quarkus)** with its web front end, OAuth2 and everything you need to work with
 tests, CI and specifications from the first commit.
 
+**Website and documentation: https://rsaglobaltech.github.io/forja/**
+
 ## Install
 
 Once published:
@@ -51,7 +53,7 @@ Always hexagonal. With Java you also get:
 - **Extras**: GitHub Actions CI, production Dockerfiles and
   [Specgate](https://www.npmjs.com/package/@rsaglobaltech/specgate) (specification-driven development).
 
-Details in [`docs/java-backends.md`](docs/java-backends.md).
+Details in [`design/java-backends.md`](design/java-backends.md).
 
 ## `forja init` options
 
@@ -121,7 +123,7 @@ adopted. It exits 1 when something must be fixed.
 
 - [`ROADMAP.md`](ROADMAP.md) — the plan to 1.0 and its progress.
 - [`docs/`](docs/) — the Java backends and the original design document
-  ([`docs/design/specification.md`](docs/design/specification.md)).
+  ([`design/specification.md`](design/specification.md)).
 - [`CHANGELOG.md`](CHANGELOG.md)
 
 ## Developing forja

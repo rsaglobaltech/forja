@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en" data-slug="config">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configuration — forja</title>
+<meta name="description" content="Every field, its values and its defaults.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Configuration — forja">
+<meta property="og:description" content="Every field, its values and its defaults.">
+<link rel="stylesheet" href="assets/docs.css">
+<link rel="stylesheet" href="assets/forja.css">
+<script>
+  (function () {
+    try { var t = localStorage.getItem("forja-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="top">
+  <button class="top__menu" type="button" aria-label="Open navigation" aria-expanded="false"><span aria-hidden="true">☰</span></button>
+  <a class="top__brand" href="index.html"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true" width="18" height="18"><path d="M8 20h42v9h-7c-3 0-5 2-5 5v5h6v7H20v-7h6v-5c0-3-3-5-7-5-6 0-10-4-11-9Z" fill="currentColor"/></svg> forja<span class="top__brand-sub">/docs</span></a>
+  <span class="top__version">v0.2.0</span>
+  <button class="top__search" id="search" type="button" aria-label="Search documentation" aria-keyshortcuts="Meta+K Control+K">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <span class="top__search-label">search docs</span>
+    <kbd class="top__kbd"><span class="top__kbd-mod">⌘</span>K</kbd>
+  </button>
+  <nav class="top__links">
+    <a href="docs.html">Docs</a>
+    <a href="https://github.com/rsaglobaltech/forja" target="_blank" rel="noreferrer">GitHub</a>
+    <a href="https://www.npmjs.com/package/@rsaglobaltech/forja" target="_blank" rel="noreferrer">npm</a>
+  </nav>
+  <button class="top__theme" type="button" aria-label="Switch theme">◐</button>
+</header>
+
+<div class="shell">
+  <aside class="side" id="side"><nav aria-label="Documentation"><details class="side__group" data-group="Start"><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 2 5 5.5 5 9l-5 4-5-4c0-3.5 2-7 5-9Z"/><circle cx="12" cy="10" r="1.6"/><path d="M9 17l-2 4 4-2M15 17l2 4-4-2"/></svg><span>Start</span></summary><ul><li><a href="getting-started.html">Getting started</a></li><li><a href="java.html">Java backends</a></li><li><a href="daily-use.html">Daily use</a></li><li><a href="specgate.html">forja + Specgate</a></li><li><a href="e2e.html">End-to-end tests</a></li></ul></details><details class="side__group" data-group="Reference" open><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 5.5v15"/></svg><span>Reference</span></summary><ul><li><a href="cli.html">Command line</a></li><li><a href="config.html" class="is-active" aria-current="page">forja.config.json</a></li><li><a href="generated-project.html">What it generates</a></li></ul></details><details class="side__group" data-group="Background"><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg><span>Background</span></summary><ul><li><a href="architecture.html">Architecture</a></li><li><a href="contributing.html">Contributing</a></li></ul></details></nav></aside>
+  <main class="content" id="content">
+    <nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="docs.html">Docs</a></li><li>Reference</li><li aria-current="page">forja.config.json</li></ol></nav>
+    <article class="prose">
+<h1 id="configuration">Configuration<a class="anchor" href="#configuration" aria-label="Link to this section">#</a></h1>
+<p>Every project forja creates has a <code>forja.config.json</code> at its root. It records the choices made at
+<code>forja init</code>, and <code>forja add</code> and <code>forja doctor</code> read it to know the backend, the package and the
+extras. You can also write one by hand, or copy one from another project, and pass it to <code>forja init --config</code>.</p>
+<h2 id="an-example">An example<a class="anchor" href="#an-example" aria-label="Link to this section">#</a></h2>
+<p>This is the file <code>forja init shop --yes --backend spring</code> writes:</p>
+<figure class="code" data-lang="json"><figcaption class="code__head"><span class="code__lang">forja.config.json</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-json">{
+  <span class="tok tok--a">&quot;version&quot;</span>: <span class="tok tok--n">1</span>,
+  <span class="tok tok--a">&quot;name&quot;</span>: <span class="tok tok--s">&quot;shop&quot;</span>,
+  <span class="tok tok--a">&quot;scope&quot;</span>: <span class="tok tok--s">&quot;@shop&quot;</span>,
+  <span class="tok tok--a">&quot;platforms&quot;</span>: [<span class="tok tok--s">&quot;web&quot;</span>],
+  <span class="tok tok--a">&quot;backend&quot;</span>: <span class="tok tok--s">&quot;spring&quot;</span>,
+  <span class="tok tok--a">&quot;archunit&quot;</span>: <span class="tok tok--k">true</span>,
+  <span class="tok tok--a">&quot;arch&quot;</span>: <span class="tok tok--s">&quot;hexagonal&quot;</span>,
+  <span class="tok tok--a">&quot;db&quot;</span>: <span class="tok tok--s">&quot;postgres-docker&quot;</span>,
+  <span class="tok tok--a">&quot;auth&quot;</span>: <span class="tok tok--s">&quot;oauth2&quot;</span>,
+  <span class="tok tok--a">&quot;mailer&quot;</span>: <span class="tok tok--s">&quot;console&quot;</span>,
+  <span class="tok tok--a">&quot;design&quot;</span>: <span class="tok tok--s">&quot;tailwind&quot;</span>,
+  <span class="tok tok--a">&quot;ui&quot;</span>: <span class="tok tok--s">&quot;own&quot;</span>,
+  <span class="tok tok--a">&quot;edgeFunctions&quot;</span>: <span class="tok tok--k">false</span>,
+  <span class="tok tok--a">&quot;eas&quot;</span>: <span class="tok tok--k">false</span>,
+  <span class="tok tok--a">&quot;tests&quot;</span>: [<span class="tok tok--s">&quot;unit&quot;</span>, <span class="tok tok--s">&quot;integration&quot;</span>],
+  <span class="tok tok--a">&quot;extras&quot;</span>: [<span class="tok tok--s">&quot;lint&quot;</span>, <span class="tok tok--s">&quot;docker&quot;</span>, <span class="tok tok--s">&quot;specgate&quot;</span>],
+  <span class="tok tok--a">&quot;pm&quot;</span>: <span class="tok tok--s">&quot;npm&quot;</span>
+}</code></pre></figure>
+<p><code>javaPackage</code> only appears when you set it. <code>$schema</code> and <code>version</code> are written by forja and not
+read back.</p>
+<h2 id="fields">Fields<a class="anchor" href="#fields" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Type</th><th>Allowed values</th><th>Required</th></tr></thead><tbody><tr><td><code>name</code></td><td>string</td><td>lowercase letters, digits and hyphens, starting with a letter</td><td>yes</td></tr><tr><td><code>scope</code></td><td>string</td><td><code>@</code> followed by lowercase letters, digits and hyphens</td><td>yes</td></tr><tr><td><code>platforms</code></td><td>array</td><td><code>web</code>, <code>mobile</code></td><td>yes</td></tr><tr><td><code>backend</code></td><td>string</td><td><code>node</code>, <code>spring</code>, <code>quarkus</code></td><td>no, defaults to <code>node</code></td></tr><tr><td><code>javaPackage</code></td><td>string</td><td>dotted lowercase segments, at least two: <code>com.acme.shop</code></td><td>no</td></tr><tr><td><code>archunit</code></td><td>boolean</td><td><code>true</code>, <code>false</code></td><td>no, defaults to <code>false</code></td></tr><tr><td><code>arch</code></td><td>string</td><td><code>hexagonal</code></td><td>yes</td></tr><tr><td><code>db</code></td><td>string</td><td><code>postgres-docker</code>, <code>none</code></td><td>yes</td></tr><tr><td><code>auth</code></td><td>string</td><td><code>sessions</code>, <code>oauth2</code>, <code>none</code></td><td>yes</td></tr><tr><td><code>mailer</code></td><td>string</td><td><code>console</code></td><td>yes</td></tr><tr><td><code>design</code></td><td>string</td><td><code>tailwind</code>, <code>none</code></td><td>yes</td></tr><tr><td><code>ui</code></td><td>string</td><td><code>own</code></td><td>yes</td></tr><tr><td><code>edgeFunctions</code></td><td>boolean</td><td><code>false</code></td><td>yes</td></tr><tr><td><code>eas</code></td><td>boolean</td><td><code>false</code></td><td>yes</td></tr><tr><td><code>tests</code></td><td>array</td><td><code>unit</code>, <code>integration</code>, <code>e2e-web</code></td><td>yes</td></tr><tr><td><code>extras</code></td><td>array</td><td><code>lint</code>, <code>ci</code>, <code>docker</code>, <code>specgate</code></td><td>yes</td></tr><tr><td><code>pm</code></td><td>string</td><td><code>npm</code>, <code>pnpm</code>, <code>bun</code> (Java: <code>npm</code> only)</td><td>yes</td></tr></tbody></table></div>
+<p><code>arch</code>, <code>ui</code>, <code>edgeFunctions</code> and <code>eas</code> have one accepted value today. They hold the place of options
+forja does not generate yet, and a hand-written file must still include them.</p>
+<p>What each field means:</p>
+<ul>
+<li><code>scope</code> names the internal packages: <code>@shop/core</code>, <code>@shop/shared</code>, <code>@shop/web</code>.</li>
+<li><code>platforms</code> lists the apps. On Java, <code>[]</code> means an API only.</li>
+<li><code>backend</code> decides where the logic lives: <code>packages/core</code> in TypeScript, or <code>apps/api</code> in Java.</li>
+<li><code>javaPackage</code> is the root Java package. Without it, forja uses <code>com.&lt;name&gt;</code> with the hyphens removed.</li>
+<li><code>archunit</code> adds the ArchUnit test on Java.</li>
+<li><code>db: none</code> keeps the in-memory repositories; <code>postgres-docker</code> adds PostgreSQL in Docker.</li>
+<li><code>auth: sessions</code> is the built-in session auth on Node; <code>oauth2</code> is Keycloak and Auth.js on Java.</li>
+<li><code>mailer: console</code> prints emails to the terminal. It is used by Node sessions.</li>
+<li><code>design: tailwind</code> adds Tailwind on the web and NativeWind on mobile, with shared design tokens.</li>
+<li><code>tests</code> picks the test suites; <code>e2e-web</code> adds Playwright. See <a href="e2e.html">End-to-end tests</a>.</li>
+<li><code>extras</code>: <code>lint</code> adds ESLint and Prettier, <code>ci</code> a GitHub Actions workflow, <code>docker</code> production
+Dockerfiles (Java), <code>specgate</code> the Specgate setup (<a href="specgate.html">forja and Specgate</a>).</li>
+<li><code>pm</code> is the package manager forja installs with and <code>forja doctor</code> checks.</li>
+</ul>
+<p>The same cross-field rules as the flags apply; <a href="cli.html#rejected-combinations">CLI reference</a> lists
+them with their messages.</p>
+<h2 id="defaults">Defaults<a class="anchor" href="#defaults" aria-label="Link to this section">#</a></h2>
+<p><code>forja init &lt;name&gt; --yes</code> starts from one of two sets of defaults, chosen by <code>--backend</code>:</p>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Node (<code>defaultConfig</code>)</th><th>Java (<code>defaultJavaConfig</code>)</th></tr></thead><tbody><tr><td><code>scope</code></td><td><code>@&lt;name&gt;</code></td><td><code>@&lt;name&gt;</code></td></tr><tr><td><code>platforms</code></td><td><code>[&quot;web&quot;, &quot;mobile&quot;]</code></td><td><code>[&quot;web&quot;]</code></td></tr><tr><td><code>backend</code></td><td><code>node</code></td><td><code>spring</code> or <code>quarkus</code></td></tr><tr><td><code>javaPackage</code></td><td>not set</td><td>not set, so <code>com.&lt;name&gt;</code></td></tr><tr><td><code>archunit</code></td><td><code>false</code></td><td><code>true</code></td></tr><tr><td><code>arch</code></td><td><code>hexagonal</code></td><td><code>hexagonal</code></td></tr><tr><td><code>db</code></td><td><code>postgres-docker</code></td><td><code>postgres-docker</code></td></tr><tr><td><code>auth</code></td><td><code>sessions</code></td><td><code>oauth2</code></td></tr><tr><td><code>mailer</code></td><td><code>console</code></td><td><code>console</code></td></tr><tr><td><code>design</code></td><td><code>tailwind</code></td><td><code>tailwind</code></td></tr><tr><td><code>ui</code></td><td><code>own</code></td><td><code>own</code></td></tr><tr><td><code>edgeFunctions</code>, <code>eas</code></td><td><code>false</code></td><td><code>false</code></td></tr><tr><td><code>tests</code></td><td><code>[&quot;unit&quot;, &quot;integration&quot;]</code></td><td><code>[&quot;unit&quot;, &quot;integration&quot;]</code></td></tr><tr><td><code>extras</code></td><td><code>[&quot;lint&quot;]</code></td><td><code>[&quot;lint&quot;, &quot;docker&quot;, &quot;specgate&quot;]</code></td></tr><tr><td><code>pm</code></td><td><code>npm</code></td><td><code>npm</code></td></tr></tbody></table></div>
+<p>Neither set turns on <code>ci</code>. It writes a GitHub Actions workflow, which spends Actions minutes on a
+private repository, so you ask for it.</p>
+<h2 id="starting-from-a-file">Starting from a file<a class="anchor" href="#starting-from-a-file" aria-label="Link to this section">#</a></h2>
+<figure class="code" data-lang="bash"><figcaption class="code__head"><span class="code__lang">bash</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-bash"><span class="tok tok--f">forja</span> init shop <span class="tok tok--o">--config</span> forja.config.json
+<span class="tok tok--f">forja</span> init other-shop <span class="tok tok--o">--config</span> ./shop/forja.config.json <span class="tok tok--o">--db</span> none</code></pre></figure>
+<p>forja reads and validates the file, then applies the name argument and the flags on top:</p>
+<ul>
+<li>The name argument replaces <code>name</code>. If the file&#39;s <code>scope</code> was <code>@&lt;old name&gt;</code>, it becomes <code>@&lt;new name&gt;</code>;
+a custom scope stays.</li>
+<li><code>--platforms</code>, <code>--db</code>, <code>--auth</code>, <code>--mailer</code>, <code>--design</code>, <code>--tests</code>, <code>--extras</code>, <code>--pm</code> and
+<code>--java-package</code> replace the file&#39;s value. List flags replace the whole list.</li>
+<li><code>--archunit</code> and <code>--no-archunit</code> apply when the file&#39;s backend is Java.</li>
+<li><code>--backend</code> replaces the file&#39;s <code>backend</code>. The rest of the file must suit the new backend: <code>auth: sessions</code> with <code>--backend spring</code> is rejected.</li>
+</ul>
+<p>The result is validated again, so a flag that breaks a rule is reported like any other.</p>
+<p><code>--config</code> asks nothing: like <code>--yes</code>, it installs the dependencies and runs <code>git init</code> unless you pass
+<code>--skip-install</code> or <code>--skip-git</code>.</p>
+<h2 id="inside-a-project">Inside a project<a class="anchor" href="#inside-a-project" aria-label="Link to this section">#</a></h2>
+<p><code>forja add</code> and <code>forja doctor</code> look for <code>forja.config.json</code> in the current directory and its parents,
+and validate it. If you edit it by hand and break a rule, they stop with
+<code>forja.config.json is not valid:</code> and the problem. Changing a field does not regenerate anything; it
+only changes what <code>add</code> and <code>doctor</code> assume.</p>
+
+    </article>
+    <nav class="pager" aria-label="Neighbouring pages"><a class="pager__prev" href="cli.html"><span>Previous</span>Command line</a><a class="pager__next" href="generated-project.html"><span>Next</span>What it generates</a></nav>
+    <footer class="page-foot">
+      <a href="https://github.com/rsaglobaltech/forja/edit/develop/site/docs/config.md" target="_blank" rel="noreferrer">Edit this page</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/rsaglobaltech/forja/issues/new" target="_blank" rel="noreferrer">Something wrong? Open an issue</a>
+    </footer>
+  </main>
+  <div class="rail"><nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc__l2"><a href="#an-example">An example</a></li><li class="toc__l2"><a href="#fields">Fields</a></li><li class="toc__l2"><a href="#defaults">Defaults</a></li><li class="toc__l2"><a href="#starting-from-a-file">Starting from a file</a></li><li class="toc__l2"><a href="#inside-a-project">Inside a project</a></li></ul></nav></div>
+</div>
+
+<div class="palette" id="palette" hidden>
+  <div class="palette__scrim" data-close="1"></div>
+  <div class="palette__box" role="dialog" aria-modal="true" aria-label="Search documentation">
+    <div class="palette__field">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="palette-input" placeholder="Search the documentation…" autocomplete="off" spellcheck="false" aria-label="Search documentation" aria-controls="results" aria-expanded="true">
+      <kbd class="palette__esc">Esc</kbd>
+    </div>
+    <div class="palette__results" id="results" role="listbox" aria-label="Results"></div>
+    <p class="palette__hint"><kbd>↑</kbd><kbd>↓</kbd> to navigate · <kbd>↵</kbd> to open · <kbd>Esc</kbd> to close</p>
+  </div>
+</div>
+
+<script src="assets/docs.js" defer></script>
+</body>
+</html>

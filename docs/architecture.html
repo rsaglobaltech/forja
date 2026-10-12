@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en" data-slug="architecture">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture — forja</title>
+<meta name="description" content="The hexagon forja generates and the rules that keep it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Architecture — forja">
+<meta property="og:description" content="The hexagon forja generates and the rules that keep it.">
+<link rel="stylesheet" href="assets/docs.css">
+<link rel="stylesheet" href="assets/forja.css">
+<script>
+  (function () {
+    try { var t = localStorage.getItem("forja-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="top">
+  <button class="top__menu" type="button" aria-label="Open navigation" aria-expanded="false"><span aria-hidden="true">☰</span></button>
+  <a class="top__brand" href="index.html"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true" width="18" height="18"><path d="M8 20h42v9h-7c-3 0-5 2-5 5v5h6v7H20v-7h6v-5c0-3-3-5-7-5-6 0-10-4-11-9Z" fill="currentColor"/></svg> forja<span class="top__brand-sub">/docs</span></a>
+  <span class="top__version">v0.2.0</span>
+  <button class="top__search" id="search" type="button" aria-label="Search documentation" aria-keyshortcuts="Meta+K Control+K">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <span class="top__search-label">search docs</span>
+    <kbd class="top__kbd"><span class="top__kbd-mod">⌘</span>K</kbd>
+  </button>
+  <nav class="top__links">
+    <a href="docs.html">Docs</a>
+    <a href="https://github.com/rsaglobaltech/forja" target="_blank" rel="noreferrer">GitHub</a>
+    <a href="https://www.npmjs.com/package/@rsaglobaltech/forja" target="_blank" rel="noreferrer">npm</a>
+  </nav>
+  <button class="top__theme" type="button" aria-label="Switch theme">◐</button>
+</header>
+
+<div class="shell">
+  <aside class="side" id="side"><nav aria-label="Documentation"><details class="side__group" data-group="Start"><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 2 5 5.5 5 9l-5 4-5-4c0-3.5 2-7 5-9Z"/><circle cx="12" cy="10" r="1.6"/><path d="M9 17l-2 4 4-2M15 17l2 4-4-2"/></svg><span>Start</span></summary><ul><li><a href="getting-started.html">Getting started</a></li><li><a href="java.html">Java backends</a></li><li><a href="daily-use.html">Daily use</a></li><li><a href="specgate.html">forja + Specgate</a></li><li><a href="e2e.html">End-to-end tests</a></li></ul></details><details class="side__group" data-group="Reference"><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 5.5v15"/></svg><span>Reference</span></summary><ul><li><a href="cli.html">Command line</a></li><li><a href="config.html">forja.config.json</a></li><li><a href="generated-project.html">What it generates</a></li></ul></details><details class="side__group" data-group="Background" open><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg><span>Background</span></summary><ul><li><a href="architecture.html" class="is-active" aria-current="page">Architecture</a></li><li><a href="contributing.html">Contributing</a></li></ul></details></nav></aside>
+  <main class="content" id="content">
+    <nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="docs.html">Docs</a></li><li>Background</li><li aria-current="page">Architecture</li></ol></nav>
+    <article class="prose">
+<h1 id="architecture">Architecture<a class="anchor" href="#architecture" aria-label="Link to this section">#</a></h1>
+<p>Every project forja generates is hexagonal, also called ports and adapters. There is one rule behind
+it: dependencies point towards the domain. The business rules know nothing about the web framework,
+the database or the mail provider, and those pieces plug in from the outside.</p>
+<figure class="code" data-lang="text"><figcaption class="code__head"><span class="code__lang">text</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-text">infrastructure  ──►  application  ──►  domain
+ (framework,          (use cases,        (entities, value objects,
+  database, HTTP,      ports)             rules: plain code)
+  security)</code></pre></figure>
+<h2 id="the-layers">The layers<a class="anchor" href="#the-layers" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>Layer</th><th>What it holds</th><th>Node: <code>packages/core/src/</code></th><th>Java: <code>apps/api/.../&lt;module&gt;/</code></th></tr></thead><tbody><tr><td>Domain</td><td>entities, value objects, events, the rules</td><td><code>domain/</code></td><td><code>domain/</code></td></tr><tr><td>Application</td><td>use cases, one per class</td><td><code>application/&lt;module&gt;/</code></td><td><code>application/</code></td></tr><tr><td>Ports</td><td>the interfaces the use cases need</td><td><code>ports/</code></td><td><code>application/port/</code></td></tr><tr><td>Infrastructure</td><td>adapters and the composition root</td><td><code>infrastructure/</code></td><td><code>infrastructure/</code></td></tr></tbody></table></div>
+<p>On Node, the hexagon is the <code>packages/core</code> workspace, shared by the web and mobile apps. On Java, each
+module of <code>apps/api</code> is its own small hexagon (<code>tasks</code> to start with), plus a <code>shared</code> package for the
+cross-cutting pieces such as <code>DomainException</code> and the <code>CurrentUser</code> port.</p>
+<h3 id="domain">Domain<a class="anchor" href="#domain" aria-label="Link to this section">#</a></h3>
+<p>Plain TypeScript or plain Java: no framework, no database, no HTTP. An entity is created through a
+factory, such as <code>User.create</code> or <code>Task.create</code>. Value objects such as <code>Email</code>, <code>Password</code> and
+<code>TaskTitle</code> refuse invalid input when they are built, so the rest of the code can trust them.</p>
+<h3 id="application">Application<a class="anchor" href="#application" aria-label="Link to this section">#</a></h3>
+<p>A use case orchestrates the domain through ports. Everything it needs from the outside world, such as
+a repository, a clock, a password hasher or a mailer, comes in through its constructor as an
+interface. That is what lets the tests run a use case against in-memory adapters, with nothing started.</p>
+<p>On Java, use cases carry no framework annotations. <code>CompleteTask</code> is a plain <code>final class</code> with a
+constructor.</p>
+<h3 id="infrastructure">Infrastructure<a class="anchor" href="#infrastructure" aria-label="Link to this section">#</a></h3>
+<p>Adapters implement the ports: Drizzle and in-memory repositories, bcrypt, a console mailer, a system
+clock on Node; JDBC and in-memory repositories, REST controllers, JWT security on Java. The
+infrastructure is also where the pieces are put together.</p>
+<h2 id="the-composition-root">The composition root<a class="anchor" href="#the-composition-root" aria-label="Link to this section">#</a></h2>
+<p>One place knows both the use cases and the adapters, and wires them.</p>
+<p>On Node it is <code>packages/core/src/infrastructure/config/container.ts</code>. <code>buildContainer()</code> creates the
+adapters and returns an object with every use case built on them. Each adapter is chosen by its own
+switch: <code>hasDatabase()</code> picks the Drizzle repositories when <code>DATABASE_URL</code> is set and the in-memory ones
+otherwise. There is no single &quot;demo mode&quot; flag that turns everything off at once. The container is kept
+on <code>globalThis</code>, so Next.js&#39;s separate server bundles share one instance and one set of in-memory data.</p>
+<p>On Java it is a <code>&lt;Module&gt;Configuration</code> class in each module&#39;s <code>infrastructure/config</code>:
+<code>TasksConfiguration</code> declares Spring <code>@Bean</code> methods, or CDI <code>@Produces</code> methods on Quarkus, that call
+the use cases&#39; constructors.</p>
+<p><code>forja add usecase</code> registers new use cases in the same place: in <code>buildContainer()</code> on Node, and in
+<code>&lt;Module&gt;Configuration</code> on Java. See <a href="daily-use.html">Daily use</a>.</p>
+<h2 id="what-archunit-checks">What ArchUnit checks<a class="anchor" href="#what-archunit-checks" aria-label="Link to this section">#</a></h2>
+<p>On Java with ArchUnit on (the default), <code>ArchitectureTest</code> runs on every <code>./mvnw verify</code> and fails the
+build when one of these rules breaks:</p>
+<div class="table-wrap"><table><thead><tr><th>Rule</th><th>What it says</th></tr></thead><tbody><tr><td><code>domainIsPureJava</code></td><td>nothing in <code>..domain..</code> depends on <code>..application..</code>, <code>..infrastructure..</code> or the framework</td></tr><tr><td><code>applicationHasNoFrameworkNorAdapters</code></td><td>nothing in <code>..application..</code> depends on <code>..infrastructure..</code> or the framework</td></tr><tr><td><code>portsAreInterfaces</code></td><td>every class in <code>..application.port..</code> is an interface</td></tr><tr><td><code>modulesDoNotUseEachOthersInfrastructure</code></td><td>the <code>infrastructure</code> of one module does not depend on another module&#39;s</td></tr><tr><td><code>noCycles</code></td><td>no dependency cycles between modules</td></tr></tbody></table></div>
+<p>&quot;The framework&quot; means <code>org.springframework..</code>, <code>jakarta..</code> and <code>io.swagger..</code> on Spring Boot, and
+<code>io.quarkus..</code>, <code>jakarta..</code>, <code>org.eclipse.microprofile..</code> and <code>io.smallrye..</code> on Quarkus. Test classes
+are not analysed.</p>
+<h2 id="what-forja-doctor-checks-on-node">What forja doctor checks on Node<a class="anchor" href="#what-forja-doctor-checks-on-node" aria-label="Link to this section">#</a></h2>
+<p>Node has no ArchUnit, so <code>forja doctor</code> checks the core&#39;s imports. It reads every <code>.ts</code> and <code>.tsx</code> file
+under <code>packages/core/src</code> and fails when:</p>
+<ul>
+<li>any file imports <code>next</code>, <code>react</code>, <code>react-dom</code>, <code>react-native</code> or <code>expo</code>, or a subpath of them;</li>
+<li>a file in <code>domain/</code>, <code>application/</code> or <code>ports/</code> imports from <code>infrastructure/</code>.</li>
+</ul>
+<p>It names the file and the line, and suggests moving that code to <code>apps/*</code> or <code>infrastructure/</code> and
+reaching it through a port. It also checks that the root, the web app and the mobile app declare one
+React version, because two copies break hooks. <a href="daily-use.html#forja-doctor">Daily use</a> lists the rest.</p>
+<h2 id="expected-errors-as-values">Expected errors as values<a class="anchor" href="#expected-errors-as-values" aria-label="Link to this section">#</a></h2>
+<p>On Node, a use case returns a <code>Result</code> for the errors the business expects:</p>
+<figure class="code" data-lang="ts"><figcaption class="code__head"><span class="code__lang">packages/core/src/domain/shared/Result.ts</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-ts"><span class="tok tok--k">export</span> <span class="tok tok--k">type</span> Result&lt;T, E&gt; = { ok: <span class="tok tok--k">true</span>; value: T } | { ok: <span class="tok tok--k">false</span>; error: E };</code></pre></figure>
+<p><code>RegisterUseCase</code> returns <code>err(new EmailAlreadyInUseError())</code> when the email is taken, and
+<code>ok({ userId })</code> when it is not. The reasons:</p>
+<ul>
+<li>The signature says what can go wrong. <code>Result&lt;RegisterOutput, EmailAlreadyInUseError&gt;</code> tells the
+caller which errors to handle; a thrown exception does not appear in the type.</li>
+<li>The caller has to look at <code>ok</code> before it can reach <code>value</code>, so an expected failure cannot slip
+through unhandled.</li>
+<li>Each domain error has a stable <code>code</code>, such as <code>EMAIL_ALREADY_IN_USE</code>, that the web app and the mobile
+app can map to a message.</li>
+</ul>
+<p>Failures nobody expects, such as the database being down, still throw. They are not part of the
+business, and no caller can do much about them. Value objects also throw when they are built from
+invalid input: <code>Email.create</code> throws an <code>InvalidEmailError</code>, which is a <code>DomainError</code> with its own
+<code>code</code>. The web app&#39;s Server Actions and API route handlers validate input with the zod schemas in
+<code>packages/shared</code> before it reaches the core.</p>
+<p>The use cases <code>forja add</code> writes follow the same shape: <code>execute()</code> returns <code>Promise&lt;Result&lt;...&gt;&gt;</code>, and
+the test checks <code>result.ok</code>.</p>
+<p>On Java the generated code takes the language&#39;s usual route: a broken rule throws a <code>DomainException</code>
+with a stable <code>code</code> and a kind (invalid, not found, conflict, forbidden), and the web layer turns it
+into an RFC 9457 Problem Details response carrying that <code>code</code>.</p>
+<h2 id="one-test-that-boots-everything">One test that boots everything<a class="anchor" href="#one-test-that-boots-everything" aria-label="Link to this section">#</a></h2>
+<p>Most tests replace pieces with doubles. Java projects also get <code>StartupTest</code>, which starts the
+application with its real pieces. It proves that the real adapters exist and are wired, which a suite
+of green unit tests cannot.</p>
+
+    </article>
+    <nav class="pager" aria-label="Neighbouring pages"><a class="pager__prev" href="generated-project.html"><span>Previous</span>What it generates</a><a class="pager__next" href="contributing.html"><span>Next</span>Contributing</a></nav>
+    <footer class="page-foot">
+      <a href="https://github.com/rsaglobaltech/forja/edit/develop/site/docs/architecture.md" target="_blank" rel="noreferrer">Edit this page</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/rsaglobaltech/forja/issues/new" target="_blank" rel="noreferrer">Something wrong? Open an issue</a>
+    </footer>
+  </main>
+  <div class="rail"><nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc__l2"><a href="#the-layers">The layers</a></li><li class="toc__l3"><a href="#domain">Domain</a></li><li class="toc__l3"><a href="#application">Application</a></li><li class="toc__l3"><a href="#infrastructure">Infrastructure</a></li><li class="toc__l2"><a href="#the-composition-root">The composition root</a></li><li class="toc__l2"><a href="#what-archunit-checks">What ArchUnit checks</a></li><li class="toc__l2"><a href="#what-forja-doctor-checks-on-node">What forja doctor checks on Node</a></li><li class="toc__l2"><a href="#expected-errors-as-values">Expected errors as values</a></li><li class="toc__l2"><a href="#one-test-that-boots-everything">One test that boots everything</a></li></ul></nav></div>
+</div>
+
+<div class="palette" id="palette" hidden>
+  <div class="palette__scrim" data-close="1"></div>
+  <div class="palette__box" role="dialog" aria-modal="true" aria-label="Search documentation">
+    <div class="palette__field">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="palette-input" placeholder="Search the documentation…" autocomplete="off" spellcheck="false" aria-label="Search documentation" aria-controls="results" aria-expanded="true">
+      <kbd class="palette__esc">Esc</kbd>
+    </div>
+    <div class="palette__results" id="results" role="listbox" aria-label="Results"></div>
+    <p class="palette__hint"><kbd>↑</kbd><kbd>↓</kbd> to navigate · <kbd>↵</kbd> to open · <kbd>Esc</kbd> to close</p>
+  </div>
+</div>
+
+<script src="assets/docs.js" defer></script>
+</body>
+</html>

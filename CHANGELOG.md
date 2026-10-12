@@ -4,6 +4,9 @@
 
 ### Phase 5 — the website
 
+- Published at https://rsaglobaltech.github.io/forja/ by GitHub Pages from `docs/` on `main`
+  (`npm run site:publish`); the design notes moved from `docs/` to `design/`.
+
 - `site/`: a landing page and ten documentation pages (start, reference, background) on Specgate's
   design system, with search and both themes. `npm run site` builds it into `_site/`, a static folder
   for any host.
