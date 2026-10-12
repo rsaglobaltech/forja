@@ -1,4 +1,5 @@
 import type { ExpoConfig } from "expo/config";
+<% const appId = "com." + config.scope.replace(/[^a-z0-9]/g, "") + "." + config.name.replace(/[^a-z0-9]/g, ""); %>
 
 const config: ExpoConfig = {
   name: "<%= config.name %>",
@@ -7,13 +8,13 @@ const config: ExpoConfig = {
   version: "1.0.0",
   orientation: "portrait",
   userInterfaceStyle: "automatic",
-  newArchEnabled: true,
   ios: {
     supportsTablet: true,
-    bundleIdentifier: "com.<%= config.scope.replace(/^@/, "") %>.<%= config.name.replace(/-/g, "") %>",
+    bundleIdentifier: "<%= appId %>",
   },
   android: {
-    package: "com.<%= config.scope.replace(/^@/, "") %>.<%= config.name.replace(/-/g, "") %>",
+    // Android package names allow only letters, digits and underscores.
+    package: "<%= appId %>",
   },
   web: {
     bundler: "metro",

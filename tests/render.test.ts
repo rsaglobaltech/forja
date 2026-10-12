@@ -87,7 +87,7 @@ describe("Java rendering", () => {
   });
 
   it("Specgate: brief, guide, scripts and CI job", async () => {
-    const { read } = await render({});
+    const { read } = await render({ extras: ["lint", "ci", "docker", "specgate"] });
     expect(read("docs/brief.md")).toContain("surfaces: [api, web]");
     expect(JSON.parse(read("package.json")).devDependencies["@rsaglobaltech/specgate"]).toMatch(/^\^0\./);
     expect(read(".github/workflows/ci.yml")).toContain("specgate");

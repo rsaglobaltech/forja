@@ -116,7 +116,9 @@ export const defaultJavaConfig = (name: string, backend: "spring" | "quarkus"): 
   edgeFunctions: false,
   eas: false,
   tests: ["unit", "integration"],
-  extras: ["lint", "ci", "docker", "specgate"],
+  // No "ci" by default: it writes a GitHub Actions workflow, and on a private
+  // repository that spends paid minutes. Ask for it with --extras.
+  extras: ["lint", "docker", "specgate"],
   pm: "npm",
 });
 

@@ -9,7 +9,7 @@ export async function getSessionToken(): Promise<string | null> {
 }
 
 /**
- * This is the real session validation — unlike `middleware.ts`, which
+ * This is the real session validation — unlike `proxy.ts`, which
  * only checks whether the cookie exists (see docs/architecture.md).
  */
 export async function getCurrentUserId(): Promise<string | null> {

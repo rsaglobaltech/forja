@@ -17,45 +17,19 @@ export default defineRecipe({
 
     ctx.mergePackageJson(".", {
       scripts: {
-        // NODE_PATH: some Expo tools (babel-preset-expo, @expo/metro-config)
-        // are installed at the monorepo root because they have a single
-        // consumer, but on startup they look for sibling packages
-        // (metro-core, expo-asset, etc.) that npm nested only under
-        // apps/mobile — without this, Node cannot find them and `expo start`
-        // fails with "Cannot find module" right away.
-        mobile: 'NODE_PATH="$PWD/node_modules" npm run start --workspace apps/mobile',
-      },
-    });
-
-    // Same problem, package.json "exports" edition: when something hoisted to
-    // the root (e.g. babel-preset-expo) calls `require("expo/config")`, Node
-    // resolves the subpath through the "exports" field of the "expo" package
-    // itself — that does NOT consult NODE_PATH, so "expo" must be reachable
-    // from the root. Duplicating it as a root dependency "fixes" that but
-    // breaks @expo/cli's project-root detection (two real installs confuse
-    // its require.resolve) — hence a symlink created in postinstall, not a
-    // second real copy. See scripts/link-expo.cjs.
-    ctx.copyFile("mobile/scripts/link-expo.cjs", "scripts/link-expo.cjs");
-    ctx.mergePackageJson(".", {
-      scripts: {
-        postinstall: "node scripts/link-expo.cjs",
+        mobile: "npm run start --workspace apps/mobile",
       },
     });
 
     if (ctx.has("web")) {
-      // apps/web wants React 19 and apps/mobile React 18 (Expo does not
-      // support 19 yet) in the same node_modules tree. Without this pin, npm
-      // may end up hoisting 18 to the root, which is where Next resolves
-      // React for its own internal pages (/404, /500) — the result is a
-      // broken build with "React error #31" (two copies of React mixed up)
-      // that has nothing to do with the app's code. Pinning here the SAME
-      // version apps/web/package.json declares wins the hoist for 19 and
-      // leaves apps/mobile with its own nested copy of 18 (which Metro
-      // resolves fine without extra help).
+      // apps/web and apps/mobile must resolve ONE copy of React: Next resolves
+      // it from the root for its own internal pages (/404, /500), and two
+      // copies give "React error #31" at build time. Expo 57 pins React
+      // 19.2.3, so the root, apps/web and apps/mobile all declare exactly that.
       ctx.mergePackageJson(".", {
         dependencies: {
-          react: "^19.0.0",
-          "react-dom": "^19.0.0",
+          react: "19.2.3",
+          "react-dom": "19.2.3",
         },
       });
     }

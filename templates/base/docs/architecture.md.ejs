@@ -16,16 +16,15 @@ or `expo`. The domain does not know a web framework exists.
 
 ## Where the session is really validated
 
-`apps/web/middleware.ts` runs on the Edge runtime and **only** checks that the
-`session` cookie exists, so it can redirect quickly without opening a database
-connection (the Edge runtime has no Postgres driver). That is **not** real
-access control.
+`apps/web/proxy.ts` (Next 16's proxy, formerly middleware) **only** checks that
+the `session` cookie exists, so it can redirect quickly without opening a
+database connection. That is **not** real access control.
 
 The real validation — does the token exist, has it expired, which user does it
 belong to? — happens in `getCurrentUserId()` / `resolveUserId()`, which call
 `ValidateSessionUseCase` with the real `ISessionRepository`. Any route that
 returns sensitive data must call that function rather than trust that
-`middleware.ts` has already filtered everything.
+`proxy.ts` has already filtered everything.
 
 ## Composition root
 

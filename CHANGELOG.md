@@ -2,6 +2,26 @@
 
 ## [Unreleased]
 
+### Phase 2 — the Node path, up to date
+
+- Next 16.4, React 19.2.3 (one copy for the root, web and mobile — the version
+  Expo pins), Expo SDK 57 with React Native 0.86, Reanimated 4, NativeWind 4.2,
+  Tailwind 4.3 on the web, zod 4, vitest 5, drizzle 0.45, TypeScript 6,
+  ESLint 10 on both paths.
+- The web app builds with `--webpack` (Turbopack does not map the core's `.js`
+  imports to `.ts`), and Next 16's `proxy.ts` replaces `middleware.ts`.
+- The mobile app: Expo's own monorepo support replaces the hand-written Metro
+  paths, `NODE_PATH` and the `link-expo` symlink; the Android package id is
+  valid when the scope has hyphens; `newArchEnabled` is gone (always on).
+- Fixed: a project with `--auth none` failed `tsc` (bcryptjs missing), and one
+  with `--db none` failed lint (an unused import).
+- `ci` is no longer a default extra: it writes a GitHub Actions workflow, which
+  spends paid minutes on a private repository.
+- `scripts/verify-generated.sh node|spring|quarkus` generates a project and
+  proves it works: install, tests, typecheck, lint, the web app's production
+  build and, on Node, the mobile app bundled for iOS, Android and web plus
+  `expo-doctor`.
+
 - **Package renamed** `@rsaglobaltech/forja` (the name `forja` on npm is taken), under the **MIT licence**,
   with `prepublishOnly` (build, typecheck, test).
 - `forja --version`.

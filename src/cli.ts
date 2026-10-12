@@ -108,7 +108,7 @@ program
   .option("--tests <tests>", "comma-separated: unit,integration")
   .option(
     "--extras <extras>",
-    "comma-separated: lint, ci, docker (Java), specgate",
+    "comma-separated: lint, ci (a GitHub Actions workflow), docker (Java), specgate",
   )
   .option("--pm <pm>", "npm | pnpm | bun")
   .option("--yes", "ask nothing: defaults plus flags")
