@@ -108,6 +108,9 @@ export async function runWizard(nameArg?: string): Promise<ForjaConfig> {
     options: [
       { value: "unit", label: "Unit (vitest)" },
       { value: "integration", label: "Integration (vitest)" },
+      ...(platforms.includes("web")
+        ? [{ value: "e2e-web", label: "End to end (Playwright, web)", hint: "sign-in flow in a real browser" }]
+        : []),
     ],
     initialValues: ["unit", "integration"],
     required: false,
@@ -216,6 +219,14 @@ async function runJavaWizard(name: string, backend: "spring" | "quarkus"): Promi
         }),
       )
     : "none";
+  const e2e = web
+    ? await ask(
+        p.confirm({
+          message: "End-to-end tests of the web app (Playwright)?",
+          initialValue: false,
+        }),
+      )
+    : false;
   const extras = await ask(
     p.multiselect({
       message: "Extras",
@@ -245,7 +256,7 @@ async function runJavaWizard(name: string, backend: "spring" | "quarkus"): Promi
     ui: "own",
     edgeFunctions: false,
     eas: false,
-    tests: ["unit", "integration"],
+    tests: e2e ? ["unit", "integration", "e2e-web"] : ["unit", "integration"],
     extras,
     pm: "npm",
   });

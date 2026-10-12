@@ -108,7 +108,7 @@ program
   .option("--auth <auth>", "sessions (Node) | oauth2 (Java) | none")
   .option("--mailer <mailer>", "console")
   .option("--design <design>", "tailwind | none")
-  .option("--tests <tests>", "comma-separated: unit,integration")
+  .option("--tests <tests>", "comma-separated: unit, integration, e2e-web (Playwright)")
   .option(
     "--extras <extras>",
     "comma-separated: lint, ci (a GitHub Actions workflow), docker (Java), specgate",

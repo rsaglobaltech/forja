@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Phase 4 — end to end
+
+- `--tests e2e-web`: Playwright 1.63 in `apps/web`, with `npm run test:e2e` at the root. A smoke test
+  of the home page, plus the sign-in flow: Node sessions (register, sign out, sign in, a wrong
+  password refused, a private page redirected) or, with a Java API, Keycloak sign-in, a task added and
+  marked done through the API, and sign-out. Playwright starts the web app, and the API on Java.
+- The wizard offers it when there is a web app; the generated CI (the `ci` extra) gets an `e2e` job.
+- The docker-compose Keycloak has a healthcheck: `docker compose up --wait` now waits for the realm
+  instead of returning while Keycloak is still starting.
+- `scripts/verify-generated.sh` runs the end-to-end tests on all three paths.
+
 ### Phase 3 — daily use after `forja init`
 
 - `forja add usecase <module>/<Name>`, `forja add entity` and `forja add port` on both paths. Node:

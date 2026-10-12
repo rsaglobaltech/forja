@@ -33,6 +33,7 @@ export function planRecipes(config: ForjaConfig): Recipe[] {
   if (config.auth !== "none") ids.push("mailer-console");
 
   if (config.design === "tailwind") ids.push("design-tailwind");
+  if (config.tests.includes("e2e-web")) ids.push("e2e-web");
   if (config.extras.includes("lint")) ids.push("extras-lint");
   if (config.extras.includes("ci")) ids.push("ci");
   if (config.extras.includes("specgate")) ids.push("specgate");
@@ -53,6 +54,7 @@ export function planJava(config: ForjaConfig): string[] {
   if (config.platforms.includes("web")) {
     ids.push("shared", "web-java");
     if (config.design === "tailwind") ids.push("design-tailwind");
+    if (config.tests.includes("e2e-web")) ids.push("e2e-web");
   }
   for (const extra of config.extras) {
     if (extra === "lint" && config.platforms.includes("web")) ids.push("extras-lint");
