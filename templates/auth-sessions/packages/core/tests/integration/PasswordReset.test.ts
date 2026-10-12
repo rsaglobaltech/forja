@@ -13,7 +13,7 @@ import { FakePasswordHasher } from "../../src/infrastructure/security/FakePasswo
 import { FixedClock } from "../../src/infrastructure/clock/FixedClock.js";
 import { InvalidResetTokenError } from "../../src/domain/shared/errors.js";
 
-describe("Flujo completo de recuperación de contraseña", () => {
+describe("Full password reset flow", () => {
   let userRepository: InMemoryUserRepository;
   let sessionRepository: InMemorySessionRepository;
   let resetTokenRepository: InMemoryPasswordResetTokenRepository;
@@ -49,9 +49,9 @@ describe("Flujo completo de recuperación de contraseña", () => {
 
     const registered = await new RegisterUseCase(userRepository, hasher).execute({
       email: "a@b.com",
-      password: "contraseña-vieja-123",
+      password: "old-password-123",
     });
-    if (!registered.ok) throw new Error("setup falló");
+    if (!registered.ok) throw new Error("setup failed");
     userId = registered.value.userId;
 
     const session = await new CreateSessionUseCase(sessionRepository, clock).execute(userId);
@@ -60,49 +60,49 @@ describe("Flujo completo de recuperación de contraseña", () => {
 
   function extractToken(): string {
     const mail = mailer.last();
-    if (!mail) throw new Error("no se mandó ningún mail");
+    if (!mail) throw new Error("no email was sent");
     const match = mail.text.match(/reset-password\/([a-f0-9]+)/);
-    if (!match) throw new Error("no se encontró el token en el mail");
+    if (!match) throw new Error("token not found in the email");
     return match[1];
   }
 
-  it("pide reset → cambia password → la vieja ya no sirve, la nueva sí", async () => {
+  it("request reset → change password → the old one no longer works, the new one does", async () => {
     await requestReset.execute("a@b.com");
     const token = extractToken();
 
-    const resetResult = await resetPassword.execute(token, "contraseña-nueva-456");
+    const resetResult = await resetPassword.execute(token, "new-password-456");
     expect(resetResult.ok).toBe(true);
 
-    const oldLogin = await login.execute({ email: "a@b.com", password: "contraseña-vieja-123" });
+    const oldLogin = await login.execute({ email: "a@b.com", password: "old-password-123" });
     expect(oldLogin.ok).toBe(false);
 
-    const newLogin = await login.execute({ email: "a@b.com", password: "contraseña-nueva-456" });
+    const newLogin = await login.execute({ email: "a@b.com", password: "new-password-456" });
     expect(newLogin.ok).toBe(true);
   });
 
-  it("un token usado no sirve una segunda vez", async () => {
+  it("a used token does not work a second time", async () => {
     await requestReset.execute("a@b.com");
     const token = extractToken();
 
-    await resetPassword.execute(token, "contraseña-nueva-456");
-    const secondAttempt = await resetPassword.execute(token, "otra-contraseña-789");
+    await resetPassword.execute(token, "new-password-456");
+    const secondAttempt = await resetPassword.execute(token, "another-password-789");
 
     expect(secondAttempt.ok).toBe(false);
     if (secondAttempt.ok) throw new Error("unreachable");
     expect(secondAttempt.error).toBeInstanceOf(InvalidResetTokenError);
   });
 
-  it("resetear la contraseña revoca todas las sesiones existentes", async () => {
+  it("resetting the password revokes all existing sessions", async () => {
     expect(await validateSession.execute(existingSessionToken)).toBe(userId);
 
     await requestReset.execute("a@b.com");
     const token = extractToken();
-    await resetPassword.execute(token, "contraseña-nueva-456");
+    await resetPassword.execute(token, "new-password-456");
 
     expect(await validateSession.execute(existingSessionToken)).toBeNull();
   });
 
-  it("pedir reset de un email inexistente no falla (anti-enumeración)", async () => {
-    await expect(requestReset.execute("no-existe@b.com")).resolves.toBeUndefined();
+  it("requesting a reset for an unknown email does not fail (anti-enumeration)", async () => {
+    await expect(requestReset.execute("does-not-exist@b.com")).resolves.toBeUndefined();
   });
 });

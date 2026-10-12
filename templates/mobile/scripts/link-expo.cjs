@@ -1,28 +1,27 @@
 #!/usr/bin/env node
 /**
- * apps/mobile es el único consumidor de "expo", así que npm lo deja
- * anidado ahí — perfecto para que @expo/cli detecte bien la raíz del
- * proyecto. El problema es que otras herramientas de Expo que SÍ quedan
- * hoisteadas en la raíz (babel-preset-expo, por ejemplo) hacen
- * `require("expo/config")` desde su propia ubicación, y esa resolución de
- * subpath (via el campo "exports" de expo) no encuentra nada porque no hay
- * ningún "expo" al lado.
+ * apps/mobile is the only consumer of "expo", so npm leaves it nested
+ * there — exactly what @expo/cli needs to detect the project root. The
+ * problem is that other Expo tools that DO get hoisted to the root
+ * (babel-preset-expo, for example) call `require("expo/config")` from their
+ * own location, and that subpath resolution (via expo's "exports" field)
+ * finds nothing because there is no "expo" next to them.
  *
- * Duplicar "expo" como dependencia en la raíz "arregla" eso, pero rompe la
- * detección de raíz de proyecto de @expo/cli (dos instalaciones reales
- * confunden su `require.resolve`). La solución real es que sea la MISMA
- * instalación en los dos lugares: un symlink, no una copia.
+ * Duplicating "expo" as a root dependency "fixes" that, but breaks
+ * @expo/cli's project-root detection (two real installs confuse its
+ * `require.resolve`). The real fix is for both places to share the SAME
+ * install: a symlink, not a copy.
  *
- * Corre solo, automático, en el hook `postinstall` de npm.
+ * Runs automatically, on its own, in npm's `postinstall` hook.
  */
 const fs = require("node:fs");
 const path = require("node:path");
 
-// babel-preset-expo también decide si mete su plugin de expo-router
-// haciendo `require.resolve("expo-router")` desde su propia ubicación
-// (sección 5c: "hasModule('expo-router')") — si falla, el plugin ni se
-// agrega, y `process.env.EXPO_ROUTER_APP_ROOT` queda sin inlinear en
-// tiempo de build (error de Metro al parsear `require.context(...)`).
+// babel-preset-expo also decides whether to add its expo-router plugin by
+// calling `require.resolve("expo-router")` from its own location
+// (section 5c: "hasModule('expo-router')") — if that fails, the plugin is
+// never added, and `process.env.EXPO_ROUTER_APP_ROOT` is not inlined at
+// build time (Metro error when parsing `require.context(...)`).
 const packages = ["expo", "expo-router"];
 
 for (const name of packages) {

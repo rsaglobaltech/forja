@@ -5,7 +5,7 @@ import { LogoutUseCase } from "../../src/application/auth/LogoutUseCase.js";
 import { InMemorySessionRepository } from "../../src/infrastructure/database/repositories/InMemorySessionRepository.js";
 import { FixedClock } from "../../src/infrastructure/clock/FixedClock.js";
 
-describe("Sesiones (crear/validar/expirar/revocar)", () => {
+describe("Sessions (create/validate/expire/revoke)", () => {
   let sessionRepository: InMemorySessionRepository;
   let clock: FixedClock;
   let createSession: CreateSessionUseCase;
@@ -20,20 +20,20 @@ describe("Sesiones (crear/validar/expirar/revocar)", () => {
     logout = new LogoutUseCase(sessionRepository);
   });
 
-  it("crea una sesión y la valida devolviendo el userId", async () => {
+  it("creates a session and validates it, returning the userId", async () => {
     const { token } = await createSession.execute("user-1");
     const userId = await validateSession.execute(token);
     expect(userId).toBe("user-1");
   });
 
-  it("una sesión vencida no valida más", async () => {
+  it("an expired session no longer validates", async () => {
     const { token } = await createSession.execute("user-1");
     clock.advance(31 * 24 * 60 * 60 * 1000);
     const userId = await validateSession.execute(token);
     expect(userId).toBeNull();
   });
 
-  it("revocar es idempotente", async () => {
+  it("revoking is idempotent", async () => {
     const { token } = await createSession.execute("user-1");
     await logout.execute(token);
     await expect(logout.execute(token)).resolves.toBeUndefined();

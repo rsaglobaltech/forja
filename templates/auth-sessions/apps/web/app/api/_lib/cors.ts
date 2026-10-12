@@ -1,8 +1,8 @@
 /**
- * Wildcard a propósito: estas rutas se autentican con Bearer token, no con
- * cookies — no hay `Access-Control-Allow-Credentials` de por medio, así que
- * el comodín no filtra nada (la regla de "CORS sin comodín" del spec aplica
- * al flujo de cookies del web, no a este).
+ * Wildcard on purpose: these routes authenticate with a Bearer token, not
+ * cookies — there is no `Access-Control-Allow-Credentials` involved, so the
+ * wildcard leaks nothing (the spec's "no wildcard CORS" rule applies to the
+ * web's cookie flow, not to this one).
  */
 export function corsHeaders(): HeadersInit {
   return {

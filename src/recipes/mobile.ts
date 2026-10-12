@@ -9,32 +9,32 @@ export default defineRecipe({
     ctx.copyFile("mobile/metro.config.js", "apps/mobile/metro.config.js");
     ctx.copyFile("mobile/app.config.ts.ejs", "apps/mobile/app.config.ts");
     ctx.copyFile("mobile/app/_layout.tsx", "apps/mobile/app/_layout.tsx");
-    // Si auth = "sessions", auth-sessions pone su propia app/(app)/index.tsx
-    // como ruta "/" — este placeholder plano colisionaría con esa ruta.
+    // With auth = "sessions", auth-sessions provides its own app/(app)/index.tsx
+    // as the "/" route — this flat placeholder would collide with it.
     if (ctx.config.auth === "none") {
       ctx.copyFile("mobile/app/index.tsx.ejs", "apps/mobile/app/index.tsx");
     }
 
     ctx.mergePackageJson(".", {
       scripts: {
-        // NODE_PATH: algunas herramientas de Expo (babel-preset-expo,
-        // @expo/metro-config) se instalan en la raíz del monorepo por ser
-        // de un solo consumidor, pero al arrancar buscan paquetes hermanos
-        // (metro-core, expo-asset, etc.) que npm dejó anidados solo debajo
-        // de apps/mobile — sin esto, Node no los encuentra y `expo start`
-        // tira "Cannot find module" apenas arranca.
+        // NODE_PATH: some Expo tools (babel-preset-expo, @expo/metro-config)
+        // are installed at the monorepo root because they have a single
+        // consumer, but on startup they look for sibling packages
+        // (metro-core, expo-asset, etc.) that npm nested only under
+        // apps/mobile — without this, Node cannot find them and `expo start`
+        // fails with "Cannot find module" right away.
         mobile: 'NODE_PATH="$PWD/node_modules" npm run start --workspace apps/mobile',
       },
     });
 
-    // Mismo problema, versión "exports" de package.json: cuando algo hoisteado
-    // en la raíz (ej. babel-preset-expo) hace `require("expo/config")`, Node
-    // resuelve el subpath vía el campo "exports" del propio paquete "expo" —
-    // eso NO consulta NODE_PATH, necesita "expo" alcanzable desde la raíz.
-    // Duplicarlo como dependencia ahí "arregla" eso pero rompe la detección
-    // de raíz de proyecto de @expo/cli (dos instalaciones reales confunden
-    // su require.resolve) — por eso es un symlink armado en postinstall,
-    // no una segunda copia real. Ver scripts/link-expo.cjs.
+    // Same problem, package.json "exports" edition: when something hoisted to
+    // the root (e.g. babel-preset-expo) calls `require("expo/config")`, Node
+    // resolves the subpath through the "exports" field of the "expo" package
+    // itself — that does NOT consult NODE_PATH, so "expo" must be reachable
+    // from the root. Duplicating it as a root dependency "fixes" that but
+    // breaks @expo/cli's project-root detection (two real installs confuse
+    // its require.resolve) — hence a symlink created in postinstall, not a
+    // second real copy. See scripts/link-expo.cjs.
     ctx.copyFile("mobile/scripts/link-expo.cjs", "scripts/link-expo.cjs");
     ctx.mergePackageJson(".", {
       scripts: {
@@ -43,15 +43,15 @@ export default defineRecipe({
     });
 
     if (ctx.has("web")) {
-      // apps/web quiere React 19 y apps/mobile React 18 (Expo todavía no
-      // soporta 19) en el mismo árbol de node_modules. Sin este pin acá,
-      // npm puede terminar hoisteando la 18 a la raíz, y ahí es de donde
-      // Next resuelve React para sus propias páginas internas (/404, /500)
-      // — el resultado es un build roto con "React error #31" (dos copias
-      // de React mezcladas) que no tiene nada que ver con el código de la
-      // app. Fijar acá la MISMA versión que declara apps/web/package.json
-      // gana el hoist para la 19 y deja a apps/mobile con su propia copia
-      // anidada de la 18 (que Metro resuelve bien sin ayuda extra).
+      // apps/web wants React 19 and apps/mobile React 18 (Expo does not
+      // support 19 yet) in the same node_modules tree. Without this pin, npm
+      // may end up hoisting 18 to the root, which is where Next resolves
+      // React for its own internal pages (/404, /500) — the result is a
+      // broken build with "React error #31" (two copies of React mixed up)
+      // that has nothing to do with the app's code. Pinning here the SAME
+      // version apps/web/package.json declares wins the hoist for 19 and
+      // leaves apps/mobile with its own nested copy of 18 (which Metro
+      // resolves fine without extra help).
       ctx.mergePackageJson(".", {
         dependencies: {
           react: "^19.0.0",
@@ -63,7 +63,7 @@ export default defineRecipe({
     ctx.addEnv(
       "EXPO_PUBLIC_API_URL",
       "",
-      "Vacío = se deduce del host de Metro (misma máquina). Setealo para apuntar a otro backend.",
+      "Empty = derived from the Metro host (same machine). Set it to point at another backend.",
       "apps/mobile",
     );
   },

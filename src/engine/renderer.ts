@@ -49,9 +49,9 @@ async function formatVfs(state: EngineState): Promise<void> {
       const formatted = await prettier.format(content, { filepath: filePath });
       state.vol.writeFileSync(filePath, formatted, { encoding: "utf-8" });
     } catch {
-      // Templates generadas a mano pueden no ser 100% válidas para un
-      // parser (p.ej. fragmentos ejs residuales); dejamos el contenido
-      // crudo antes que romper la generación completa por esto.
+      // Hand-written templates may not be 100% valid for a parser (e.g.
+      // leftover ejs fragments); keep the raw content rather than fail the
+      // whole generation over it.
     }
   }
 }

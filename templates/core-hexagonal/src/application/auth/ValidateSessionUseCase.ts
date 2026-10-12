@@ -2,7 +2,7 @@ import { SessionToken } from "../../domain/services/SessionToken.js";
 import type { ISessionRepository } from "../../ports/ISessionRepository.js";
 import type { IClock } from "../../ports/IClock.js";
 
-/** Nunca lanza: token inválido o vencido simplemente resuelve `null`. */
+/** Never throws: an invalid or expired token simply resolves to `null`. */
 export class ValidateSessionUseCase {
   constructor(
     private readonly sessionRepository: ISessionRepository,

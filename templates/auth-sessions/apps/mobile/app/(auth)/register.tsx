@@ -21,7 +21,7 @@ export default function RegisterScreen() {
       const result = await api.register({ email, password });
       await signIn(result.token);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error de red");
+      setError(e instanceof Error ? e.message : "Network error");
     } finally {
       setLoading(false);
     }
@@ -30,7 +30,7 @@ export default function RegisterScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-app px-4">
       <View className="w-full max-w-sm rounded-md bg-surface p-6">
-        <Text className="mb-6 text-xl font-semibold text-text">Crear cuenta</Text>
+        <Text className="mb-6 text-xl font-semibold text-text">Create account</Text>
 
         <Text className={labelClass}>Email</Text>
         <TextInput
@@ -42,7 +42,7 @@ export default function RegisterScreen() {
           className={`${inputClass} mb-4`}
         />
 
-        <Text className={labelClass}>Contraseña</Text>
+        <Text className={labelClass}>Password</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
@@ -50,7 +50,7 @@ export default function RegisterScreen() {
           autoComplete="new-password"
           className={inputClass}
         />
-        <Text className="mb-4 text-xs text-gray-500">Mínimo 8 caracteres.</Text>
+        <Text className="mb-4 text-xs text-gray-500">At least 8 characters.</Text>
 
         {error && <Text className="mb-4 text-sm text-red-600">{error}</Text>}
 
@@ -62,14 +62,14 @@ export default function RegisterScreen() {
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text className="text-sm font-medium text-white">Crear cuenta</Text>
+            <Text className="text-sm font-medium text-white">Create account</Text>
           )}
         </Pressable>
 
         <View className="mt-4 flex-row justify-center gap-1">
-          <Text className="text-sm text-gray-600">¿Ya tenés cuenta?</Text>
+          <Text className="text-sm text-gray-600">Already have an account?</Text>
           <Link href="/login" className="text-sm text-brand-600">
-            Iniciar sesión
+            Sign in
           </Link>
         </View>
       </View>

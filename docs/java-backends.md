@@ -1,62 +1,62 @@
-# Backends Java (Spring Boot y Quarkus)
+# Java backends (Spring Boot and Quarkus)
 
-forja genera, además del backend en TypeScript (`backend: node`, el de v0.1),
-una **API Java separada** en `apps/api`, con el mismo principio: arquitectura
-hexagonal siempre.
+Besides the TypeScript backend (`backend: node`, the v0.1 one), forja
+generates a **separate Java API** in `apps/api`, on the same principle:
+hexagonal architecture, always.
 
-## Opciones
+## Options
 
-| Campo | Valores | Por defecto con Java |
+| Field | Values | Default with Java |
 | --- | --- | --- |
 | `backend` | `node` · `spring` · `quarkus` | — |
-| `javaPackage` | p. ej. `com.acme.tienda` | `com.<nombre>` |
+| `javaPackage` | e.g. `com.acme.shop` | `com.<name>` |
 | `archunit` | `true` · `false` | `true` |
 | `auth` | `oauth2` · `none` | `oauth2` |
 | `db` | `postgres-docker` · `none` | `postgres-docker` |
-| `platforms` | `web` (opcional) | `["web"]` |
-| `extras` | `lint`, `ci`, `docker`, `specgate` | todos |
+| `platforms` | `web` (optional) | `["web"]` |
+| `extras` | `lint`, `ci`, `docker`, `specgate` | all |
 
-## Qué se genera
+## What it generates
 
 ```
-apps/api/                     # Spring Boot 4.1 o Quarkus 3.40, Java 21, Maven Wrapper
-  src/main/java/<paquete>/
-    shared/                   # errores de dominio, Problem Details (RFC 9457), usuario actual
-    tasks/                    # módulo de ejemplo, hexagonal:
-      domain/                 #   Task, TaskTitle — Java puro
-      application/            #   casos de uso y puertos (TaskRepository, CurrentUser)
-      infrastructure/         #   REST, JDBC/memoria, configuración
-  src/test/java/...           # dominio, casos de uso, API, arranque real, ArchUnit
-apps/web/                     # Next.js 16 + Auth.js (Keycloak) que consume la API
-infra/keycloak/<nombre>-realm.json   # realm de desarrollo: clientes web y dev-cli, usuarios demo/otra
+apps/api/                     # Spring Boot 4.1 or Quarkus 3.40, Java 21, Maven Wrapper
+  src/main/java/<package>/
+    shared/                   # domain errors, Problem Details (RFC 9457), current user
+    tasks/                    # sample module, hexagonal:
+      domain/                 #   Task, TaskTitle — plain Java
+      application/            #   use cases and ports (TaskRepository, CurrentUser)
+      infrastructure/         #   REST, JDBC/in-memory, configuration
+  src/test/java/...           # domain, use cases, API, real boot, ArchUnit
+apps/web/                     # Next.js 16 + Auth.js (Keycloak) consuming the API
+infra/keycloak/<name>-realm.json     # development realm: web and dev-cli clients, demo/other users
 docker-compose.yml            # Postgres + Keycloak
 .github/workflows/ci.yml      # API (Maven) + web (Node)
-docs/brief.md + Specgate      # con el extra `specgate`
+docs/brief.md + Specgate      # with the `specgate` extra
 ```
 
-## Decisiones
+## Decisions
 
-- **Hexagonal sin anotaciones de framework en el dominio ni en la aplicación**:
-  los casos de uso se instancian en `infrastructure/config`. Con `archunit`,
-  un test lo hace cumplir.
-- **OAuth2/OIDC con Keycloak**: la API es *resource server* (valida el JWT y
-  toma el usuario del `sub`); la web hace *Authorization Code + PKCE* con
-  Auth.js y llama a la API con el *access token*.
-- **Errores en RFC 9457** (`application/problem+json`) con un `code` estable.
-- **Un test que arranca la aplicación real** sin dobles (lección de los
-  pilotos de Specgate: tests verdes con la app sin arrancar).
-- **OpenAPI y health** de serie.
+- **Hexagonal, with no framework annotations in the domain or the application
+  layer**: use cases are instantiated in `infrastructure/config`. With
+  `archunit`, a test enforces it.
+- **OAuth2/OIDC with Keycloak**: the API is a *resource server* (it validates
+  the JWT and takes the user from `sub`); the web app does *Authorization
+  Code + PKCE* with Auth.js and calls the API with the *access token*.
+- **Errors as RFC 9457** (`application/problem+json`) with a stable `code`.
+- **A test that boots the real application** without doubles (a lesson from
+  the Specgate pilots: green tests while the app would not even start).
+- **OpenAPI and health** out of the box.
 
-## Probado
+## Tested
 
-Cada combinación (backend × base de datos × auth × ArchUnit × web) se renderiza en los tests de forja.
-Además se generan y se prueban de verdad (Maven, Next.js build, lint, Docker) seis combinaciones
-representativas, y la combinación completa se probó en un navegador real: login en Keycloak, crear y
-completar tareas, cierre de sesión federado, aislamiento entre usuarios y sesión pública sin tokens.
+Every combination (backend × database × auth × ArchUnit × web) is rendered in forja's tests. On top of that,
+six representative combinations are generated and tested for real (Maven, Next.js build, lint, Docker), and
+the full combination was tested in a real browser: Keycloak sign-in, creating and completing tasks,
+federated sign-out, isolation between users, and a public session with no tokens.
 
-## Pedir un token a mano (desarrollo)
+## Requesting a token by hand (development)
 
 ```bash
 curl -s -d grant_type=password -d client_id=dev-cli -d username=demo -d password=demo \
-  http://localhost:8180/realms/<nombre>/protocol/openid-connect/token | jq -r .access_token
+  http://localhost:8180/realms/<name>/protocol/openid-connect/token | jq -r .access_token
 ```

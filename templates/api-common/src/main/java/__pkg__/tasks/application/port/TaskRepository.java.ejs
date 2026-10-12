@@ -5,12 +5,12 @@ import <%= pkg %>.tasks.domain.TaskId;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: dónde viven las tareas. Adaptadores en infrastructure/persistence. */
+/** Outbound port: where tasks live. Adapters in infrastructure/persistence. */
 public interface TaskRepository {
   void save(Task task);
 
   Optional<Task> findById(TaskId id);
 
-  /** Las del usuario, de la más reciente a la más antigua. */
+  /** The user's tasks, newest first. */
   List<Task> findByOwner(String owner);
 }

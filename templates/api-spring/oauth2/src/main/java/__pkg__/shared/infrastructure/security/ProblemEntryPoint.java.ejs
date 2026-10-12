@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
-/** Sin token o con un token inválido: 401 con el mismo formato RFC 9457 que el resto de errores. */
+/** No token or an invalid token: 401 in the same RFC 9457 format as every other error. */
 class ProblemEntryPoint implements AuthenticationEntryPoint {
   @Override
   public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e)
@@ -16,6 +16,6 @@ class ProblemEntryPoint implements AuthenticationEntryPoint {
     response.setContentType("application/problem+json");
     response.setCharacterEncoding("UTF-8");
     response.getWriter().write("""
-        {"type":"about:blank","title":"Unauthorized","status":401,"detail":"Falta un token válido.","code":"unauthorized"}""");
+        {"type":"about:blank","title":"Unauthorized","status":401,"detail":"A valid token is required.","code":"unauthorized"}""");
   }
 }

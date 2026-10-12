@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
   const parsed = ResetPasswordSchema.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "validation_error", message: parsed.error.issues[0]?.message ?? "Datos inválidos" },
+      { error: "validation_error", message: parsed.error.issues[0]?.message ?? "Invalid data" },
       { status: 400, headers: corsHeaders() },
     );
   }

@@ -1,6 +1,6 @@
 import type { IMailer, MailMessage } from "../../ports/IMailer.js";
 
-/** Guarda los mails enviados en memoria: los tests leen el link de reset de acá. */
+/** Keeps sent emails in memory: the tests read the reset link from here. */
 export class InMemoryMailer implements IMailer {
   readonly sent: MailMessage[] = [];
 

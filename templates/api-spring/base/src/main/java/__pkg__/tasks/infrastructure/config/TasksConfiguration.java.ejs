@@ -9,7 +9,7 @@ import java.time.Clock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** El único sitio que conoce a la vez los casos de uso y Spring: aquí se cablean. */
+/** The only place that knows both the use cases and Spring: they are wired here. */
 @Configuration(proxyBeanMethods = false)
 class TasksConfiguration {
   @Bean

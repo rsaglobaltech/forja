@@ -33,7 +33,7 @@ export default defineRecipe({
       "DATABASE_URL",
       `postgresql://postgres:postgres@localhost:5432/${dbName}`,
       undefined,
-      "base de datos (postgres-docker)",
+      "database (postgres-docker)",
     );
   },
 });

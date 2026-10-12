@@ -1,8 +1,8 @@
 import { defineRecipe } from "./types.js";
 
 /**
- * db = "none": los repositorios in-memory de core-hexagonal ya alcanzan.
- * No hay nada que agregar acá — es justo el punto del hexágono.
+ * db = "none": the in-memory repositories from core-hexagonal are enough.
+ * Nothing to add here — which is exactly the point of the hexagon.
  */
 export default defineRecipe({
   id: "db-none",

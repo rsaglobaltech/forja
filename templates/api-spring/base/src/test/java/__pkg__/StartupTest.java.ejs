@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Import;
 <% } -%>
 
 /**
- * La aplicación arranca con sus piezas reales, sin dobles de prueba. Otros tests sustituyen piezas;
- * este comprueba que las de verdad existen y se cablean (tests en verde con la app sin arrancar es un fallo
- * que ya ha pasado).
+ * The application starts with its real pieces, no test doubles. Other tests replace pieces;
+ * this one checks that the real ones exist and are wired (green tests with an app that does not start is a
+ * failure that has already happened).
  */
 @SpringBootTest
 <% if (config.db === "postgres-docker") { -%>

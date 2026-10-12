@@ -18,12 +18,12 @@ export default function DashboardScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-app px-4">
       <View className="w-full max-w-sm items-center rounded-md bg-surface p-6">
-        <Text className="mb-6 text-xl font-semibold text-text">Hola, {email ?? "…"}</Text>
+        <Text className="mb-6 text-xl font-semibold text-text">Hello, {email ?? "…"}</Text>
         <Pressable
           onPress={signOut}
           className="w-full items-center rounded-md border border-gray-300 px-4 py-2"
         >
-          <Text className="text-sm font-medium text-text">Cerrar sesión</Text>
+          <Text className="text-sm font-medium text-text">Sign out</Text>
         </Pressable>
       </View>
     </View>

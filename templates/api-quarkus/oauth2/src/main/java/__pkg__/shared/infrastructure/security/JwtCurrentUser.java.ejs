@@ -4,7 +4,7 @@ import <%= pkg %>.shared.application.CurrentUser;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.context.RequestScoped;
 
-/** El usuario actual es el {@code sub} del JWT (quarkus.oidc.token.principal-claim=sub). */
+/** The current user is the JWT {@code sub} (quarkus.oidc.token.principal-claim=sub). */
 @RequestScoped
 class JwtCurrentUser implements CurrentUser {
   private final SecurityIdentity identity;
@@ -13,7 +13,7 @@ class JwtCurrentUser implements CurrentUser {
 
   @Override
   public String id() {
-    if (identity.isAnonymous()) throw new IllegalStateException("Sin usuario autenticado: la ruta debería exigir token");
+    if (identity.isAnonymous()) throw new IllegalStateException("No authenticated user: the route should require a token");
     return identity.getPrincipal().getName();
   }
 }

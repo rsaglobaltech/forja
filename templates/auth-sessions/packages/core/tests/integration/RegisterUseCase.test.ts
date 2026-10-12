@@ -13,19 +13,19 @@ describe("RegisterUseCase", () => {
     useCase = new RegisterUseCase(userRepository, new FakePasswordHasher());
   });
 
-  it("crea un usuario y hashea la contraseña", async () => {
-    const result = await useCase.execute({ email: "a@b.com", password: "un-passw0rd-decente" });
+  it("creates a user and hashes the password", async () => {
+    const result = await useCase.execute({ email: "a@b.com", password: "a-decent-passw0rd" });
 
     expect(result.ok).toBe(true);
     if (!result.ok) throw new Error("unreachable");
 
     const saved = await userRepository.findById(result.value.userId);
-    expect(saved?.passwordHash).toBe("hashed:un-passw0rd-decente");
+    expect(saved?.passwordHash).toBe("hashed:a-decent-passw0rd");
   });
 
-  it("rechaza un email duplicado", async () => {
-    await useCase.execute({ email: "a@b.com", password: "un-passw0rd-decente" });
-    const result = await useCase.execute({ email: "a@b.com", password: "otra-contraseña-ok" });
+  it("rejects a duplicate email", async () => {
+    await useCase.execute({ email: "a@b.com", password: "a-decent-passw0rd" });
+    const result = await useCase.execute({ email: "a@b.com", password: "another-password-ok" });
 
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("unreachable");

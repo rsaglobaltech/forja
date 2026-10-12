@@ -1,14 +1,14 @@
 import type { RecipeContext } from "../engine/context.js";
 import { javaPackageOf } from "../config/schema.js";
 
-/** Versiones fijadas de lo que generan las recetas Java (revisadas el 2026-10-11). */
+/** Pinned versions of what the Java recipes generate (reviewed 2026-10-11). */
 export const versions = {
   springBoot: "4.1.1",
   springdoc: "3.1.1",
   quarkus: "3.40.1",
   archunit: "1.5.1",
   assertj: "3.27.6",
-  specgate: "0.17.10",
+  specgate: "0.19.1",
   keycloak: "26.8",
   postgres: "17-alpine",
 } as const;
@@ -25,7 +25,7 @@ export function javaData(ctx: RecipeContext): JavaData {
   return { pkg, pkgPath: pkg.replace(/\./g, "/"), dbName: ctx.config.name.replace(/-/g, "_"), versions };
 }
 
-/** Copia un directorio de plantillas Java traduciendo `__pkg__` a la ruta del paquete. */
+/** Copies a Java template directory, turning `__pkg__` into the package path. */
 export function copyJava(ctx: RecipeContext, src: string, dest: string, data: JavaData): void {
   ctx.copyDir(src, dest, data, (rel) => rel.replace("__pkg__", data.pkgPath));
 }

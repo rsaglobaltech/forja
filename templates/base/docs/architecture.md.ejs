@@ -1,35 +1,35 @@
-# Arquitectura
+# Architecture
 
-`<%= config.name %>` usa arquitectura **<%= config.arch %>**.
+`<%= config.name %>` uses the **<%= config.arch %>** architecture.
 
-## Capas de `packages/core`
+## Layers of `packages/core`
 
 ```
-domain/          # entidades, value objects, eventos — sin dependencias externas
-application/     # casos de uso: orquestan puertos, no conocen infraestructura
-ports/           # interfaces que la aplicación necesita (repos, mailer, clock…)
-infrastructure/  # adaptadores reales (Drizzle, bcrypt, mailers) + composition root
+domain/          # entities, value objects, events — no external dependencies
+application/     # use cases: orchestrate ports, know nothing about infrastructure
+ports/           # interfaces the application needs (repos, mailer, clock…)
+infrastructure/  # real adapters (Drizzle, bcrypt, mailers) + composition root
 ```
 
-Regla dura, forzada en CI: `packages/core` no puede importar `next`, `react`
-ni `expo`. El dominio no sabe que existe un framework web.
+Hard rule, enforced in CI: `packages/core` may not import `next`, `react`
+or `expo`. The domain does not know a web framework exists.
 
-## Dónde se valida la sesión de verdad
+## Where the session is really validated
 
-`apps/web/middleware.ts` corre en el Edge runtime y **solo** chequea que la
-cookie `session` exista, para poder redirigir rápido sin abrir conexión a la
-base de datos (el Edge runtime no tiene el driver de Postgres). Eso **no** es
-control de acceso real.
+`apps/web/middleware.ts` runs on the Edge runtime and **only** checks that the
+`session` cookie exists, so it can redirect quickly without opening a database
+connection (the Edge runtime has no Postgres driver). That is **not** real
+access control.
 
-La validación real —¿el token existe, no venció, a qué usuario pertenece?—
-pasa en `getCurrentUserId()` / `resolveUserId()`, que llaman a
-`ValidateSessionUseCase` con el `ISessionRepository` real. Cualquier ruta que
-devuelva datos sensibles debe llamar a esa función, no confiar en que
-`middleware.ts` ya filtró todo.
+The real validation — does the token exist, has it expired, which user does it
+belong to? — happens in `getCurrentUserId()` / `resolveUserId()`, which call
+`ValidateSessionUseCase` with the real `ISessionRepository`. Any route that
+returns sensitive data must call that function rather than trust that
+`middleware.ts` has already filtered everything.
 
 ## Composition root
 
-`packages/core/src/infrastructure/config/container.ts` elige el adaptador
-real o el in-memory por **switches independientes** (`hasDatabase()`,
-`hasMailer()`), nunca un flag global tipo `isDemo`. Así se puede prender la
-base de datos sin tener todavía el mailer configurado, por ejemplo.
+`packages/core/src/infrastructure/config/container.ts` picks the real or the
+in-memory adapter through **independent switches** (`hasDatabase()`,
+`hasMailer()`), never a global flag like `isDemo`. That way you can turn on
+the database before the mailer is configured, for example.

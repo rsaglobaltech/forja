@@ -13,8 +13,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
- * Todos los errores salen como RFC 9457 ({@code application/problem+json}) con un {@code code} estable,
- * también los que produce Spring (cuerpo ilegible, ruta o método inexistentes).
+ * Every error comes out as RFC 9457 ({@code application/problem+json}) with a stable {@code code},
+ * including the ones Spring produces (unreadable body, unknown route or method).
  */
 @RestControllerAdvice
 class ProblemDetailsHandler {
@@ -32,17 +32,17 @@ class ProblemDetailsHandler {
   @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class,
       MethodArgumentTypeMismatchException.class})
   ProblemDetail invalidRequest(Exception e) {
-    return problem(HttpStatus.BAD_REQUEST, "invalid_request", "La petición no se puede leer o no es válida.");
+    return problem(HttpStatus.BAD_REQUEST, "invalid_request", "The request cannot be read or is not valid.");
   }
 
   @ExceptionHandler(NoResourceFoundException.class)
   ProblemDetail notFound(NoResourceFoundException e) {
-    return problem(HttpStatus.NOT_FOUND, "route_not_found", "No existe esa ruta.");
+    return problem(HttpStatus.NOT_FOUND, "route_not_found", "That route does not exist.");
   }
 
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   ProblemDetail methodNotAllowed(HttpRequestMethodNotSupportedException e) {
-    return problem(HttpStatus.METHOD_NOT_ALLOWED, "method_not_allowed", "Método no permitido en esa ruta.");
+    return problem(HttpStatus.METHOD_NOT_ALLOWED, "method_not_allowed", "Method not allowed on that route.");
   }
 
   static ProblemDetail problem(HttpStatus status, String code, String detail) {

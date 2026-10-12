@@ -13,9 +13,9 @@ export interface LoginOutput {
 }
 
 /**
- * A propósito nunca "registra al pasar" si el email no existe — separar
- * register/login es la corrección más importante de este módulo (ver
- * docs/architecture.md, lección de lingua-ai).
+ * Deliberately never "registers on the fly" when the email does not exist —
+ * keeping register and login separate is the most important fix in this
+ * module (see docs/architecture.md, lesson from lingua-ai).
  */
 export class LoginUseCase {
   constructor(
@@ -28,8 +28,8 @@ export class LoginUseCase {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-      // Comparamos igual contra un hash dummy: mismo costo que el camino
-      // feliz, para no filtrar por timing si el email existe o no.
+      // Compare against a dummy hash anyway: same cost as the happy path,
+      // so timing does not leak whether the email exists.
       await this.passwordHasher.compareDummy(input.password);
       return err(new InvalidCredentialsError());
     }

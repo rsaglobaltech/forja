@@ -13,11 +13,10 @@ interface PackageJsonShape {
 }
 
 /**
- * Merge estructurado de package.json. Las recipes son la fuente de verdad
- * de sus propias deps/scripts; el orden de aplicación no debe importar,
- * así que nunca se pisa una clave ya puesta por otra recipe con el mismo
- * valor, y se avisa (throw) si dos recipes piden valores distintos para la
- * misma clave de script.
+ * Structured package.json merge. Each recipe is the source of truth for its
+ * own deps/scripts and the order of application must not matter, so a key
+ * another recipe already set to the same value is left alone, and it throws
+ * if two recipes ask for different values for the same script key.
  */
 export function mergePackageJson(
   current: PackageJsonShape,
@@ -36,7 +35,7 @@ export function mergePackageJson(
       const existing = result.scripts[key];
       if (existing && existing !== value) {
         throw new Error(
-          `Conflicto de script "${key}": "${existing}" vs "${value}". Dos recipes lo definen distinto.`,
+          `Script conflict for "${key}": "${existing}" vs "${value}". Two recipes define it differently.`,
         );
       }
       result.scripts[key] = value;

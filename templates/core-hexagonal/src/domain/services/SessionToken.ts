@@ -3,9 +3,9 @@ import { randomBytes, createHash } from "node:crypto";
 const TOKEN_BYTES = 32;
 
 /**
- * El token en texto plano solo existe en la respuesta al cliente; lo único
- * que se persiste es su hash SHA-256. Así una fuga de la base no filtra
- * tokens de sesión usables directamente.
+ * The plain-text token only exists in the response to the client; the only
+ * thing persisted is its SHA-256 hash. That way a database leak does not
+ * expose directly usable session tokens.
  */
 export class SessionToken {
   static generate(): { token: string; tokenHash: string } {

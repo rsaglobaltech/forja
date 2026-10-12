@@ -6,14 +6,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   transpilePackages: ["<%= config.scope %>/shared", "<%= config.scope %>/core"],
-  // Evita que Next "adivine" mal la raíz del monorepo al tracear archivos
-  // para el build (típico en setups con más de un lockfile en el árbol).
+  // Stops Next from guessing the wrong monorepo root when tracing files
+  // for the build (common in setups with more than one lockfile in the tree).
   outputFileTracingRoot: path.join(__dirname, "../.."),
   webpack(config) {
-    // packages/core y packages/shared importan entre módulos con extensión
-    // .js (ESM en Node/tsx/vitest lo exige), pero los archivos son .ts.
-    // Sin este alias, el resolver de webpack no encuentra esos módulos al
-    // transpilar los workspaces.
+    // packages/core and packages/shared import each other's modules with a
+    // .js extension (ESM in Node/tsx/vitest requires it), but the files are .ts.
+    // Without this alias, webpack's resolver cannot find those modules when
+    // transpiling the workspaces.
     config.resolve.extensionAlias = {
       ".js": [".ts", ".tsx", ".js"],
     };

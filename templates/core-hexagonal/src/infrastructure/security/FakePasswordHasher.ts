@@ -1,6 +1,6 @@
 import type { IPasswordHasher } from "../../ports/IPasswordHasher.js";
 
-/** Sin costo de CPU: para que los tests unit/integration corran rápido. */
+/** No CPU cost: keeps the unit/integration tests fast. */
 export class FakePasswordHasher implements IPasswordHasher {
   async hash(plain: string): Promise<string> {
     return `hashed:${plain}`;

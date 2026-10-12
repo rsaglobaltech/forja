@@ -1,11 +1,11 @@
 export interface IPasswordHasher {
   hash(plain: string): Promise<string>;
   /**
-   * Comparación en tiempo constante. Cuando el usuario no existe, el caller
-   * debe llamar igual a `compare` contra un hash dummy para no filtrar por
-   * timing si el email existe o no (ver LoginUseCase).
+   * Constant-time comparison. When the user does not exist, the caller must
+   * still compare against a dummy hash so timing does not leak whether the
+   * email exists (see LoginUseCase).
    */
   compare(plain: string, hash: string): Promise<boolean>;
-  /** Compara contra un hash dummy fijo, para gastar el mismo tiempo que un compare real. */
+  /** Compares against a fixed dummy hash, taking the same time as a real compare. */
   compareDummy(plain: string): Promise<boolean>;
 }

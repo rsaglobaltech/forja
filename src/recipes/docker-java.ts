@@ -1,6 +1,6 @@
 import { defineRecipe } from "./types.js";
 
-/** Dockerfiles de producción: API (Spring o Quarkus, multi-etapa, usuario sin privilegios) y web standalone. */
+/** Production Dockerfiles: the API (Spring or Quarkus, multi-stage, unprivileged user) and the standalone web app. */
 export default defineRecipe({
   id: "docker-java",
   apply(ctx) {

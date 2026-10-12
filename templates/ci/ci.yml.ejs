@@ -1,4 +1,4 @@
-# CI de <%= config.name %> (generado con forja). Corre en cada push y pull request.
+# CI for <%= config.name %> (generated with forja). Runs on every push and pull request.
 name: CI
 
 on:
@@ -21,7 +21,7 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
-      # Tests de dominio, casos de uso, API<%= config.db === "postgres-docker" ? " contra PostgreSQL real (Docker)" : "" %>, arranque real<%= config.archunit ? " y ArchUnit" : "" %>.
+      # Domain, use case and API tests<%= config.db === "postgres-docker" ? " against a real PostgreSQL (Docker)" : "" %>, real startup<%= config.archunit ? " and ArchUnit" : "" %>.
       - run: ./mvnw -B verify
 <% } -%>
 <% if (web || !java) { -%>
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Dependencias
+      - name: Dependencies
         run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
 <% if (config.extras.includes("lint")) { -%>
       - run: npm run lint
@@ -47,13 +47,13 @@ jobs:
 <% } -%>
 <% if (config.extras.includes("specgate")) { -%>
   spec:
-    name: Especificación (Specgate)
+    name: Specification (Specgate)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      # La especificación: requisitos, escenarios y trazabilidad. Los tests ya corren en los otros jobs.
+      # The specification: requirements, scenarios and traceability. The tests already run in the other jobs.
       - run: npx -y @rsaglobaltech/specgate@<%= versions.specgate %> validate . --strict
 <% } -%>

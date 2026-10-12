@@ -2,7 +2,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
 }
-/** Registrar deja logueado al toque (mismo shape que LoginResponse): el móvil no encadena dos requests. */
+/** Registering signs the user in straight away (same shape as LoginResponse): mobile does not chain two requests. */
 export interface RegisterResponse {
   userId: string;
   token: string;

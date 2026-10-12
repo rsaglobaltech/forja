@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-/** PostgreSQL real en Docker para los tests (Testcontainers); Spring toma la conexión sola. */
+/** A real PostgreSQL in Docker for the tests (Testcontainers); Spring picks up the connection by itself. */
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
   @Bean

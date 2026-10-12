@@ -1,8 +1,8 @@
 /**
- * Fuente de verdad de la paleta. En v0.1 (solo web) esto se consume
- * directamente en `apps/web/app/globals.css` a mano; cuando se agregue
- * `mobile`, acá es donde va el codegen hacia `tailwind.generated.js`
- * (sección 5b.2 del spec de forja) para no duplicar hexes entre plataformas.
+ * Source of truth for the palette. In v0.1 (web only) it is copied by hand
+ * into `apps/web/app/globals.css`; once `mobile` is added, this is where the
+ * codegen to `tailwind.generated.js` goes (section 5b.2 of the forja spec),
+ * so hex values are not duplicated across platforms.
  */
 export const palette = {
   brand: {

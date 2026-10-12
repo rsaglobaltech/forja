@@ -16,7 +16,7 @@ export default function ForgotPasswordScreen() {
       await api.forgotPassword({ email });
       setSubmitted(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error de red");
+      setError(e instanceof Error ? e.message : "Network error");
     } finally {
       setLoading(false);
     }
@@ -25,11 +25,11 @@ export default function ForgotPasswordScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-app px-4">
       <View className="w-full max-w-sm rounded-md bg-surface p-6">
-        <Text className="mb-6 text-xl font-semibold text-text">Recuperar contraseña</Text>
+        <Text className="mb-6 text-xl font-semibold text-text">Reset password</Text>
 
         {submitted ? (
           <Text className="text-sm text-text">
-            Si ese email existe, te mandamos un link para elegir una contraseña nueva.
+            If that email exists, we've sent you a link to choose a new password.
           </Text>
         ) : (
           <>
@@ -53,7 +53,7 @@ export default function ForgotPasswordScreen() {
               {loading ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text className="text-sm font-medium text-white">Enviar link</Text>
+                <Text className="text-sm font-medium text-white">Send link</Text>
               )}
             </Pressable>
           </>
@@ -61,7 +61,7 @@ export default function ForgotPasswordScreen() {
 
         <View className="mt-4 items-center">
           <Link href="/login" className="text-sm text-brand-600">
-            Volver a iniciar sesión
+            Back to sign in
           </Link>
         </View>
       </View>

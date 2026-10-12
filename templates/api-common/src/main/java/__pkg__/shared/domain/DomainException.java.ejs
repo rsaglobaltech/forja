@@ -1,8 +1,8 @@
 package <%= pkg %>.shared.domain;
 
 /**
- * Una regla de negocio que no se cumple. El {@code code} es estable: es lo que ve el cliente de la API
- * (en el campo {@code code} de la respuesta RFC 9457) y lo que nombran los escenarios.
+ * A business rule that is not met. The {@code code} is stable: it is what the API client sees
+ * (in the {@code code} field of the RFC 9457 response) and what the scenarios refer to.
  */
 public class DomainException extends RuntimeException {
   public enum Kind { INVALID, NOT_FOUND, CONFLICT, FORBIDDEN }

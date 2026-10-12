@@ -15,24 +15,24 @@ describe("LoginUseCase", () => {
     loginUseCase = new LoginUseCase(userRepository, hasher);
     await new RegisterUseCase(userRepository, hasher).execute({
       email: "a@b.com",
-      password: "un-passw0rd-decente",
+      password: "a-decent-passw0rd",
     });
   });
 
-  it("loguea con credenciales correctas", async () => {
-    const result = await loginUseCase.execute({ email: "a@b.com", password: "un-passw0rd-decente" });
+  it("signs in with correct credentials", async () => {
+    const result = await loginUseCase.execute({ email: "a@b.com", password: "a-decent-passw0rd" });
     expect(result.ok).toBe(true);
   });
 
-  it("rechaza password incorrecta", async () => {
-    const result = await loginUseCase.execute({ email: "a@b.com", password: "cualquier-otra-cosa" });
+  it("rejects a wrong password", async () => {
+    const result = await loginUseCase.execute({ email: "a@b.com", password: "something-else-entirely" });
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("unreachable");
     expect(result.error).toBeInstanceOf(InvalidCredentialsError);
   });
 
-  it("email inexistente da el mismo error que password incorrecta (anti-enumeración)", async () => {
-    const result = await loginUseCase.execute({ email: "no-existe@b.com", password: "lo-que-sea-123" });
+  it("an unknown email gives the same error as a wrong password (anti-enumeration)", async () => {
+    const result = await loginUseCase.execute({ email: "does-not-exist@b.com", password: "whatever-123" });
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("unreachable");
     expect(result.error).toBeInstanceOf(InvalidCredentialsError);

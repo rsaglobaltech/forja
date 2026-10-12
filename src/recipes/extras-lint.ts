@@ -7,7 +7,7 @@ export default defineRecipe({
     ctx.copyFile("extras-lint/eslint.config.mjs", "eslint.config.mjs");
     ctx.copyFile("extras-lint/.prettierrc.json", ".prettierrc.json");
 
-    // Java (v0.2, validado): ESLint 10. Node (v0.1): se mantiene ESLint 9 hasta validar Expo con 10.
+    // Java (v0.2, validated): ESLint 10. Node (v0.1): stays on ESLint 9 until Expo is validated with 10.
     const java = isJava(ctx.config);
     ctx.mergePackageJson(".", {
       devDependencies: {
