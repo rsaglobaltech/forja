@@ -57,6 +57,10 @@ function applyJava(ctx: Parameters<Parameters<typeof defineRecipe>[0]["apply"]>[
     scripts: {
       test: web ? "npm run test:api && npm run test:web" : "npm run test:api",
       "test:api": `${api} -q -B verify`,
+      // ArchUnit on its own: what Specgate's gate runs as arch_cmd, before the tests.
+      ...(ctx.config.archunit
+        ? { arch: `${api} -q -B test -Dtest=ArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false` }
+        : {}),
       "dev:api": ctx.config.backend === "spring" ? `${api} spring-boot:run` : `${api} quarkus:dev`,
       ...(web ? { "test:web": "npm run typecheck --workspaces --if-present && npm run build --workspace apps/web",
         "dev:web": "npm run dev --workspace apps/web" } : {}),

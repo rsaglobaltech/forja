@@ -1,115 +1,12 @@
 <!doctype html>
-<html lang="en" data-slug="generated-project">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The generated project — forja</title>
-<meta name="description" content="Recipe by recipe: the folders, the files, the versions.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<meta property="og:title" content="The generated project — forja">
-<meta property="og:description" content="Recipe by recipe: the folders, the files, the versions.">
-<link rel="stylesheet" href="assets/docs.css">
-<link rel="stylesheet" href="assets/forja.css">
-<script>
-  (function () {
-    try { var t = localStorage.getItem("forja-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
-  })();
-</script>
+<title>What it generates — forja</title>
+<meta http-equiv="refresh" content="0; url=https://rsaglobaltech.github.io/specgate/forja/generated-project.html">
+<link rel="canonical" href="https://rsaglobaltech.github.io/specgate/forja/generated-project.html">
 </head>
 <body>
-<a class="skip" href="#content">Skip to content</a>
-
-<header class="top">
-  <button class="top__menu" type="button" aria-label="Open navigation" aria-expanded="false"><span aria-hidden="true">☰</span></button>
-  <a class="top__brand" href="index.html"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true" width="18" height="18"><path d="M8 20h42v9h-7c-3 0-5 2-5 5v5h6v7H20v-7h6v-5c0-3-3-5-7-5-6 0-10-4-11-9Z" fill="currentColor"/></svg> forja<span class="top__brand-sub">/docs</span></a>
-  <span class="top__version">v0.2.0</span>
-  <button class="top__search" id="search" type="button" aria-label="Search documentation" aria-keyshortcuts="Meta+K Control+K">
-    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <span class="top__search-label">search docs</span>
-    <kbd class="top__kbd"><span class="top__kbd-mod">⌘</span>K</kbd>
-  </button>
-  <nav class="top__links">
-    <a href="docs.html">Docs</a>
-    <a href="https://github.com/rsaglobaltech/forja" target="_blank" rel="noreferrer">GitHub</a>
-    <a href="https://www.npmjs.com/package/@rsaglobaltech/forja" target="_blank" rel="noreferrer">npm</a>
-  </nav>
-  <button class="top__theme" type="button" aria-label="Switch theme">◐</button>
-</header>
-
-<div class="shell">
-  <aside class="side" id="side"><nav aria-label="Documentation"><details class="side__group" data-group="Start"><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 2 5 5.5 5 9l-5 4-5-4c0-3.5 2-7 5-9Z"/><circle cx="12" cy="10" r="1.6"/><path d="M9 17l-2 4 4-2M15 17l2 4-4-2"/></svg><span>Start</span></summary><ul><li><a href="getting-started.html">Getting started</a></li><li><a href="java.html">Java backends</a></li><li><a href="daily-use.html">Daily use</a></li><li><a href="specgate.html">forja + Specgate</a></li><li><a href="e2e.html">End-to-end tests</a></li></ul></details><details class="side__group" data-group="Reference" open><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 5.5v15"/></svg><span>Reference</span></summary><ul><li><a href="cli.html">Command line</a></li><li><a href="config.html">forja.config.json</a></li><li><a href="generated-project.html" class="is-active" aria-current="page">What it generates</a></li></ul></details><details class="side__group" data-group="Background"><summary class="side__head"><svg class="icon side__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg><span>Background</span></summary><ul><li><a href="architecture.html">Architecture</a></li><li><a href="contributing.html">Contributing</a></li></ul></details></nav></aside>
-  <main class="content" id="content">
-    <nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="docs.html">Docs</a></li><li>Reference</li><li aria-current="page">What it generates</li></ol></nav>
-    <article class="prose">
-<h1 id="the-generated-project">The generated project<a class="anchor" href="#the-generated-project" aria-label="Link to this section">#</a></h1>
-<p>forja builds a project from recipes. Each recipe writes one concern: the API, the web app, the database,
-auth, an extra. The configuration decides which recipes run, and in which order. This page goes through
-them one by one. Run <code>forja init &lt;name&gt; --yes --dry-run</code> with your flags to see the exact tree.</p>
-<h2 id="node-recipes">Node recipes<a class="anchor" href="#node-recipes" aria-label="Link to this section">#</a></h2>
-<p>They run in this order: <code>base</code>, <code>shared</code>, <code>core-hexagonal</code>, <code>db-postgres-docker</code> or <code>db-none</code>, <code>web</code>,
-<code>mobile</code>, <code>auth-sessions</code> or <code>auth-none</code>, <code>mailer-console</code>, <code>design-tailwind</code>, <code>e2e-web</code>,
-<code>extras-lint</code>, <code>ci</code>, <code>specgate</code>. Each one runs only when the configuration asks for it.</p>
-<div class="table-wrap"><table><thead><tr><th>Recipe</th><th>Runs when</th><th>Writes</th></tr></thead><tbody><tr><td><code>base</code></td><td>always</td><td>root <code>package.json</code> (npm workspaces <code>apps/*</code>, <code>packages/*</code>; <code>test</code> and <code>typecheck</code> across them), <code>tsconfig.base.json</code>, <code>.gitignore</code>, <code>.editorconfig</code>, <code>README.md</code>, <code>docs/architecture.md</code>, <code>forja.config.json</code></td></tr><tr><td><code>shared</code></td><td>always</td><td><code>packages/shared</code>: API types and zod validation shared by web and mobile</td></tr><tr><td><code>core-hexagonal</code></td><td>always</td><td><code>packages/core</code>: domain, auth use cases, ports, in-memory adapters, bcrypt, clock, logger, <code>container.ts</code>, <code>env.ts</code>; unit tests with <code>unit</code></td></tr><tr><td><code>db-postgres-docker</code></td><td><code>db: postgres-docker</code></td><td><code>docker-compose.yml</code> (PostgreSQL 16), <code>drizzle.config.ts</code>, the Drizzle schema and repositories, <code>db:push</code> and <code>db:studio</code> scripts, <code>DATABASE_URL</code></td></tr><tr><td><code>db-none</code></td><td><code>db: none</code></td><td>nothing: the in-memory repositories are enough</td></tr><tr><td><code>web</code></td><td><code>web</code> in platforms</td><td><code>apps/web</code>: Next.js App Router, layout, home page; root <code>dev</code> and <code>build</code> scripts</td></tr><tr><td><code>mobile</code></td><td><code>mobile</code> in platforms</td><td><code>apps/mobile</code>: Expo Router, <code>app.config.ts</code>, Babel and Metro config; root <code>mobile</code> script; <code>EXPO_PUBLIC_API_URL</code></td></tr><tr><td><code>auth-sessions</code></td><td><code>auth: sessions</code></td><td>web: login, register, forgot and reset password pages, Server Actions, <code>proxy.ts</code>, a dashboard; with mobile, the <code>/api/auth/*</code> route handlers and the mobile screens; integration tests with <code>integration</code>; <code>SESSION_TTL_DAYS</code></td></tr><tr><td><code>auth-none</code></td><td><code>auth: none</code></td><td>nothing</td></tr><tr><td><code>mailer-console</code></td><td>auth is not <code>none</code></td><td><code>ConsoleMailer</code> and <code>InMemoryMailer</code> in <code>packages/core</code></td></tr><tr><td><code>design-tailwind</code></td><td><code>design: tailwind</code></td><td>design tokens in <code>packages/shared/src/design</code>; Tailwind 4 on the web; NativeWind with Tailwind 3 on mobile</td></tr><tr><td><code>e2e-web</code></td><td><code>e2e-web</code> in tests</td><td>Playwright in <code>apps/web</code>; see <a href="e2e.html">End-to-end tests</a></td></tr><tr><td><code>extras-lint</code></td><td><code>lint</code> in extras</td><td><code>eslint.config.mjs</code>, <code>.prettierrc.json</code>, a <code>lint</code> script</td></tr><tr><td><code>ci</code></td><td><code>ci</code> in extras</td><td><code>.github/workflows/ci.yml</code></td></tr><tr><td><code>specgate</code></td><td><code>specgate</code> in extras</td><td><code>docs/brief.md</code>, <code>docs/specgate.md</code>, the Specgate dependency and scripts; see <a href="specgate.html">forja and Specgate</a></td></tr></tbody></table></div>
-<p>The environment variables the recipes declare are collected in one root <code>.env.example</code>, grouped by
-recipe: <code>APP_URL</code>, <code>DATABASE_URL</code>, <code>SESSION_TTL_DAYS</code> and <code>EXPO_PUBLIC_API_URL</code>, depending on the
-choices.</p>
-<h3 id="the-node-tree">The Node tree<a class="anchor" href="#the-node-tree" aria-label="Link to this section">#</a></h3>
-<figure class="code" data-lang="text"><figcaption class="code__head"><span class="code__lang">text</span><button class="code__copy" type="button" aria-label="Copy to clipboard">Copy</button></figcaption><pre><code class="language-text">apps/
-  web/            Next.js 16 (built with --webpack), proxy.ts, (auth) and (app) route groups
-  mobile/         Expo SDK 57, Expo Router, (auth) and (app) screens, lib/auth.tsx, lib/api.ts
-packages/
-  core/
-    src/domain/          entities/User, value-objects/Email and Password, events, services, shared/Result
-    src/application/     auth/: Register, Login, CreateSession, ValidateSession, Logout,
-                         RequestPasswordReset, ResetPassword
-    src/ports/           IUserRepository, ISessionRepository, IPasswordResetTokenRepository,
-                         IPasswordHasher, IMailer, IClock, ILogger
-    src/infrastructure/  clock/, config/ (container.ts, env.ts), database/, logging/, mail/, security/
-    tests/unit/, tests/integration/
-  shared/
-    src/api/, src/validation/, src/design/</code></pre></figure>
-<h2 id="java-recipes">Java recipes<a class="anchor" href="#java-recipes" aria-label="Link to this section">#</a></h2>
-<p>They run in this order: <code>base</code>, <code>api-spring</code> or <code>api-quarkus</code>, <code>compose</code>, <code>keycloak</code>, then with a web
-app <code>shared</code>, <code>web-java</code>, <code>design-tailwind</code> and <code>e2e-web</code>, and last the extras in the order you listed
-them: <code>extras-lint</code> (with a web app only), <code>ci</code>, <code>docker-java</code>, <code>specgate</code>.</p>
-<div class="table-wrap"><table><thead><tr><th>Recipe</th><th>Runs when</th><th>Writes</th></tr></thead><tbody><tr><td><code>base</code></td><td>always</td><td>root <code>package.json</code> with <code>dev:api</code>, <code>test:api</code> and, with web, <code>dev:web</code>, <code>test:web</code>; <code>README.md</code>, <code>docs/architecture.md</code>, <code>.gitignore</code>, <code>forja.config.json</code></td></tr><tr><td><code>api-spring</code> / <code>api-quarkus</code></td><td>the backend</td><td><code>apps/api</code>: Maven Wrapper, <code>pom.xml</code>, the <code>shared</code> and <code>tasks</code> modules, tests; the PostgreSQL or in-memory adapter; the OAuth2 or no-auth security; <code>ArchitectureTest</code> with <code>archunit</code></td></tr><tr><td><code>compose</code></td><td><code>db: postgres-docker</code> or <code>auth: oauth2</code></td><td><code>docker-compose.yml</code> with PostgreSQL 17 and/or Keycloak 26.8</td></tr><tr><td><code>keycloak</code></td><td><code>auth: oauth2</code></td><td><code>infra/keycloak/&lt;name&gt;-realm.json</code></td></tr><tr><td><code>shared</code></td><td><code>web</code> in platforms</td><td><code>packages/shared</code>: the API&#39;s types for the web app</td></tr><tr><td><code>web-java</code></td><td><code>web</code> in platforms</td><td><code>apps/web</code>: Next.js 16, the tasks pages, a server-only API client; with OAuth2, Auth.js and its route; <code>.env.example</code> and a ready <code>.env.local</code></td></tr><tr><td><code>design-tailwind</code></td><td>web and <code>design: tailwind</code></td><td>Tailwind 4 and design tokens</td></tr><tr><td><code>e2e-web</code></td><td>web and <code>e2e-web</code> in tests</td><td>Playwright in <code>apps/web</code></td></tr><tr><td><code>extras-lint</code></td><td>web and <code>lint</code> in extras</td><td>ESLint and Prettier for the TypeScript side</td></tr><tr><td><code>ci</code></td><td><code>ci</code> in extras</td><td><code>.github/workflows/ci.yml</code> with an <code>api</code> job (<code>./mvnw -B verify</code>) and a <code>web</code> job</td></tr><tr><td><code>docker-java</code></td><td><code>docker</code> in extras</td><td><code>apps/api/Dockerfile</code> and <code>.dockerignore</code>; with web, <code>apps/web/Dockerfile</code></td></tr><tr><td><code>specgate</code></td><td><code>specgate</code> in extras</td><td>as on Node</td></tr></tbody></table></div>
-<p><a href="java.html">Java backends</a> shows the Java tree and how to run it.</p>
-<h2 id="versions">Versions<a class="anchor" href="#versions" aria-label="Link to this section">#</a></h2>
-<p>The versions forja pins, as written in the recipes and templates:</p>
-<div class="table-wrap"><table><thead><tr><th>Piece</th><th>Version</th></tr></thead><tbody><tr><td>Next.js</td><td><code>^16.4.0</code></td></tr><tr><td>React (Node path: root, web and mobile)</td><td><code>19.2.3</code>, the version Expo SDK 57 pins</td></tr><tr><td>React (Java web app)</td><td><code>^19.3.0</code></td></tr><tr><td>Expo SDK</td><td><code>~57.0.28</code>, with React Native <code>0.86.3</code> and Reanimated <code>4.5.1</code></td></tr><tr><td>TypeScript (Node path)</td><td><code>~6.0.3</code></td></tr><tr><td>TypeScript (Java web app)</td><td><code>^5.9.3</code></td></tr><tr><td>zod / vitest</td><td><code>^4.6.7</code> / <code>^5.0.4</code></td></tr><tr><td>Drizzle ORM / drizzle-kit / postgres.js</td><td><code>^0.45.4</code> / <code>^0.31.11</code> / <code>^3.4.9</code></td></tr><tr><td>Tailwind (web) / NativeWind with Tailwind (mobile)</td><td><code>^4.3.3</code> / <code>^4.2.7</code> with <code>^3.4.17</code></td></tr><tr><td>ESLint / Prettier</td><td><code>^10.12.0</code> / <code>^3.6.2</code></td></tr><tr><td>Auth.js (<code>next-auth</code>)</td><td><code>5.0.0-beta.32</code></td></tr><tr><td>Playwright</td><td><code>~1.63.0</code></td></tr><tr><td>Spring Boot / springdoc</td><td><code>4.1.1</code> / <code>3.1.1</code></td></tr><tr><td>Quarkus</td><td><code>3.40.1</code></td></tr><tr><td>ArchUnit</td><td><code>1.5.1</code></td></tr><tr><td>Java</td><td>21</td></tr><tr><td>PostgreSQL image</td><td><code>16-alpine</code> (Node), <code>17-alpine</code> (Java)</td></tr><tr><td>Keycloak image</td><td><code>26.8</code></td></tr><tr><td>Specgate</td><td><code>^0.19.1</code></td></tr></tbody></table></div>
-<h2 id="how-it-is-written">How it is written<a class="anchor" href="#how-it-is-written" aria-label="Link to this section">#</a></h2>
-<p>Recipes write to an in-memory file system. When all of them have run, forja formats the TypeScript,
-JavaScript, JSON, CSS and Markdown files with Prettier, and only then writes to disk. A failure part
-way through leaves nothing behind, and <code>--dry-run</code> prints that same in-memory tree.</p>
-<p><a href="contributing.html">Contributing</a> explains how a recipe is written.</p>
-
-    </article>
-    <nav class="pager" aria-label="Neighbouring pages"><a class="pager__prev" href="config.html"><span>Previous</span>forja.config.json</a><a class="pager__next" href="architecture.html"><span>Next</span>Architecture</a></nav>
-    <footer class="page-foot">
-      <a href="https://github.com/rsaglobaltech/forja/edit/develop/site/docs/generated-project.md" target="_blank" rel="noreferrer">Edit this page</a>
-      <span aria-hidden="true">·</span>
-      <a href="https://github.com/rsaglobaltech/forja/issues/new" target="_blank" rel="noreferrer">Something wrong? Open an issue</a>
-    </footer>
-  </main>
-  <div class="rail"><nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li class="toc__l2"><a href="#node-recipes">Node recipes</a></li><li class="toc__l3"><a href="#the-node-tree">The Node tree</a></li><li class="toc__l2"><a href="#java-recipes">Java recipes</a></li><li class="toc__l2"><a href="#versions">Versions</a></li><li class="toc__l2"><a href="#how-it-is-written">How it is written</a></li></ul></nav></div>
-</div>
-
-<div class="palette" id="palette" hidden>
-  <div class="palette__scrim" data-close="1"></div>
-  <div class="palette__box" role="dialog" aria-modal="true" aria-label="Search documentation">
-    <div class="palette__field">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input type="search" id="palette-input" placeholder="Search the documentation…" autocomplete="off" spellcheck="false" aria-label="Search documentation" aria-controls="results" aria-expanded="true">
-      <kbd class="palette__esc">Esc</kbd>
-    </div>
-    <div class="palette__results" id="results" role="listbox" aria-label="Results"></div>
-    <p class="palette__hint"><kbd>↑</kbd><kbd>↓</kbd> to navigate · <kbd>↵</kbd> to open · <kbd>Esc</kbd> to close</p>
-  </div>
-</div>
-
-<script src="assets/docs.js" defer></script>
+<p>forja's documentation moved to <a href="https://rsaglobaltech.github.io/specgate/forja/generated-project.html">https://rsaglobaltech.github.io/specgate/forja/generated-project.html</a>.</p>
 </body>
 </html>

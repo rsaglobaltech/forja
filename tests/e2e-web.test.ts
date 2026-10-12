@@ -66,3 +66,23 @@ describe("--tests e2e-web", () => {
     expect(file("apps/web/playwright.config.ts")).toBeUndefined();
   });
 });
+
+describe("npm run arch: the architecture check Specgate's gate runs", () => {
+  it("node: a dependency-free script with the core's rules", async () => {
+    const file = await files(parseForjaConfig(defaultConfig("acme")));
+    expect(JSON.parse(file("package.json")).scripts.arch).toBe("node scripts/check-architecture.mjs");
+    expect(file("scripts/check-architecture.mjs")).toMatch(/react-native\|expo/);
+  });
+
+  it("java with ArchUnit: the ArchitectureTest alone; without it, no script", async () => {
+    const java = await files(parseForjaConfig(defaultJavaConfig("shop", "spring")));
+    expect(JSON.parse(java("package.json")).scripts.arch).toMatch(/-Dtest=ArchitectureTest/);
+    const none = await files(parseForjaConfig({ ...defaultJavaConfig("shop", "quarkus"), archunit: false }));
+    expect(JSON.parse(none("package.json")).scripts.arch).toBeUndefined();
+  });
+
+  it("the next steps set arch_cmd when forja could not", () => {
+    const steps = nextSteps(parseForjaConfig({ ...defaultConfig("acme"), extras: ["specgate"] }), true);
+    expect(steps).toContain('npx specgate config set arch_cmd "npm run arch"');
+  });
+});

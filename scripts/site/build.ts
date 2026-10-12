@@ -367,36 +367,40 @@ function sections(markdown: string, headings: Heading[]) {
   return out;
 }
 
+/** Where forja's documentation lives now: a section of Specgate's site (ADR-0033). */
+export const DOCS_HOME = "https://rsaglobaltech.github.io/specgate/forja/";
+
+/** A page that sends the reader to the same page on Specgate's site. */
+function redirect(target: string, title: string): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>${escapeHtml(title)} — forja</title>
+<meta http-equiv="refresh" content="0; url=${target}">
+<link rel="canonical" href="${target}">
+</head>
+<body>
+<p>forja's documentation moved to <a href="${target}">${target}</a>.</p>
+</body>
+</html>
+`;
+}
+
 export function buildSite(outDir: string): { pages: number } {
   const version = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8")).version as string;
   fs.rmSync(outDir, { recursive: true, force: true });
   fs.mkdirSync(path.join(outDir, "assets"), { recursive: true });
 
-  const files = fs.readdirSync(DOCS).filter((f) => f.endsWith(".md"));
-  const slugs = files.map((f) => f.replace(/\.md$/, ""));
-  const missing = ENTRIES.filter((e) => !slugs.includes(e.slug)).map((e) => e.slug);
-  const orphans = slugs.filter((s) => !entryOf(s));
-  if (missing.length || orphans.length) {
-    throw new Error(
-      [missing.length ? `in the sidebar, no file: ${missing.join(", ")}` : "", orphans.length ? `no sidebar entry: ${orphans.join(", ")}` : ""]
-        .filter(Boolean)
-        .join("; "),
-    );
+  // The documentation is published once, on Specgate's site; every old URL
+  // here keeps working by sending the reader there.
+  for (const e of ENTRIES) {
+    fs.writeFileSync(path.join(outDir, `${e.slug}.html`), redirect(`${DOCS_HOME}${e.slug}.html`, e.label));
   }
-
-  const index: { slug: string; title: string; section?: string; hash?: string; text: string }[] = [];
-  for (const slug of slugs) {
-    const source = fs.readFileSync(path.join(DOCS, `${slug}.md`), "utf8");
-    const { html, headings, title } = render(source);
-    const entry = entryOf(slug)!;
-    const page: Page = { slug, title: title || entry.label, description: entry.blurb, html, headings };
-    fs.writeFileSync(path.join(outDir, `${slug}.html`), shell(page, version));
-    index.push({ slug, title: page.title, text: plainText(source).slice(0, 2000) });
-    for (const s of sections(source, headings)) index.push({ slug, title: page.title, ...s });
-  }
-
-  fs.writeFileSync(path.join(outDir, "docs.html"), shell(docsHome(version), version));
-  fs.writeFileSync(path.join(outDir, "assets", "search-index.json"), JSON.stringify(index));
+  fs.writeFileSync(
+    path.join(outDir, "docs.html"),
+    redirect(`${DOCS_HOME}getting-started.html`, "Documentation"),
+  );
 
   for (const f of fs.readdirSync(path.join(SITE, "assets"))) {
     fs.copyFileSync(path.join(SITE, "assets", f), path.join(outDir, "assets", f));
@@ -405,7 +409,7 @@ export function buildSite(outDir: string): { pages: number } {
   const landing = fs.readFileSync(path.join(SITE, "index.html"), "utf8").replaceAll("{{version}}", version);
   fs.writeFileSync(path.join(outDir, "index.html"), landing);
   fs.writeFileSync(path.join(outDir, ".nojekyll"), "");
-  return { pages: slugs.length + 1 };
+  return { pages: ENTRIES.length + 2 };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
