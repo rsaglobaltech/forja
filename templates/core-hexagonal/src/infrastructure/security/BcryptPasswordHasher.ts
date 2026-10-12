@@ -3,7 +3,7 @@ import type { IPasswordHasher } from "../../ports/IPasswordHasher.js";
 
 const COST = 12;
 
-/** Hash dummy precomputado para comparar en tiempo constante cuando el usuario no existe. */
+/** Precomputed dummy hash, for a constant-time comparison when the user does not exist. */
 const DUMMY_HASH = bcrypt.hashSync("dummy-password-for-timing-safety", COST);
 
 export class BcryptPasswordHasher implements IPasswordHasher {
@@ -15,7 +15,7 @@ export class BcryptPasswordHasher implements IPasswordHasher {
     return bcrypt.compare(plain, hash);
   }
 
-  /** Usar cuando el usuario no existe, para no filtrar por timing (ver LoginUseCase). */
+  /** Use when the user does not exist, so timing does not leak it (see LoginUseCase). */
   async compareDummy(plain: string): Promise<boolean> {
     return bcrypt.compare(plain, DUMMY_HASH);
   }

@@ -1,7 +1,7 @@
 {
   "realm": "<%= config.name %>",
   "enabled": true,
-  "displayName": "<%= config.name %> (desarrollo)",
+  "displayName": "<%= config.name %> (development)",
   "registrationAllowed": false,
   "loginWithEmailAllowed": true,
   "accessTokenLifespan": 300,
@@ -10,7 +10,7 @@
     {
       "clientId": "web",
       "name": "<%= config.name %> web",
-      "description": "Next.js (Auth.js): Authorization Code + PKCE. Secreto solo de desarrollo.",
+      "description": "Next.js (Auth.js): Authorization Code + PKCE. Development-only secret.",
       "enabled": true,
       "publicClient": false,
       "secret": "dev-web-secret",
@@ -25,8 +25,8 @@
     },
     {
       "clientId": "dev-cli",
-      "name": "Pruebas manuales y E2E",
-      "description": "Solo desarrollo: permite pedir un token con usuario y contraseña (curl, tests).",
+      "name": "Manual and E2E testing",
+      "description": "Development only: lets you request a token with username and password (curl, tests).",
       "enabled": true,
       "publicClient": true,
       "standardFlowEnabled": false,
@@ -44,13 +44,13 @@
       "credentials": [{ "type": "password", "value": "demo", "temporary": false }]
     },
     {
-      "username": "otra",
-      "email": "otra@example.com",
+      "username": "other",
+      "email": "other@example.com",
       "emailVerified": true,
-      "firstName": "Otra",
-      "lastName": "Persona",
+      "firstName": "Other",
+      "lastName": "Person",
       "enabled": true,
-      "credentials": [{ "type": "password", "value": "otra", "temporary": false }]
+      "credentials": [{ "type": "password", "value": "other", "temporary": false }]
     }
   ]
 }

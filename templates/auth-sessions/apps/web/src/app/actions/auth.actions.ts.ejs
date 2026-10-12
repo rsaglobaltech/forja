@@ -20,7 +20,7 @@ export async function registerAction(_prevState: ActionState, formData: FormData
     email: formData.get("email"),
     password: formData.get("password"),
   });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
 
   const result = await container.registerUseCase.execute(parsed.data);
   if (!result.ok) return { error: result.error.message };
@@ -35,7 +35,7 @@ export async function loginAction(_prevState: ActionState, formData: FormData): 
     email: formData.get("email"),
     password: formData.get("password"),
   });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
 
   const result = await container.loginUseCase.execute(parsed.data);
   if (!result.ok) return { error: result.error.message };
@@ -57,9 +57,9 @@ export async function forgotPasswordAction(
   formData: FormData,
 ): Promise<ActionState> {
   const parsed = ForgotPasswordSchema.safeParse({ email: formData.get("email") });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
 
-  // Siempre responde OK, exista o no el email (anti-enumeración).
+  // Always responds OK, whether or not the email exists (anti-enumeration).
   await container.requestPasswordResetUseCase.execute(parsed.data.email);
   return { ok: true };
 }
@@ -72,7 +72,7 @@ export async function resetPasswordAction(
     token: formData.get("token"),
     newPassword: formData.get("newPassword"),
   });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
 
   const result = await container.resetPasswordUseCase.execute(parsed.data.token, parsed.data.newPassword);
   if (!result.ok) return { error: result.error.message };

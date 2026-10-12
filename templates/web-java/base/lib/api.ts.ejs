@@ -6,7 +6,7 @@ import { accessToken } from "./access-token";
 
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:8080";
 
-/** Un error de la API (RFC 9457): la web decide por el `code`, no por el texto. */
+/** An API error (RFC 9457): the web app decides on the `code`, not on the text. */
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -17,14 +17,14 @@ export class ApiError extends Error {
   }
 }
 
-/** Cliente de la API, solo de servidor<% if (config.auth === "oauth2") { %>: añade el access token del usuario (que nunca llega al navegador)<% } %>. */
+/** Server-only API client<% if (config.auth === "oauth2") { %>: adds the user's access token (which never reaches the browser)<% } %>. */
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json, application/problem+json");
   if (init.body) headers.set("Content-Type", "application/json");
 <% if (config.auth === "oauth2") { -%>
   const token = await accessToken();
-  if (!token) throw new ApiError(401, "unauthorized", "Sin sesión");
+  if (!token) throw new ApiError(401, "unauthorized", "No session");
   headers.set("Authorization", `Bearer ${token}`);
 <% } -%>
   const res = await fetch(`${API_URL}${path}`, { ...init, headers, cache: "no-store" });

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** Doble de prueba del puerto: los casos de uso se prueban sin Spring ni base de datos. */
+/** Test double for the port: use cases are tested without Spring or a database. */
 class InMemoryTasks implements TaskRepository {
   private final Map<TaskId, Task> tasks = new HashMap<>();
 

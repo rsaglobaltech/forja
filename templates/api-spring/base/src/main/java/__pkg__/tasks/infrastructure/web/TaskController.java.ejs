@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Adaptador de entrada REST: traduce HTTP ⇄ casos de uso. */
+/** Inbound REST adapter: translates HTTP ⇄ use cases. */
 @RestController
 @RequestMapping("/api/tasks")
 @Tag(name = "tasks")
@@ -43,20 +43,20 @@ class TaskController {
   }
 
   @GetMapping
-  @Operation(summary = "Mis tareas, de la más reciente a la más antigua")
+  @Operation(summary = "My tasks, newest first")
   List<TaskResponse> mine() {
     return listMyTasks.execute().stream().map(TaskResponse::of).toList();
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Crear una tarea")
+  @Operation(summary = "Create a task")
   TaskResponse create(@Valid @RequestBody CreateTaskRequest request) {
     return TaskResponse.of(createTask.execute(request.title()));
   }
 
   @PostMapping("/{id}/completion")
-  @Operation(summary = "Marcar una tarea como hecha")
+  @Operation(summary = "Mark a task as done")
   TaskResponse complete(@PathVariable String id) {
     return TaskResponse.of(completeTask.execute(id));
   }

@@ -8,7 +8,7 @@ export interface FormState {
 }
 
 const MESSAGES: Record<string, string> = {
-  invalid_title: "El título debe tener entre 1 y 120 caracteres.",
+  invalid_title: "The title must be between 1 and 120 characters.",
 };
 
 export async function createTask(_: FormState, data: FormData): Promise<FormState> {

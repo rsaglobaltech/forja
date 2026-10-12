@@ -6,7 +6,7 @@ import <%= pkg %>.tasks.domain.Task;
 import <%= pkg %>.tasks.domain.TaskTitle;
 import java.time.Clock;
 
-/** Caso de uso: crear una tarea del usuario actual. Sin anotaciones: se instancia en infrastructure/config. */
+/** Use case: create a task for the current user. No annotations: it is instantiated in infrastructure/config. */
 public final class CreateTask {
   private final TaskRepository tasks;
   private final CurrentUser user;

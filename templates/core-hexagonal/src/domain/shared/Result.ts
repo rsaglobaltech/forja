@@ -1,8 +1,8 @@
 /**
- * Errores de negocio esperables (email duplicado, credenciales inválidas)
- * se modelan como valores, no como excepciones: el caller está obligado a
- * mirar `ok` antes de usar `value`. Errores de infraestructura (DB caída)
- * siguen tirando excepciones normales.
+ * Expected business errors (duplicate email, invalid credentials) are
+ * modelled as values, not exceptions: the caller must check `ok` before
+ * using `value`. Infrastructure errors (database down) still throw regular
+ * exceptions.
  */
 export type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
 

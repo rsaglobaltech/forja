@@ -11,13 +11,13 @@ export function SignInButton() {
       }}
     >
       <button type="submit" className="rounded-md bg-brand-600 px-4 py-2 text-sm text-white">
-        Iniciar sesión
+        Sign in
       </button>
     </form>
   );
 }
 
-/** Cierra la sesión en la web y en Keycloak (si no, el siguiente "Iniciar sesión" entraría sin pedir nada). */
+/** Signs out of both the web app and Keycloak (otherwise the next "Sign in" would get straight in without asking for anything). */
 async function signOutEverywhere() {
   "use server";
   const hint = await idToken();
@@ -37,7 +37,7 @@ export async function UserMenu() {
     <form action={signOutEverywhere} className="flex items-center gap-3">
       <span className="text-gray-600">{session.user.name ?? session.user.email}</span>
       <button type="submit" className="hover:underline">
-        Salir
+        Sign out
       </button>
     </form>
   );

@@ -7,10 +7,10 @@ type Db = ReturnType<typeof drizzle<typeof schema>>;
 
 let cached: Db | null = null;
 
-/** Conexión perezosa: importar este módulo sin DATABASE_URL seteada no explota. */
+/** Lazy connection: importing this module without DATABASE_URL set does not blow up. */
 export function getDb(): Db {
   if (!env.DATABASE_URL) {
-    throw new Error("DATABASE_URL no está seteada. Usá los repositorios in-memory en su lugar.");
+    throw new Error("DATABASE_URL is not set. Use the in-memory repositories instead.");
   }
   if (!cached) {
     const client = postgres(env.DATABASE_URL);

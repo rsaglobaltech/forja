@@ -1,11 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Corre en el Edge runtime: NO tiene el driver de Postgres, así que acá
- * solo se chequea que la cookie exista, para redirigir rápido. Esto NO es
- * control de acceso real — la validación de verdad (¿el token existe? ¿no
- * venció? ¿de qué usuario es?) pasa en `getCurrentUserId()` dentro de cada
- * layout/página, que sí corre en el runtime de Node. Ver docs/architecture.md.
+ * Runs on the Edge runtime: it does NOT have the Postgres driver, so here we
+ * only check that the cookie exists, to redirect quickly. This is NOT real
+ * access control — the actual validation (does the token exist? has it
+ * expired? which user does it belong to?) happens in `getCurrentUserId()`
+ * inside each layout/page, which does run on the Node runtime. See
+ * docs/architecture.md.
  */
 export function middleware(request: NextRequest) {
   const hasSessionCookie = request.cookies.has("session");

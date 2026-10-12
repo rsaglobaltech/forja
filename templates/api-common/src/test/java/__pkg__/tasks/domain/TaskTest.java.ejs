@@ -12,10 +12,10 @@ class TaskTest {
 
   @Test
   void aNewTaskIsPendingAndOwned() {
-    Task task = Task.create("ana", new TaskTitle("  Revisar contrato  "), T0);
+    Task task = Task.create("ana", new TaskTitle("  Review the contract  "), T0);
     assertThat(task.done()).isFalse();
     assertThat(task.ownedBy("ana")).isTrue();
-    assertThat(task.title().value()).isEqualTo("Revisar contrato");
+    assertThat(task.title().value()).isEqualTo("Review the contract");
   }
 
   @Test

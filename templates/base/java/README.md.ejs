@@ -1,11 +1,11 @@
 # <%= config.name %>
 
-Generado con forja. API en **<%= backendName %>** (Java 21), arquitectura **hexagonal**<% if (web) { %>, web en
-**Next.js 16**<% } %><% if (config.auth === "oauth2") { %>, login con **OAuth2/OIDC (Keycloak)**<% } %>.
+Generated with forja. API in **<%= backendName %>** (Java 21), **hexagonal** architecture<% if (web) { %>, web app in
+**Next.js 16**<% } %><% if (config.auth === "oauth2") { %>, sign-in with **OAuth2/OIDC (Keycloak)**<% } %>.
 
-## Primeros 5 minutos
+## First 5 minutes
 
-Requisitos: Java 21, Node 22, Docker.
+Requirements: Java 21, Node 22, Docker.
 
 ```bash
 <% if (compose) { -%>
@@ -14,50 +14,50 @@ docker compose up -d                 # <%= [config.db === "postgres-docker" ? "P
 <% if (web) { -%>
 npm install
 <% } -%>
-npm run dev:api                      # API en http://localhost:8080 (Swagger: /swagger-ui.html)
+npm run dev:api                      # API at http://localhost:8080 (Swagger: /swagger-ui.html)
 <% if (web) { -%>
-npm run dev:web                      # web en http://localhost:3000
+npm run dev:web                      # web app at http://localhost:3000
 <% } -%>
 ```
 
 <% if (config.auth === "oauth2") { -%>
-Usuario de desarrollo (Keycloak, realm `<%= config.name %>`): **demo / demo** — consola de administración
-en http://localhost:8180 (admin / admin). Solo para desarrollo: `infra/keycloak/realm.json`.
+Development user (Keycloak, realm `<%= config.name %>`): **demo / demo** — admin console
+at http://localhost:8180 (admin / admin). Development only: `infra/keycloak/realm.json`.
 
 <% } -%>
 ## Tests
 
 ```bash
-npm test                             # API (unit, casos de uso, API, arranque real<%= config.archunit ? ", ArchUnit" : "" %>)<%= web ? " + web" : "" %>
+npm test                             # API (unit, use cases, API, real startup<%= config.archunit ? ", ArchUnit" : "" %>)<%= web ? " + web" : "" %>
 ```
 
-Los tests de la API usan <%= config.db === "postgres-docker" ? (config.backend === "quarkus" ? "PostgreSQL real (Dev Services de Quarkus, Docker)" : "PostgreSQL real (Testcontainers, Docker)") : "el adaptador en memoria" %>.
+The API tests use <%= config.db === "postgres-docker" ? (config.backend === "quarkus" ? "a real PostgreSQL (Quarkus Dev Services, Docker)" : "a real PostgreSQL (Testcontainers, Docker)") : "the in-memory adapter" %>.
 
-## Estructura
+## Structure
 
 ```
 apps/api/src/main/java/<%= pkgPath %>/
-  shared/                 errores de dominio, Problem Details (RFC 9457), usuario actual
-  tasks/                  módulo de ejemplo
-    domain/               Task, TaskTitle — Java puro
-    application/          casos de uso + puertos (application/port)
-    infrastructure/       adaptadores: web (REST), persistence, config (cableado)
+  shared/                 domain errors, Problem Details (RFC 9457), current user
+  tasks/                  example module
+    domain/               Task, TaskTitle — pure Java
+    application/          use cases + ports (application/port)
+    infrastructure/       adapters: web (REST), persistence, config (wiring)
 <% if (web) { -%>
-apps/web/                 Next.js: páginas, cliente de la API<% if (config.auth === "oauth2") { %>, Auth.js<% } %>
-packages/shared/          tipos compartidos de la web
+apps/web/                 Next.js: pages, API client<% if (config.auth === "oauth2") { %>, Auth.js<% } %>
+packages/shared/          types shared by the web app
 <% } -%>
 <% if (config.auth === "oauth2") { -%>
-infra/keycloak/           realm de desarrollo
+infra/keycloak/           development realm
 <% } -%>
 ```
 
-Ver [`docs/architecture.md`](docs/architecture.md): capas, cómo añadir un módulo y qué comprueba cada test.
+See [`docs/architecture.md`](docs/architecture.md): layers, how to add a module and what each test checks.
 <% if (config.extras.includes("specgate")) { -%>
 
-## Especificación (Specgate)
+## Specification (Specgate)
 
-El proyecto está preparado para desarrollo guiado por especificaciones con
-[Specgate](https://www.npmjs.com/package/@rsaglobaltech/specgate): la ficha del cliente va en
-[`docs/brief.md`](docs/brief.md) y el gate (`npx @rsaglobaltech/specgate check`) ejecuta `npm test`. Ver
+The project is ready for spec-driven development with
+[Specgate](https://www.npmjs.com/package/@rsaglobaltech/specgate): the client brief goes in
+[`docs/brief.md`](docs/brief.md) and the gate (`npx @rsaglobaltech/specgate check`) runs `npm test`. See
 [`docs/specgate.md`](docs/specgate.md).
 <% } -%>

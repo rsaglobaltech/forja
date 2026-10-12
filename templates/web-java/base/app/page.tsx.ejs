@@ -12,19 +12,19 @@ export default async function HomePage() {
     <section className="space-y-4">
       <h1 className="text-2xl font-semibold"><%= config.name %></h1>
       <p className="text-sm text-gray-600">
-        Web en Next.js sobre una API <%= backendName %> con arquitectura hexagonal. Generado con forja.
+        A Next.js web app on top of a <%= backendName %> API with hexagonal architecture. Generated with forja.
       </p>
 <% if (config.auth === "oauth2") { -%>
       {session?.user ? (
         <Link href="/tasks" className="inline-block rounded-md bg-brand-600 px-4 py-2 text-sm text-white">
-          Ir a mis tareas
+          Go to my tasks
         </Link>
       ) : (
         <SignInButton />
       )}
 <% } else { -%>
       <Link href="/tasks" className="inline-block rounded-md bg-brand-600 px-4 py-2 text-sm text-white">
-        Ir a mis tareas
+        Go to my tasks
       </Link>
 <% } -%>
     </section>

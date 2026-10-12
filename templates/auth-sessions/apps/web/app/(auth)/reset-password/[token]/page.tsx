@@ -14,12 +14,12 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
   return (
     <main className="flex min-h-screen items-center justify-center bg-app px-4">
       <div className="w-full max-w-sm rounded-md bg-surface p-6 shadow-sm">
-        <h1 className="mb-6 text-xl font-semibold text-text">Elegí una contraseña nueva</h1>
+        <h1 className="mb-6 text-xl font-semibold text-text">Choose a new password</h1>
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="token" value={token} />
           <div>
             <label htmlFor="newPassword" className={label}>
-              Contraseña nueva
+              New password
             </label>
             <input
               id="newPassword"
@@ -35,7 +35,7 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
             <p className="text-sm text-red-600">
               {state.error} —{" "}
               <a href="/forgot-password" className="text-brand-600 hover:underline">
-                Pedí un link nuevo
+                Request a new link
               </a>
               .
             </p>
@@ -45,7 +45,7 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
             disabled={pending}
             className="w-full rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600 disabled:opacity-50"
           >
-            {pending ? "Guardando…" : "Guardar contraseña"}
+            {pending ? "Saving…" : "Save password"}
           </button>
         </form>
       </div>

@@ -12,12 +12,12 @@ export async function POST(request: NextRequest) {
   const parsed = ForgotPasswordSchema.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "validation_error", message: parsed.error.issues[0]?.message ?? "Datos inválidos" },
+      { error: "validation_error", message: parsed.error.issues[0]?.message ?? "Invalid data" },
       { status: 400, headers: corsHeaders() },
     );
   }
 
-  // Siempre 200, exista o no el email (anti-enumeración).
+  // Always 200, whether or not the email exists (anti-enumeration).
   await container.requestPasswordResetUseCase.execute(parsed.data.email);
   return NextResponse.json(null, { headers: corsHeaders() });
 }

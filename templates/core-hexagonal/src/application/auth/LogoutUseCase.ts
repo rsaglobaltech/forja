@@ -1,7 +1,7 @@
 import { SessionToken } from "../../domain/services/SessionToken.js";
 import type { ISessionRepository } from "../../ports/ISessionRepository.js";
 
-/** Idempotente: revocar un token que ya no existe no es un error. */
+/** Idempotent: revoking a token that no longer exists is not an error. */
 export class LogoutUseCase {
   constructor(private readonly sessionRepository: ISessionRepository) {}
 

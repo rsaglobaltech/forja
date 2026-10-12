@@ -19,7 +19,7 @@ export default defineRecipe({
       );
     }
 
-    ctx.addEnv("SESSION_TTL_DAYS", "30", "Cuánto vive una sesión sin tocarla.", "auth (sessions)");
+    ctx.addEnv("SESSION_TTL_DAYS", "30", "How long an idle session lives.", "auth (sessions)");
 
     if (ctx.has("web")) {
       ctx.copyFile("auth-sessions/apps/web/lib/session.ts.ejs", "apps/web/lib/session.ts");
@@ -52,8 +52,8 @@ export default defineRecipe({
       );
     }
 
-    // El API REST solo lo pide el móvil en v0.1 (el web usa Server Actions
-    // directo); si algún día hay backend separado, esto se vuelve incondicional.
+    // Only the mobile app needs the REST API in v0.1 (the web app calls Server
+    // Actions directly); if a separate backend ever exists, this becomes unconditional.
     if (ctx.has("mobile")) {
       ctx.copyFile("auth-sessions/apps/web/app/api/_lib/cors.ts", "apps/web/app/api/_lib/cors.ts");
       ctx.copyFile(

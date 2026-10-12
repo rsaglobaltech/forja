@@ -1,8 +1,8 @@
 import type { Config } from "tailwindcss";
 
-// Mismos valores que apps/web/app/globals.css y packages/shared/src/design/tokens.ts.
-// v0.1 no tiene el codegen de la sección 5b.2 del spec (`design:build`): si
-// cambiás un color, tocá los tres lugares. Es la próxima mejora obvia.
+// Same values as apps/web/app/globals.css and packages/shared/src/design/tokens.ts.
+// v0.1 does not have the codegen from section 5b.2 of the spec (`design:build`):
+// if you change a color, change it in all three places. That is the obvious next improvement.
 export default {
   content: [
     "./app/**/*.{ts,tsx}",

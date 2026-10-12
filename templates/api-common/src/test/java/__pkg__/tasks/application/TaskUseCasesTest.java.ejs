@@ -19,16 +19,16 @@ class TaskUseCasesTest {
 
   @Test
   void createAndListMine() {
-    Task t = new CreateTask(tasks, user, clock).execute("Llamar al cliente");
+    Task t = new CreateTask(tasks, user, clock).execute("Call the customer");
     who = "luis";
-    new CreateTask(tasks, user, clock).execute("Otra cosa");
+    new CreateTask(tasks, user, clock).execute("Something else");
     who = "ana";
     assertThat(new ListMyTasks(tasks, user).execute()).extracting(Task::id).containsExactly(t.id());
   }
 
   @Test
   void someoneElsesTaskDoesNotExistForMe() {
-    Task t = new CreateTask(tasks, user, clock).execute("Privada");
+    Task t = new CreateTask(tasks, user, clock).execute("Private");
     who = "luis";
     assertThatThrownBy(() -> new CompleteTask(tasks, user, clock).execute(t.id().toString()))
         .isInstanceOf(TaskNotFound.class);
@@ -36,7 +36,7 @@ class TaskUseCasesTest {
 
   @Test
   void completeMine() {
-    Task t = new CreateTask(tasks, user, clock).execute("Enviar factura");
+    Task t = new CreateTask(tasks, user, clock).execute("Send the invoice");
     assertThat(new CompleteTask(tasks, user, clock).execute(t.id().toString()).done()).isTrue();
   }
 }

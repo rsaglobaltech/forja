@@ -10,8 +10,8 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
 /**
- * La arquitectura hexagonal, comprobada en cada build: el dominio es Java puro, la aplicación no conoce
- * frameworks ni adaptadores, y los módulos no se acoplan por su infraestructura.
+ * The hexagonal architecture, checked on every build: the domain is pure Java, the application knows no
+ * frameworks or adapters, and modules are not coupled through their infrastructure.
  */
 @AnalyzeClasses(packages = "<%= pkg %>", importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureTest {

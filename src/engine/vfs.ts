@@ -2,18 +2,18 @@ import { Volume } from "memfs";
 import path from "node:path";
 import fs from "node:fs";
 
-/** Escritura en memoria primero (sección 7.2): nada toca disco hasta `flush`. */
+/** In-memory writes first (spec section 7.2): nothing touches the disk until `flush`. */
 export function createVfs(): InstanceType<typeof Volume> {
   return new Volume();
 }
 
 /**
- * Todas las rutas se anclan a "/" explícitamente antes de tocar memfs.
- * Si se le pasaran rutas relativas tal cual, memfs las resolvería contra
- * su cwd interno (que por defecto es el `process.cwd()` real del proceso
- * que corre el CLI) y no contra la raíz del proyecto que se está generando
- * — con `targetDir` distinto de `process.cwd()` eso duplica el path real
- * adentro del proyecto generado.
+ * Every path is anchored to "/" explicitly before it reaches memfs. Given a
+ * relative path as-is, memfs would resolve it against its internal cwd
+ * (by default the real `process.cwd()` of the process running the CLI)
+ * rather than the root of the project being generated — and with a
+ * `targetDir` other than `process.cwd()`, that duplicates the real path
+ * inside the generated project.
  */
 function toVirtualPath(filePath: string): string {
   return "/" + filePath.replace(/^\/+/, "");
@@ -37,7 +37,7 @@ export function vfsExists(vol: InstanceType<typeof Volume>, filePath: string): b
   return vol.existsSync(toVirtualPath(filePath));
 }
 
-/** Vuelca el árbol completo de memfs a disco real bajo `targetDir`. */
+/** Flushes the whole memfs tree to the real disk under `targetDir`. */
 export function flushToDisk(vol: InstanceType<typeof Volume>, targetDir: string): void {
   const files = vol.toJSON();
   for (const [virtualPath, content] of Object.entries(files)) {
@@ -48,7 +48,7 @@ export function flushToDisk(vol: InstanceType<typeof Volume>, targetDir: string)
   }
 }
 
-/** Árbol de archivos en memoria, para `--dry-run` (rutas relativas a la raíz del proyecto). */
+/** The in-memory file tree, for `--dry-run` (paths relative to the project root). */
 export function vfsTree(vol: InstanceType<typeof Volume>): string[] {
   return Object.keys(vol.toJSON())
     .map((p) => p.replace(/^\/+/, ""))

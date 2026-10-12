@@ -12,6 +12,6 @@ export default defineRecipe({
       ctx.copyDir("core-hexagonal/tests/unit", "packages/core/tests/unit");
     }
 
-    ctx.addEnv("APP_URL", "http://localhost:3000", "Base de los links de recuperación de contraseña.", "app");
+    ctx.addEnv("APP_URL", "http://localhost:3000", "Base URL for password-reset links.", "app");
   },
 });

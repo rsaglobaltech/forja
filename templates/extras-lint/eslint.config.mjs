@@ -10,9 +10,9 @@ export default tseslint.config(
     },
   },
   {
-    // Configs de herramientas (Metro, Babel, Tailwind/NativeWind) son CJS a
-    // propósito — esos ecosistemas todavía esperan `require`/`module.exports`
-    // en estos archivos puntuales, no vale la pena pelearla.
+    // Tool configs (Metro, Babel, Tailwind/NativeWind) are CJS on purpose —
+    // those ecosystems still expect `require`/`module.exports` in these
+    // particular files, and it is not worth fighting.
     files: ["**/babel.config.js", "**/metro.config.js", "**/tailwind.config.ts", "**/*.cjs"],
     languageOptions: {
       globals: {
@@ -28,8 +28,8 @@ export default tseslint.config(
     },
   },
   {
-    // next-env.d.ts y expo-env.d.ts son generados (Next/Expo los escriben
-    // solos con referencias triple-slash) — no vale la pena lintearlos.
+    // next-env.d.ts and expo-env.d.ts are generated (Next/Expo write them
+    // with triple-slash references) — not worth linting.
     ignores: [
       "**/dist/**",
       "**/.next/**",

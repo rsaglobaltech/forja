@@ -10,19 +10,19 @@ export class DomainError extends Error {
 
 export class EmailAlreadyInUseError extends DomainError {
   constructor() {
-    super("Ese email ya está registrado", "EMAIL_ALREADY_IN_USE");
+    super("That email is already registered", "EMAIL_ALREADY_IN_USE");
   }
 }
 
 export class InvalidCredentialsError extends DomainError {
   constructor() {
-    super("Email o contraseña inválidos", "INVALID_CREDENTIALS");
+    super("Invalid email or password", "INVALID_CREDENTIALS");
   }
 }
 
 export class InvalidResetTokenError extends DomainError {
   constructor() {
-    super("El link de recuperación es inválido o venció", "INVALID_RESET_TOKEN");
+    super("The password reset link is invalid or has expired", "INVALID_RESET_TOKEN");
   }
 }
 
@@ -34,6 +34,6 @@ export class WeakPasswordError extends DomainError {
 
 export class InvalidEmailError extends DomainError {
   constructor() {
-    super("Email inválido", "INVALID_EMAIL");
+    super("Invalid email", "INVALID_EMAIL");
   }
 }

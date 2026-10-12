@@ -12,19 +12,19 @@ TypeScript types, Resend/SMTP mailers, rate limiting, `forja upgrade`.
 
 ## Phase 1 — Foundation: everything forja offers works, in English
 
-- [ ] Package: `@rsaglobaltech/forja` (the name `forja` on npm is taken), MIT
+- [x] Package: `@rsaglobaltech/forja` (the name `forja` on npm is taken), MIT
       licence, repository, keywords, `publishConfig`, `prepublishOnly` (build +
       test), `forja --version`
-- [ ] `npm run lint` works (ESLint and a config for forja itself)
-- [ ] The wizard, the flags and `--help` offer only what works: no value that
+- [x] `npm run lint` works (ESLint and a config for forja itself)
+- [x] The wizard, the flags and `--help` offer only what works: no value that
       the planner then rejects; `--tests e2e-web` on Java is rejected, not ignored
-- [ ] `forja add` and `forja doctor` stubs removed until phase 3 implements them
-- [ ] `--config` combines with the name argument and the flags
-- [ ] Specgate: pinned to `^0.19.1` (0.17 writes the old `csda:` format); the
+- [x] `forja add` and `forja doctor` stubs removed until phase 3 implements them
+- [x] `--config` combines with the name argument and the flags
+- [x] Specgate: pinned to `^0.19.1` (0.17 writes the old `csda:` format); the
       generated `docs/specgate.md` rewritten for today's flow (`specgate draft`,
       `--agent`, `done`, `check`); the closing steps say `specgate draft` when a
       brief is there
-- [ ] English everywhere: CLI prompts and messages, README, CHANGELOG from now
+- [x] English everywhere: CLI prompts and messages, README, CHANGELOG from now
       on, `docs/`, template comments, and the text of the generated apps
 
 ## Phase 2 — Up to date: what forja generates works today

@@ -3,8 +3,8 @@ import { defaultConfig, parseForjaConfig } from "../src/config/schema.js";
 import { planRecipes } from "../src/engine/planner.js";
 import { renderProject } from "../src/engine/renderer.js";
 
-describe("renderizado node (v0.1) sin regresiones", () => {
-  it("el proyecto por defecto genera lo mismo de siempre", async () => {
+describe("node rendering (v0.1) without regressions", () => {
+  it("the default project generates the same output as always", async () => {
     const config = parseForjaConfig(defaultConfig("acme"));
     const { tree, vol } = await renderProject(config, planRecipes(config));
     for (const f of ["packages/core/src/domain/entities/User.ts", "apps/web/app/(auth)/login/page.tsx",
@@ -16,7 +16,7 @@ describe("renderizado node (v0.1) sin regresiones", () => {
     expect(cfg.backend).toBe("node");
   });
 
-  it("node con Specgate y CI", async () => {
+  it("node with Specgate and CI", async () => {
     const config = parseForjaConfig({ ...defaultConfig("acme"), extras: ["lint", "ci", "specgate"] });
     const { tree } = await renderProject(config, planRecipes(config));
     expect(tree).toEqual(expect.arrayContaining([".github/workflows/ci.yml", "docs/brief.md", "docs/specgate.md"]));

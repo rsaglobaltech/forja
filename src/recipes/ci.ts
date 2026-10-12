@@ -2,7 +2,7 @@ import { defineRecipe } from "./types.js";
 import { isJava } from "../config/schema.js";
 import { versions } from "./java.js";
 
-/** GitHub Actions: API Java (Maven), web/app (Node) y, con Specgate, la especificación. */
+/** GitHub Actions: the Java API (Maven), the web/app (Node) and, with Specgate, the specification. */
 export default defineRecipe({
   id: "ci",
   apply(ctx) {

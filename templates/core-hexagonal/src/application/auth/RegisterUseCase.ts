@@ -15,9 +15,9 @@ export interface RegisterOutput {
 }
 
 /**
- * Registra un usuario nuevo. A propósito NO hace login implícito: quien
- * llame a este caso de uso decide si encadena `CreateSessionUseCase` (así
- * es como lo hace el route handler / server action de auth-sessions).
+ * Registers a new user. Deliberately does NOT sign in implicitly: the
+ * caller decides whether to chain `CreateSessionUseCase` (which is what the
+ * auth-sessions route handler / server action does).
  */
 export class RegisterUseCase {
   constructor(

@@ -33,8 +33,8 @@ export class ResetPasswordUseCase {
 
     await this.userRepository.save(user.withPasswordHash(passwordHash));
     await this.resetTokenRepository.markUsed(tokenHash);
-    // Un reset de password es una señal de "algo raro puede haber pasado":
-    // se revocan todas las sesiones existentes, no solo la que originó el pedido.
+    // A password reset is a sign that "something odd may have happened":
+    // every existing session is revoked, not just the one that made the request.
     await this.sessionRepository.deleteAllForUser(user.id);
 
     return ok(undefined);

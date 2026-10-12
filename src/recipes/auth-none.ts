@@ -1,6 +1,6 @@
 import { defineRecipe } from "./types.js";
 
-/** auth = "none": el container mínimo de core-hexagonal ya alcanza. */
+/** auth = "none": the minimal container from core-hexagonal is enough. */
 export default defineRecipe({
   id: "auth-none",
   apply() {},

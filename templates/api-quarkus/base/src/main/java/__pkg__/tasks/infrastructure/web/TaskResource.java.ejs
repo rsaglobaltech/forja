@@ -19,7 +19,7 @@ import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-/** Adaptador de entrada REST: traduce HTTP ⇄ casos de uso. */
+/** Inbound REST adapter: translates HTTP ⇄ use cases. */
 @Path("/api/tasks")
 @Tag(name = "tasks")
 <% if (config.auth === "oauth2") { -%>
@@ -45,20 +45,20 @@ public class TaskResource {
   }
 
   @GET
-  @Operation(summary = "Mis tareas, de la más reciente a la más antigua")
+  @Operation(summary = "My tasks, newest first")
   public List<TaskResponse> mine() {
     return listMyTasks.execute().stream().map(TaskResponse::of).toList();
   }
 
   @POST
-  @Operation(summary = "Crear una tarea")
+  @Operation(summary = "Create a task")
   public Response create(@Valid CreateTaskRequest request) {
     return Response.status(201).entity(TaskResponse.of(createTask.execute(request.title()))).build();
   }
 
   @POST
   @Path("/{id}/completion")
-  @Operation(summary = "Marcar una tarea como hecha")
+  @Operation(summary = "Mark a task as done")
   public TaskResponse complete(@PathParam("id") String id) {
     return TaskResponse.of(completeTask.execute(id));
   }

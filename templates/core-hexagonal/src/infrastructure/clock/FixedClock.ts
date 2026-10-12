@@ -1,6 +1,6 @@
 import type { IClock } from "../../ports/IClock.js";
 
-/** Para tests deterministas: fecha fija que se puede adelantar a mano. */
+/** For deterministic tests: a fixed date that can be advanced by hand. */
 export class FixedClock implements IClock {
   constructor(private current: Date = new Date("2025-01-01T00:00:00.000Z")) {}
 

@@ -17,9 +17,9 @@ export class RequestPasswordResetUseCase {
   ) {}
 
   /**
-   * Siempre resuelve sin error, exista o no el email — es la defensa
-   * anti-enumeración de cuentas. El caller (route handler) responde 200
-   * incondicionalmente.
+   * Always resolves without error, whether or not the email exists — this is
+   * the defence against account enumeration. The caller (route handler)
+   * responds 200 unconditionally.
    */
   async execute(rawEmail: string): Promise<void> {
     const email = Email.create(rawEmail);
@@ -42,8 +42,8 @@ export class RequestPasswordResetUseCase {
 
     await this.mailer.send({
       to: user.email.toString(),
-      subject: "Recuperá tu contraseña",
-      text: `Entrá a este link para elegir una contraseña nueva: ${this.appUrl}/reset-password/${token}\n\nSi no pediste esto, ignorá el mail.`,
+      subject: "Reset your password",
+      text: `Open this link to choose a new password: ${this.appUrl}/reset-password/${token}\n\nIf you did not request this, you can ignore this email.`,
     });
   }
 }

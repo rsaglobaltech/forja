@@ -1,15 +1,15 @@
 import { z } from "zod";
 
 /**
- * Fuente única de validación para web, móvil y route handlers. Repetir
- * estas reglas en cada capa es como se cuelan divergencias silenciosas.
+ * Single source of validation for web, mobile and route handlers. Repeating
+ * these rules in every layer is how silent divergences creep in.
  */
 export const EmailSchema = z.string().trim().toLowerCase().email();
 
 export const PasswordSchema = z
   .string()
-  .min(8, "La contraseña debe tener al menos 8 caracteres")
-  .max(128, "La contraseña es demasiado larga");
+  .min(8, "Password must be at least 8 characters")
+  .max(128, "Password is too long");
 
 export const RegisterSchema = z.object({
   email: EmailSchema,
@@ -18,7 +18,7 @@ export const RegisterSchema = z.object({
 
 export const LoginSchema = z.object({
   email: EmailSchema,
-  password: z.string().min(1, "La contraseña es obligatoria"),
+  password: z.string().min(1, "Password is required"),
 });
 
 export const ForgotPasswordSchema = z.object({

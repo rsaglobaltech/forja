@@ -26,7 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-/** La API de punta a punta: HTTP → caso de uso → adaptador<%= config.db === "postgres-docker" ? " JDBC (PostgreSQL real)" : "" %>. */
+/** The API end to end: HTTP → use case → adapter<%= config.db === "postgres-docker" ? " JDBC (real PostgreSQL)" : "" %>. */
 @SpringBootTest
 @AutoConfigureMockMvc
 <% if (config.db === "postgres-docker") { -%>
@@ -36,7 +36,7 @@ class TaskApiTest {
   @Autowired MockMvc mvc;
 <% if (config.auth === "oauth2") { -%>
 
-  /** Cada test, un usuario distinto: los tests no se pisan aunque compartan base de datos. */
+  /** A different user per test: tests do not interfere even when they share a database. */
   private final String ana = "ana-" + UUID.randomUUID();
   private final String luis = "luis-" + UUID.randomUUID();
 
@@ -62,9 +62,9 @@ class TaskApiTest {
 
   @Test
   void createListAndComplete() throws Exception {
-    String id = create(ana, "Preparar la demo");
+    String id = create(ana, "Prepare the demo");
     mvc.perform(as(ana, get("/api/tasks"))).andExpect(status().isOk())
-        .andExpect(jsonPath("$[?(@.id == '" + id + "')].title").value("Preparar la demo"));
+        .andExpect(jsonPath("$[?(@.id == '" + id + "')].title").value("Prepare the demo"));
     mvc.perform(as(ana, post("/api/tasks/" + id + "/completion"))).andExpect(status().isOk())
         .andExpect(jsonPath("$.done").value(true));
     mvc.perform(as(ana, post("/api/tasks/" + id + "/completion"))).andExpect(status().isConflict())
@@ -77,14 +77,14 @@ class TaskApiTest {
         .andExpect(status().isUnprocessableContent()).andExpect(jsonPath("$.code").value("invalid_title"));
     mvc.perform(as(ana, post("/api/tasks")).contentType(MediaType.APPLICATION_JSON).content("{\"title\":"))
         .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("invalid_request"));
-    mvc.perform(as(ana, post("/api/tasks/no-es-un-id/completion"))).andExpect(status().isNotFound())
+    mvc.perform(as(ana, post("/api/tasks/not-an-id/completion"))).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.code").value("task_not_found"));
   }
 <% if (config.auth === "oauth2") { -%>
 
   @Test
   void someoneElsesTaskDoesNotExistForMe() throws Exception {
-    String id = create(ana, "Privada");
+    String id = create(ana, "Private");
     mvc.perform(as(luis, post("/api/tasks/" + id + "/completion"))).andExpect(status().isNotFound());
     mvc.perform(as(luis, get("/api/tasks"))).andExpect(jsonPath("$.length()").value(0));
   }

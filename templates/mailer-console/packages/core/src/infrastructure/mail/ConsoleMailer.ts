@@ -1,8 +1,8 @@
 import type { IMailer, MailMessage } from "../../ports/IMailer.js";
 
-/** Para dev: imprime el mail en la consola del servidor en vez de mandarlo de verdad. */
+/** For development: prints the email to the server console instead of actually sending it. */
 export class ConsoleMailer implements IMailer {
   async send(message: MailMessage): Promise<void> {
-    console.log(`\n--- Mail a ${message.to} ---\n${message.subject}\n\n${message.text}\n---\n`);
+    console.log(`\n--- Email to ${message.to} ---\n${message.subject}\n\n${message.text}\n---\n`);
   }
 }
