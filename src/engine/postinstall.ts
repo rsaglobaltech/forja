@@ -82,11 +82,14 @@ function nextStepsJava(
 ): string[] {
   const web = config.platforms.includes("web");
   const steps: string[] = [`cd ${config.name}`];
-  if (config.db === "postgres-docker" || config.auth === "oauth2") {
+  // Quarkus starts its own PostgreSQL in dev and tests (Dev Services); the
+  // compose one serves Spring, and Keycloak serves both.
+  const composeDb = config.db === "postgres-docker" && config.backend === "spring";
+  if (composeDb || config.auth === "oauth2") {
     steps.push(
       "docker compose up -d          # " +
         [
-          config.db === "postgres-docker" ? "PostgreSQL" : "",
+          composeDb ? "PostgreSQL" : "",
           config.auth === "oauth2" ? "Keycloak (demo / demo)" : "",
         ]
           .filter(Boolean)

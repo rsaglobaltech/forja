@@ -14,7 +14,7 @@ docker compose up -d                 # <%= [config.db === "postgres-docker" ? "P
 <% if (web) { -%>
 npm install
 <% } -%>
-npm run dev:api                      # API at http://localhost:8080 (Swagger: /swagger-ui.html)
+npm run dev:api                      # API at http://localhost:8080 (Swagger: <%= config.backend === "quarkus" ? "/q/swagger-ui" : "/swagger-ui.html" %>)
 <% if (web) { -%>
 npm run dev:web                      # web app at http://localhost:3000
 <% } -%>
@@ -22,7 +22,7 @@ npm run dev:web                      # web app at http://localhost:3000
 
 <% if (config.auth === "oauth2") { -%>
 Development user (Keycloak, realm `<%= config.name %>`): **demo / demo** — admin console
-at http://localhost:8180 (admin / admin). Development only: `infra/keycloak/realm.json`.
+at http://localhost:8180 (admin / admin). Development only: `infra/keycloak/<%= config.name %>-realm.json`.
 
 <% } -%>
 ## Tests

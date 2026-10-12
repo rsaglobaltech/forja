@@ -69,6 +69,9 @@ export const ForjaConfigSchema = baseConfigSchema.superRefine((cfg, ctx) => {
     if (cfg.auth === "sessions") {
       fail(["auth"], "with a Java backend, auth is oauth2 or none");
     }
+    if (cfg.pm !== "npm") {
+      fail(["pm"], "with a Java backend the web app uses npm: the root scripts call it");
+    }
   } else {
     if (cfg.archunit) fail(["archunit"], "--archunit needs a Java backend (spring or quarkus)");
     if (cfg.auth === "oauth2") fail(["auth"], "auth oauth2 needs a Java backend (spring or quarkus)");

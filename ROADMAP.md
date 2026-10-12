@@ -51,9 +51,10 @@ TypeScript types, Resend/SMTP mailers, rate limiting, `forja upgrade`.
 
 ## Phase 5 — Web
 
-- [ ] Repository made public, after scanning its history for secrets
-- [ ] Landing page and documentation in English, on Specgate's design
-- [ ] A "forja + Specgate" page: generate, write the brief, `specgate draft`,
+- [ ] Repository made public, after scanning its history for secrets (scan done
+      2026-10-12: only test passwords; the author email is in the commits)
+- [x] Landing page and documentation in English, on Specgate's design
+- [x] A "forja + Specgate" page: generate, write the brief, `specgate draft`,
       build, `done`
 - [ ] Published without creating or enabling any GitHub Actions workflow (the
       user's rule since 2026-10-12) — how, to be decided with the user

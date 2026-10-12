@@ -11,8 +11,8 @@ ports/           # interfaces the application needs (repos, mailer, clock…)
 infrastructure/  # real adapters (Drizzle, bcrypt, mailers) + composition root
 ```
 
-Hard rule, enforced in CI: `packages/core` may not import `next`, `react`
-or `expo`. The domain does not know a web framework exists.
+Hard rule, checked by `forja doctor`: `packages/core` may not import `next`,
+`react`, `react-native` or `expo`. The domain does not know a web framework exists.
 
 ## Where the session is really validated
 
@@ -29,6 +29,6 @@ returns sensitive data must call that function rather than trust that
 ## Composition root
 
 `packages/core/src/infrastructure/config/container.ts` picks the real or the
-in-memory adapter through **independent switches** (`hasDatabase()`,
-`hasMailer()`), never a global flag like `isDemo`. That way you can turn on
+in-memory adapter through **independent switches** (such as
+`hasDatabase()`), never a global flag like `isDemo`. That way you can turn on
 the database before the mailer is configured, for example.
