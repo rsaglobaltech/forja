@@ -8,9 +8,23 @@ tests, CI and specifications from the first commit.
 
 ## Install
 
+You need **Node.js 22 or later**. forja is not on the npm registry yet; install it globally from the
+tarball attached to its GitHub release:
 
 ```bash
-npm install -g @rsaglobaltech/forja    # or, without installing: npx @rsaglobaltech/forja init
+npm install -g https://github.com/rsaglobaltech/forja/releases/download/v1.0.0/rsaglobaltech-forja-1.0.0.tgz
+forja --version    # 1.0.0
+```
+
+That puts the `forja` command on your PATH, on macOS, Linux and Windows. To update, run the same
+command with the next release's URL ([all releases](https://github.com/rsaglobaltech/forja/releases)).
+To remove it: `npm uninstall -g @rsaglobaltech/forja`.
+
+Projects that use Specgate (the `specgate` extra) get Specgate 0.20 from npm, as usual. For
+`specgate init --forja` to find this forja, point it at the installed command:
+
+```bash
+export SPECGATE_FORJA_CMD=forja    # macOS / Linux; on Windows: setx SPECGATE_FORJA_CMD forja
 ```
 
 From source:
