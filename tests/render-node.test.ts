@@ -96,4 +96,22 @@ describe("node rendering (v0.1) without regressions", () => {
       noDb("packages/core/src/infrastructure/config/container.ts"),
     ).not.toMatch(/import \{[^}]*hasDatabase|hasDatabase\(\) \?/);
   });
+  // pnpm ignores package.json "workspaces": without pnpm-workspace.yaml it
+  // installs only the root, and `npm test` fails with "vitest" not found.
+  it("pnpm gets a pnpm-workspace.yaml that links the workspace packages", async () => {
+    const file = await read({ pm: "pnpm" });
+    const ws = file("pnpm-workspace.yaml");
+    expect(ws).toBeDefined();
+    expect(ws).toMatch(/- "apps\/\*"/);
+    expect(ws).toMatch(/- "packages\/\*"/);
+    expect(ws).toMatch(/linkWorkspacePackages: true/);
+  });
+
+  it("npm and bun keep package.json workspaces, without pnpm-workspace.yaml", async () => {
+    for (const pm of ["npm", "bun"] as const) {
+      const file = await read({ pm });
+      expect(file("pnpm-workspace.yaml")).toBeUndefined();
+      expect(JSON.parse(file("package.json")).workspaces).toEqual(["apps/*", "packages/*"]);
+    }
+  });
 });

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `--pm pnpm` now writes `pnpm-workspace.yaml` (with `linkWorkspacePackages: true`). pnpm ignores
+  package.json `workspaces`, so it installed only the root: `npm test` failed with "vitest" not
+  found and the Specgate harness, which installs with the lockfile's manager, failed every attempt.
+
 ## [1.0.0] — 2026-10-12
 
 The first stable release: phases 1–6 of [`ROADMAP.md`](ROADMAP.md). Generated projects pin
