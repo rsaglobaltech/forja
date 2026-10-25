@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.0.1] — 2026-10-25
+
 ### Fixed
 
 - `--pm pnpm` now writes `pnpm-workspace.yaml` (with `linkWorkspacePackages: true`). pnpm ignores

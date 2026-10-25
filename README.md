@@ -12,8 +12,8 @@ You need **Node.js 22 or later**. forja is not on the npm registry yet; install 
 tarball attached to its GitHub release:
 
 ```bash
-npm install -g https://github.com/rsaglobaltech/forja/releases/download/v1.0.0/rsaglobaltech-forja-1.0.0.tgz
-forja --version    # 1.0.0
+npm install -g https://github.com/rsaglobaltech/forja/releases/download/v1.0.1/rsaglobaltech-forja-1.0.1.tgz
+forja --version    # 1.0.1
 ```
 
 That puts the `forja` command on your PATH, on macOS, Linux and Windows. To update, run the same
