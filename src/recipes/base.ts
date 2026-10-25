@@ -22,6 +22,15 @@ export default defineRecipe({
         typecheck: "npm run typecheck --workspaces --if-present",
       },
     });
+    // pnpm ignores package.json "workspaces": without this file it installs
+    // only the root. linkWorkspacePackages lets the "*" internal deps resolve
+    // to the local packages, so npm and pnpm read the same package.json.
+    if (ctx.config.pm === "pnpm") {
+      ctx.write(
+        "pnpm-workspace.yaml",
+        'packages:\n  - "apps/*"\n  - "packages/*"\nlinkWorkspacePackages: true\n',
+      );
+    }
 
     ctx.write(
       "forja.config.json",
