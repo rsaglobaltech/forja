@@ -75,3 +75,19 @@ describe("F6: progress without a terminal", () => {
     expect(lines).toEqual(["Running git init and the install…", "Done."]);
   });
 });
+
+describe("F12: the Maven wrapper from npm scripts on Windows", () => {
+  it("goes through a Node launcher, never ./mvnw", async () => {
+    for (const backend of ["spring", "quarkus"] as const) {
+      const config = parseForjaConfig({ ...defaultJavaConfig("fleet", backend), extras: ["lint"] });
+      const read = await render(config);
+      const scripts = JSON.parse(read("package.json")).scripts as Record<string, string>;
+      for (const [name, cmd] of Object.entries(scripts)) {
+        expect(cmd, name).not.toContain("./mvnw");
+      }
+      expect(scripts["test:api"]).toBe("node scripts/mvnw.mjs -q -B verify");
+      expect(read("scripts/mvnw.mjs")).toContain('"mvnw.cmd"');
+      expect(read("eslint.config.mjs")).toContain('"scripts/*.mjs"');
+    }
+  });
+});

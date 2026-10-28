@@ -57,7 +57,10 @@ function applyJava(ctx: Parameters<Parameters<typeof defineRecipe>[0]["apply"]>[
   ctx.copyFile("base/java/architecture.md.ejs", "docs/architecture.md", data);
   if (web) ctx.copyFile("base/tsconfig.base.json", "tsconfig.base.json");
 
-  const api = "cd apps/api && ./mvnw";
+  // Through a Node launcher: npm runs scripts with cmd.exe on Windows, which
+  // cannot run `./mvnw` (truck-flote, F12).
+  ctx.copyFile("base/java/scripts/mvnw.mjs", "scripts/mvnw.mjs");
+  const api = "node scripts/mvnw.mjs";
   ctx.mergePackageJson(".", {
     name: ctx.config.name,
     private: true,
