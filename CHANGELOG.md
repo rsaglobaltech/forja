@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.0.2] — 2026-10-28
+
 ### Fixed
 
 Found building truck-flote, a Spring Boot and Next.js project, with Specgate 0.27.1:
