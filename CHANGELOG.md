@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `forja init` generates into a folder that already holds a repository and a client's brief, the
+  way a project starts: what the folder holds is kept, and only a file forja would overwrite stops
+  it, named. It refused any folder with a file in it ("already exists and is not empty"), so a brief
+  pushed first had to be merged back with `--allow-unrelated-histories`.
+
 ## [1.0.2] — 2026-10-28
 
 ### Fixed
