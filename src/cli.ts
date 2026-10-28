@@ -21,6 +21,7 @@ import {
   runPostinstall,
   nextSteps,
   type PostinstallResult,
+  initExitCode,
 } from "./engine/postinstall.js";
 import { add, type AddKind, type AddResult } from "./add/add.js";
 import { doctor } from "./doctor/doctor.js";
@@ -186,6 +187,7 @@ program
 
       // --config and --yes both mean "ask nothing".
       const unattended = Boolean(flags.yes || flags.config);
+      let installFailed = false;
       let installDeps = flags.skipInstall
         ? false
         : unattended
@@ -213,6 +215,7 @@ program
           spinner.stop("git or the install failed — the error is below.");
           console.error(error);
           installDeps = false;
+          installFailed = true;
         }
       }
 
@@ -222,6 +225,7 @@ program
       );
       p.note(alignComments(steps).join("\n"), "Next steps");
       p.outro(`${config.name} created in ${targetDir}`);
+      process.exitCode = initExitCode({ installFailed });
     } catch (error) {
       if (error instanceof ZodError) {
         console.error(
