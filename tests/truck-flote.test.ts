@@ -45,15 +45,23 @@ describe("F8: ESLint leaves build output alone", () => {
   });
 });
 
-describe("F5: the target folder", () => {
-  it("is refused when it holds files, with the same words a dry run uses", () => {
+describe("F5, F11: the target folder", () => {
+  it("is used when empty or absent", () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "forja-target-"));
-    expect(targetProblem(path.join(dir, "absent"))).toBeNull();
+    expect(targetProblem(path.join(dir, "absent"), ["README.md"])).toBeNull();
     fs.mkdirSync(path.join(dir, "empty"));
-    expect(targetProblem(path.join(dir, "empty"))).toBeNull();
-    fs.mkdirSync(path.join(dir, "full"));
-    fs.writeFileSync(path.join(dir, "full", "brief.md"), "x");
-    expect(targetProblem(path.join(dir, "full"))).toMatch(/already exists and is not empty/);
+    expect(targetProblem(path.join(dir, "empty"), ["README.md"])).toBeNull();
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("keeps a repository and a brief, and refuses only what forja would overwrite (F11)", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "forja-target-"));
+    fs.mkdirSync(path.join(dir, ".git"));
+    fs.writeFileSync(path.join(dir, ".git", "HEAD"), "ref: refs/heads/main");
+    fs.writeFileSync(path.join(dir, "brief.md"), "the client's brief");
+    expect(targetProblem(dir, ["README.md", "docs/brief.md"])).toBeNull();
+    fs.writeFileSync(path.join(dir, "README.md"), "mine");
+    expect(targetProblem(dir, ["README.md", "docs/brief.md"])).toMatch(/would write: README\.md/);
     fs.rmSync(dir, { recursive: true, force: true });
   });
 });

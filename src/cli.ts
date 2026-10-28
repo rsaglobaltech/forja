@@ -159,7 +159,7 @@ program
       if ((flags.yes || flags.config) && !flags.dryRun) p.intro(`forja init · ${config.name}`);
 
       const targetDir = path.resolve(process.cwd(), config.name);
-      const problem = targetProblem(targetDir);
+      const problem = targetProblem(targetDir, rendered.tree);
       if (problem) {
         console.error(problem);
         process.exit(1);
