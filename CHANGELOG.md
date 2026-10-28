@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [1.0.5] — 2026-10-28
+
+### Fixed
+
+- **A build leaves the tree clean.** The generated `.gitignore` lists `next-env.d.ts` and
+  `*.tsbuildinfo`, which Next.js and TypeScript write on every `npm test`: left untracked, they made
+  Specgate's harness refuse to start on a dirty tree.
+- Generated projects depend on Specgate 0.27.6 when forja runs on its own.
+
 ## [1.0.4] — 2026-10-28
 
 ### Fixed

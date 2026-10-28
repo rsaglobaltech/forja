@@ -12,13 +12,13 @@ You need **Node.js 22 or later**. Install it globally from npm:
 
 ```bash
 npm install -g @rsaglobaltech/forja
-forja --version    # 1.0.4
+forja --version    # 1.0.5
 ```
 
 Or from the tarball attached to its GitHub release:
 
 ```bash
-npm install -g https://github.com/rsaglobaltech/forja/releases/download/v1.0.4/rsaglobaltech-forja-1.0.4.tgz
+npm install -g https://github.com/rsaglobaltech/forja/releases/download/v1.0.5/rsaglobaltech-forja-1.0.5.tgz
 ```
 
 That puts the `forja` command on your PATH, on macOS, Linux and Windows; `specgate init --forja`
