@@ -85,6 +85,8 @@ function applyJava(ctx: Parameters<Parameters<typeof defineRecipe>[0]["apply"]>[
 
 const JAVA_GITIGNORE = `node_modules/
 .next/
+next-env.d.ts
+*.tsbuildinfo
 target/
 *.log
 .DS_Store

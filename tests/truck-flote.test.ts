@@ -91,3 +91,16 @@ describe("F12: the Maven wrapper from npm scripts on Windows", () => {
     }
   });
 });
+
+describe("F13: what a build writes stays out of git", () => {
+  it("ignores next-env.d.ts and *.tsbuildinfo, Java and Node alike", async () => {
+    for (const config of [
+      parseForjaConfig({ ...defaultJavaConfig("fleet", "spring") }),
+      parseForjaConfig({ ...defaultConfig("shop") }),
+    ]) {
+      const ignore = (await render(config))(".gitignore").split(/\r?\n/);
+      expect(ignore).toContain("next-env.d.ts");
+      expect(ignore).toContain("*.tsbuildinfo");
+    }
+  });
+});
