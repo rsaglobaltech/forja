@@ -13,7 +13,7 @@ export default tseslint.config(
     // Tool configs (Metro, Babel, Tailwind/NativeWind) are CJS on purpose —
     // those ecosystems still expect `require`/`module.exports` in these
     // particular files, and it is not worth fighting.
-    files: ["**/babel.config.js", "**/metro.config.js", "**/tailwind.config.ts", "**/*.cjs"],
+    files: ["**/babel.config.js", "**/metro.config.js", "**/tailwind.config.ts", "**/*.cjs", "scripts/*.mjs"],
     languageOptions: {
       globals: {
         module: "writable",

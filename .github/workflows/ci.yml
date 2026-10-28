@@ -7,7 +7,12 @@ on:
 
 jobs:
   forja:
-    runs-on: ubuntu-latest
+    name: forja (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,6 +21,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
+      - run: npm run lint
       - run: npm test
       - run: npm run build
 
@@ -44,4 +50,37 @@ jobs:
         working-directory: ${{ runner.temp }}
       - name: Tests del proyecto generado (API + web)
         run: npm test
+        working-directory: ${{ runner.temp }}/demo
+
+  # The generated project's npm scripts on Windows, where npm runs them with
+  # cmd.exe: `./mvnw` failed there (truck-flote, F12). Testcontainers needs
+  # Linux containers, so the architecture check and the web build run here,
+  # not the whole suite.
+  generated-windows:
+    needs: forja
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: [spring, quarkus]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: npm ci && npm run build
+      - name: Generate a project
+        shell: bash
+        run: node "$GITHUB_WORKSPACE/dist/cli.js" init demo --yes --backend ${{ matrix.backend }} --java-package com.acme.demo --skip-git
+        working-directory: ${{ runner.temp }}
+      - name: Architecture check through npm (cmd.exe)
+        run: npm run arch
+        working-directory: ${{ runner.temp }}/demo
+      - name: Web build through npm (cmd.exe)
+        run: npm run test:web
         working-directory: ${{ runner.temp }}/demo

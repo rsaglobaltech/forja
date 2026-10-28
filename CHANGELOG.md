@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [1.0.4] — 2026-10-28
+
+### Fixed
+
+- **The generated project's npm scripts run on Windows.** `test:api`, `arch` and `dev:api` called
+  `./mvnw`, which cmd.exe — what npm runs scripts with on Windows — cannot run: `npm test`, `npm run
+  arch` and Specgate's gate failed with "'.' is not recognized as an internal or external command".
+  They now go through `scripts/mvnw.mjs`, which calls the wrapper by its full path on every platform.
+
+### Added
+
+- **CI on Linux, Windows and macOS**, plus the generated project's architecture check and web build
+  on Windows, and **CD**: a `vX.Y.Z` tag tests, packs and publishes the GitHub release with the
+  tarball and the changelog entry.
+
 ## [1.0.3] — 2026-10-28
 
 ### Fixed

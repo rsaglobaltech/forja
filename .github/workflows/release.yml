@@ -1,0 +1,54 @@
+name: Release
+
+# A tag vX.Y.Z publishes forja: the tests run, the package is packed, and a
+# GitHub release carries the tarball and the changelog entry. forja is
+# installed from that tarball (`npm i -g <release .tgz>`); it is not on npm.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+      - name: The tag matches package.json
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json $version" >&2
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Pack
+        run: npm pack
+
+      - name: Release notes from the changelog
+        run: |
+          awk -v v="$VERSION" '
+            $0 ~ "^## \\[" v "\\]" { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          test -s notes.md || echo "forja $VERSION" > notes.md
+
+      - name: GitHub release with the tarball
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "rsaglobaltech-forja-$VERSION.tgz" \
+            --title "forja $VERSION" --notes-file notes.md --latest
