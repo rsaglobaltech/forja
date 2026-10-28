@@ -3,12 +3,12 @@ import { javaPackageOf } from "../config/schema.js";
 
 /** Pinned versions of what the Java recipes generate (reviewed 2026-10-11). */
 export const versions = {
-  springBoot: "4.1.1",
+  springBoot: "4.1.2",
   springdoc: "3.1.1",
   quarkus: "3.40.1",
   archunit: "1.5.1",
   assertj: "3.27.6",
-  specgate: "0.27.6",
+  specgate: "0.27.8",
   keycloak: "26.8",
   postgres: "17-alpine",
 } as const;

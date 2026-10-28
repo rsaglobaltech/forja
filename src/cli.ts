@@ -15,12 +15,13 @@ import {
 import { runWizard, confirmGit, confirmInstall } from "./prompts/wizard.js";
 import { planRecipes } from "./engine/planner.js";
 import { renderProject, writeToDisk } from "./engine/renderer.js";
-import { progress, targetProblem } from "./engine/target.js";
+import { progress, resolveTarget, targetProblem, unattendedProblem } from "./engine/target.js";
 import {
   alignComments,
   runPostinstall,
   nextSteps,
   type PostinstallResult,
+  initExitCode,
 } from "./engine/postinstall.js";
 import { add, type AddKind, type AddResult } from "./add/add.js";
 import { doctor } from "./doctor/doctor.js";
@@ -150,6 +151,14 @@ program
             : defaultConfig(name);
         config = applyFlags(base, flags);
       } else {
+        const noTerminal = unattendedProblem(flags, {
+          stdin: Boolean(process.stdin.isTTY),
+          stdout: Boolean(process.stdout.isTTY),
+        });
+        if (noTerminal) {
+          console.error(noTerminal);
+          process.exit(1);
+        }
         config = await runWizard(name);
       }
 
@@ -158,7 +167,11 @@ program
       // The wizard opened its own frame; unattended runs open one here.
       if ((flags.yes || flags.config) && !flags.dryRun) p.intro(`forja init · ${config.name}`);
 
-      const targetDir = path.resolve(process.cwd(), config.name);
+      const target = resolveTarget(process.cwd(), config.name);
+      const targetDir = target.dir;
+      if (target.here) {
+        console.log(`Generating into this folder: it is the ${config.name} repository, so no ${config.name}/${config.name} inside it.`);
+      }
       const problem = targetProblem(targetDir, rendered.tree);
       if (problem) {
         console.error(problem);
@@ -174,6 +187,7 @@ program
 
       // --config and --yes both mean "ask nothing".
       const unattended = Boolean(flags.yes || flags.config);
+      let installFailed = false;
       let installDeps = flags.skipInstall
         ? false
         : unattended
@@ -201,11 +215,17 @@ program
           spinner.stop("git or the install failed — the error is below.");
           console.error(error);
           installDeps = false;
+          installFailed = true;
         }
       }
 
-      p.note(alignComments(nextSteps(config, installDeps, result)).join("\n"), "Next steps");
+      // Generated into this folder (F14): there is no folder to cd into.
+      const steps = nextSteps(config, installDeps, result).filter(
+        (line) => !(target.here && line === `cd ${config.name}`),
+      );
+      p.note(alignComments(steps).join("\n"), "Next steps");
       p.outro(`${config.name} created in ${targetDir}`);
+      process.exitCode = initExitCode({ installFailed });
     } catch (error) {
       if (error instanceof ZodError) {
         console.error(

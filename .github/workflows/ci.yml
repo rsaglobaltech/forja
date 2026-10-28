@@ -51,6 +51,17 @@ jobs:
       - name: Tests del proyecto generado (API + web)
         run: npm test
         working-directory: ${{ runner.temp }}/demo
+      # A stale pin fails here, not in the user's first `specgate quality
+      # baseline`: Spring Boot 4.1.1 gave a new project 18 known
+      # vulnerabilities (truck-flote, F16). The same BOM and scanner as
+      # Specgate's strict quality checks; the Quarkus pom skips deploy, which
+      # CycloneDX would otherwise read as "no BOM".
+      - name: Known vulnerabilities in the generated project's dependencies
+        run: |
+          (cd apps/api && ./mvnw -B -q org.cyclonedx:cyclonedx-maven-plugin:2.9.1:makeBom -DoutputFormat=json -DoutputName=bom -Dcyclonedx.skipNotDeployed=false)
+          docker run --rm -v "$PWD:/src" -w /src ghcr.io/google/osv-scanner:v2.2.4 \
+            scan source -L apps/api/target/bom.json -L package-lock.json
+        working-directory: ${{ runner.temp }}/demo
 
   # The generated project's npm scripts on Windows, where npm runs them with
   # cmd.exe: `./mvnw` failed there (truck-flote, F12). Testcontainers needs

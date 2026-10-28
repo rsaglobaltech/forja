@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { defaultConfig, defaultJavaConfig, parseForjaConfig, type ForjaConfig } from "../src/config/schema.js";
 import { planRecipes } from "../src/engine/planner.js";
+import { initExitCode } from "../src/engine/postinstall.js";
 import { renderProject } from "../src/engine/renderer.js";
 import { specgateVersion } from "../src/recipes/specgate.js";
-import { progress, targetProblem } from "../src/engine/target.js";
+import { progress, resolveTarget, targetProblem, unattendedProblem } from "../src/engine/target.js";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -102,5 +103,64 @@ describe("F13: what a build writes stays out of git", () => {
       expect(ignore).toContain("next-env.d.ts");
       expect(ignore).toContain("*.tsbuildinfo");
     }
+  });
+});
+
+describe("F14: run inside the brief's repository", () => {
+  const repo = (name: string, files: string[]) => {
+    const dir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "forja-f14-")), name);
+    fs.mkdirSync(dir);
+    for (const f of files) fs.mkdirSync(path.join(dir, f), { recursive: true });
+    return dir;
+  };
+
+  it("generates into the folder when it is the project's repository", () => {
+    const dir = repo("truck-flote", [".git"]);
+    expect(resolveTarget(dir, "truck-flote")).toEqual({ dir, here: true });
+  });
+
+  it("does so for a folder named like the project that holds the brief", () => {
+    const dir = repo("truck-flote", []);
+    fs.writeFileSync(path.join(dir, "brief.md"), "# Brief\n");
+    expect(resolveTarget(dir, "truck-flote").here).toBe(true);
+  });
+
+  it("creates the project's folder anywhere else", () => {
+    const parent = repo("projects", [".git"]);
+    expect(resolveTarget(parent, "truck-flote")).toEqual({ dir: path.join(parent, "truck-flote"), here: false });
+    const plain = repo("truck-flote", []);
+    expect(resolveTarget(plain, "truck-flote").here).toBe(false);
+  });
+
+  it("keeps a folder of that name already inside", () => {
+    const dir = repo("truck-flote", [".git", "truck-flote"]);
+    expect(resolveTarget(dir, "truck-flote").here).toBe(false);
+  });
+});
+
+describe("F15: no terminal, no questions", () => {
+  it("names --yes and --config when nothing can be asked", () => {
+    expect(unattendedProblem({}, { stdin: false, stdout: true })).toMatch(/--yes.*--config/);
+    expect(unattendedProblem({}, { stdin: true, stdout: false })).toMatch(/--yes/);
+  });
+
+  it("lets the wizard run in a terminal, and unattended runs anywhere", () => {
+    expect(unattendedProblem({}, { stdin: true, stdout: true })).toBeNull();
+    expect(unattendedProblem({ yes: true }, { stdin: false, stdout: false })).toBeNull();
+    expect(unattendedProblem({ config: "forja.config.json" }, { stdin: false, stdout: false })).toBeNull();
+  });
+});
+
+describe("F16: a new Java project has no known vulnerability", () => {
+  it("pins Spring Boot 4.1.2, whose Tomcat and Jackson OSV lists clean", async () => {
+    const read = await render(parseForjaConfig({ ...defaultJavaConfig("fleet", "spring") }));
+    expect(read("apps/api/pom.xml")).toMatch(/<artifactId>spring-boot-starter-parent<\/artifactId>\s*<version>4\.1\.2<\/version>/);
+  });
+});
+
+describe("F17: a failed install fails the command", () => {
+  it("exits 1 once the project is written but its install failed", () => {
+    expect(initExitCode({ installFailed: true })).toBe(1);
+    expect(initExitCode({ installFailed: false })).toBe(0);
   });
 });

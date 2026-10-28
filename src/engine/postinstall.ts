@@ -159,3 +159,13 @@ export function alignComments(lines: string[]): string[] {
     comment ? `${cmd.padEnd(width + 2)}${comment}` : cmd,
   );
 }
+
+/**
+ * The exit code of `forja init`. A project whose install failed is written,
+ * and the next steps say to run the install, but the command failed: a script
+ * or CI that runs it must see that, not carry on to tests with no
+ * dependencies (F17).
+ */
+export function initExitCode(outcome: { installFailed: boolean }): number {
+  return outcome.installFailed ? 1 : 0;
+}
