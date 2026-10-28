@@ -1,6 +1,6 @@
 {
   "name": "@rsaglobaltech/forja",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Scaffold hexagonal projects: web + mobile monorepos in TypeScript, or a Java API (Spring Boot / Quarkus) with a web app, OAuth2, ArchUnit and Specgate.",
   "license": "MIT",
   "type": "module",

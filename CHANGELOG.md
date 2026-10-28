@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.0.4] — 2026-10-28
+
 ### Fixed
 
 - **The generated project's npm scripts run on Windows.** `test:api`, `arch` and `dev:api` called
