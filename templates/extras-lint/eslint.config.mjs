@@ -32,6 +32,8 @@ export default tseslint.config(
     // with triple-slash references) — not worth linting.
     ignores: [
       "**/dist/**",
+      "**/target/**",
+      "**/build/**",
       "**/.next/**",
       "**/.expo/**",
       "**/node_modules/**",
