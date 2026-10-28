@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { defaultConfig, defaultJavaConfig, parseForjaConfig, type ForjaConfig } from "../src/config/schema.js";
 import { planRecipes } from "../src/engine/planner.js";
+import { initExitCode } from "../src/engine/postinstall.js";
 import { renderProject } from "../src/engine/renderer.js";
 import { specgateVersion } from "../src/recipes/specgate.js";
 import { progress, resolveTarget, targetProblem, unattendedProblem } from "../src/engine/target.js";
@@ -154,5 +155,12 @@ describe("F16: a new Java project has no known vulnerability", () => {
   it("pins Spring Boot 4.1.2, whose Tomcat and Jackson OSV lists clean", async () => {
     const read = await render(parseForjaConfig({ ...defaultJavaConfig("fleet", "spring") }));
     expect(read("apps/api/pom.xml")).toMatch(/<artifactId>spring-boot-starter-parent<\/artifactId>\s*<version>4\.1\.2<\/version>/);
+  });
+});
+
+describe("F17: a failed install fails the command", () => {
+  it("exits 1 once the project is written but its install failed", () => {
+    expect(initExitCode({ installFailed: true })).toBe(1);
+    expect(initExitCode({ installFailed: false })).toBe(0);
   });
 });
