@@ -35,6 +35,35 @@ export function targetProblem(targetDir: string, planned: readonly string[] = []
   return null;
 }
 
+/**
+ * Where `forja init <name>` writes. Run inside the project's own repository —
+ * a folder named like the project that holds `.git` or the client's
+ * `brief.md` — it writes there: creating `<name>/<name>` was what happened
+ * when truck-flote's cloned repository was the place to run it (F14). A
+ * folder of that name already inside keeps the old meaning.
+ */
+export function resolveTarget(cwd: string, name: string): { dir: string; here: boolean } {
+  const nested = path.join(cwd, name);
+  const sameName = path.basename(cwd).toLowerCase() === name.toLowerCase();
+  const marked = fs.existsSync(path.join(cwd, ".git")) || fs.existsSync(path.join(cwd, "brief.md"));
+  if (sameName && marked && !fs.existsSync(nested)) return { dir: cwd, here: true };
+  return { dir: nested, here: false };
+}
+
+/**
+ * Why `forja init` cannot ask its questions, or null when it can. Without a
+ * terminal the wizard died in @clack with ERR_TTY_INIT_FAILED and a stack
+ * trace (F15); unattended runs need no terminal.
+ */
+export function unattendedProblem(
+  flags: { yes?: boolean; config?: string },
+  tty: { stdin: boolean; stdout: boolean },
+): string | null {
+  if (flags.yes || flags.config) return null;
+  if (tty.stdin && tty.stdout) return null;
+  return "forja init asks its questions in a terminal, and this is not one: pass --yes (the defaults plus your flags) or --config <forja.config.json>.";
+}
+
 export interface Progress {
   start(message: string): void;
   stop(message: string): void;
