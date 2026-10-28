@@ -165,9 +165,10 @@ export function coreImportCheck(root: string): Check {
   const src = path.join(root, "packages/core/src");
   const broken: string[] = [];
   for (const file of findFiles(src, (f) => /\.tsx?$/.test(f))) {
-    const rel = path.relative(root, file);
+    // Forward slashes on every platform: the layer test and the report read the same.
+    const rel = path.relative(root, file).split(path.sep).join("/");
     const text = fs.readFileSync(file, "utf-8");
-    const inner = /\/src\/(domain|application|ports)\//.test(file);
+    const inner = /\/src\/(domain|application|ports)\//.test(`/${rel}`);
     text.split("\n").forEach((line, i) => {
       const ui = UI_IMPORT.exec(line);
       if (ui) broken.push(`${rel}:${i + 1} imports ${ui[1]}`);

@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Fixed
+
+Found building truck-flote, a Spring Boot and Next.js project, with Specgate 0.27.1:
+
+- Generated projects depended on Specgate `^0.20.0`, which for a 0.x version means `<0.21.0`:
+  `npx specgate` ran 0.20.0, seven minors behind. They now get 0.27.1, or the Specgate that
+  called forja (`specgate init --forja` passes `SPECGATE_VERSION`).
+- ESLint linted Maven's `target/` and Gradle's `build/`: once JaCoCo wrote its HTML report, `lint`
+  failed with 929 errors in it. Both are ignored.
+- `--dry-run` into a folder that holds files printed the tree; the real run then refused. The dry
+  run now refuses the same way.
+- Without a terminal (a pipe, a log), the spinner wrote hundreds of frames; it now prints the start
+  and the end once each.
+- `forja doctor` on Windows missed infrastructure imports in the domain: it compared the path with
+  `/src/domain/` and Windows writes backslashes.
+
 ## [1.0.1] — 2026-10-25
 
 ### Fixed

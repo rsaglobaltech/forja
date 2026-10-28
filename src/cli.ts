@@ -15,6 +15,7 @@ import {
 import { runWizard, confirmGit, confirmInstall } from "./prompts/wizard.js";
 import { planRecipes } from "./engine/planner.js";
 import { renderProject, writeToDisk } from "./engine/renderer.js";
+import { progress, targetProblem } from "./engine/target.js";
 import {
   alignComments,
   runPostinstall,
@@ -157,15 +158,16 @@ program
       // The wizard opened its own frame; unattended runs open one here.
       if ((flags.yes || flags.config) && !flags.dryRun) p.intro(`forja init · ${config.name}`);
 
+      const targetDir = path.resolve(process.cwd(), config.name);
+      const problem = targetProblem(targetDir);
+      if (problem) {
+        console.error(problem);
+        process.exit(1);
+      }
+
       if (flags.dryRun) {
         console.log(rendered.tree.join("\n"));
         return;
-      }
-
-      const targetDir = path.resolve(process.cwd(), config.name);
-      if (fs.existsSync(targetDir) && fs.readdirSync(targetDir).length > 0) {
-        console.error(`"${targetDir}" already exists and is not empty.`);
-        process.exit(1);
       }
 
       writeToDisk(rendered, targetDir);
@@ -183,7 +185,7 @@ program
           ? true
           : await confirmGit();
 
-      const spinner = p.spinner();
+      const spinner = progress(Boolean(process.stdout.isTTY), (l) => console.log(l), () => p.spinner());
       let result: PostinstallResult | undefined;
       if (initGit || installDeps) {
         spinner.start("Running git init and the install…");
