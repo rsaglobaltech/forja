@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.0.6] — 2026-10-28
+
 ### Fixed
 
 - **`forja init <name>` inside the project's own repository generates there.** In a folder named like
@@ -14,6 +16,7 @@
 - **A new Java project starts with no known vulnerability.** Spring Boot 4.1.2, whose Tomcat 11.0.27
   and Jackson 2.21.7 / 3.1.7 OSV lists clean; 4.1.1 gave 18. CI now scans the generated projects'
   dependencies with osv-scanner, so a stale pin fails there and not in the user's first baseline.
+- Generated projects depend on Specgate 0.27.7 when forja runs on its own.
 
 ## [1.0.5] — 2026-10-28
 
