@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.0.7] — 2026-10-29
+
+### Fixed
+
+- Generated projects depend on Specgate 0.27.9 when forja runs on its own.
+
 ## [1.0.6] — 2026-10-28
 
 ### Fixed
