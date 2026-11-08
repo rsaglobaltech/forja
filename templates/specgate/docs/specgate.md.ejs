@@ -15,7 +15,11 @@ forja ran these for you when it installed the dependencies. If it could not:
 ```bash
 npx specgate adopt --no-capabilities
 npx specgate config set test_cmd "npm test"
+npx specgate config set agent "claude -p < {prompt_file}"
 ```
+
+The last line names the agent that builds; forja sets it when Claude Code is on
+your PATH. You can also choose it in `npx specgate studio`, under Build.
 
 ## Each module of the product
 
