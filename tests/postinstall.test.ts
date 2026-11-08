@@ -31,3 +31,28 @@ describe("next steps", () => {
     expect(steps).toContain("npx specgate adopt --no-capabilities");
   });
 });
+
+describe("the agent that builds", () => {
+  it("when forja could not set the agent, the next steps say how — or to choose it in the studio", () => {
+    const steps = nextSteps(defaultJavaConfig("acme", "spring"), true, {
+      specgateAdopted: true,
+      agentConfigured: false,
+    });
+    expect(steps.some((s) => s.startsWith('npx specgate config set agent "claude -p < {prompt_file}"'))).toBe(true);
+    expect(steps.some((s) => s.includes("specgate studio"))).toBe(true);
+  });
+
+  it("when forja set it, no step asks for it", () => {
+    const steps = nextSteps(defaultJavaConfig("acme", "spring"), true, {
+      specgateAdopted: true,
+      agentConfigured: true,
+    });
+    expect(steps.some((s) => s.includes("config set agent"))).toBe(false);
+  });
+
+  it("finds Claude Code on the PATH the way the studio does", async () => {
+    const { agentOnPath } = await import("../src/engine/postinstall.js");
+    expect(await agentOnPath("claude", async () => ({ exitCode: 0 }))).toBe(true);
+    expect(await agentOnPath("claude", async () => { throw new Error("not found"); })).toBe(false);
+  });
+});

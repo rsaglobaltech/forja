@@ -11,6 +11,27 @@ export interface PostinstallOptions {
 export interface PostinstallResult {
   /** Specgate was adopted (adopt + test_cmd). When not, nextSteps gives the commands. */
   specgateAdopted: boolean;
+  /** Specgate's agent was set — Claude Code was on the PATH. When not, nextSteps says how. */
+  agentConfigured?: boolean;
+}
+
+/** The agent command Specgate runs to build, as its studio writes it for Claude Code. */
+export const CLAUDE_AGENT = "claude -p < {prompt_file}";
+
+/**
+ * Is this agent CLI on the PATH? `where` on Windows, `which` elsewhere — the
+ * same test Specgate's studio makes. `run` is injected for tests.
+ */
+export async function agentOnPath(
+  cmd: string,
+  run: (file: string, args: string[]) => Promise<unknown> = (file, args) => execa(file, args),
+): Promise<boolean> {
+  try {
+    await run(process.platform === "win32" ? "where" : "which", [cmd]);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function runPostinstall(
@@ -30,6 +51,7 @@ export async function runPostinstall(
   }
 
   let specgateAdopted = false;
+  let agentConfigured = false;
   if (installDeps && config.extras.includes("specgate")) {
     try {
       const specgate = (...args: string[]) =>
@@ -42,6 +64,12 @@ export async function runPostinstall(
       if (hasArchScript(config)) {
         await specgate("config", "set", "arch_cmd", "npm run arch").catch(() => undefined);
       }
+      // Without an agent the studio cannot build; Claude Code on the PATH is the one to set.
+      if (await agentOnPath("claude")) {
+        agentConfigured = await specgate("config", "set", "agent", CLAUDE_AGENT)
+          .then(() => true)
+          .catch(() => false);
+      }
       if (initGit) {
         await git("add", "-A");
         await git("commit", "-m", "chore: adopt Specgate");
@@ -51,7 +79,7 @@ export async function runPostinstall(
     }
   }
 
-  return { specgateAdopted };
+  return { specgateAdopted, agentConfigured };
 }
 
 export function nextSteps(
@@ -134,8 +162,12 @@ function specgateSteps(
         'npx specgate config set test_cmd "npm test"',
         ...(hasArchScript(config) ? ['npx specgate config set arch_cmd "npm run arch"'] : []),
       ];
+  const agent = result?.agentConfigured
+    ? []
+    : [`npx specgate config set agent "${CLAUDE_AGENT}"   # who builds — or choose it in npx specgate studio`];
   return [
     ...adopt,
+    ...agent,
     "npx specgate draft               # after you fill in docs/brief.md — see docs/specgate.md",
     "npx specgate                     # where the specification stands, and what to run next",
   ];
