@@ -27,7 +27,7 @@
 
 <header class="top">
   <a class="top__brand" href="./"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true" width="18" height="18"><path d="M8 20h42v9h-7c-3 0-5 2-5 5v5h6v7H20v-7h6v-5c0-3-3-5-7-5-6 0-10-4-11-9Z" fill="currentColor"/></svg> forja</a>
-  <span class="top__version">v1.0.0</span>
+  <span class="top__version">v1.0.8</span>
   <nav class="top__links">
     <a href="https://rsaglobaltech.github.io/specgate/forja/getting-started.html">Docs</a>
     <a href="https://rsaglobaltech.github.io/specgate/forja/daily-use.html">Daily use</a>
@@ -42,7 +42,7 @@
 <section class="mx">
   <div class="ed-wrap mx__grid">
     <div class="mx__copy">
-      <p class="mx__eyebrow">[ v1.0.0 ] Hexagonal projects, generated</p>
+      <p class="mx__eyebrow">[ v1.0.8 ] Hexagonal projects, generated</p>
       <h1 class="mx__title">Architecture first.<br>Features <span>next.</span></h1>
       <p class="mx__lede">
         forja generates a TypeScript monorepo with Next.js and Expo, or a
@@ -222,7 +222,8 @@ forja add usecase orders/PlaceOrder</code></pre>
         <h3>Tests from the first commit</h3>
         <p>vitest for the core's use cases; JUnit, Testcontainers and a real
            PostgreSQL for the API. Add <code>--tests e2e-web</code> and
-           Playwright drives the sign-in in a browser.</p>
+           Playwright drives the sign-in in a browser; with Specgate, the
+           approved scenarios run first, through playwright-bdd.</p>
       </article>
       <article class="sx__card reveal">
         <svg class="sx__icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 40 15v18L24 42 8 33V15Z"/><path d="M24 24v18M24 24 8 15M24 24l16-9"/></svg>
@@ -368,7 +369,7 @@ describe(<span class="tok tok--s">"REQ-003 Place order"</span>, () =&gt; {
       <a href="https://rsaglobaltech.github.io/specgate/forja/contributing.html">Contributing</a>
     </nav>
   </div>
-  <p class="ed-wrap ed-foot__note">Documentation for v1.0.0.</p>
+  <p class="ed-wrap ed-foot__note">Documentation for v1.0.8.</p>
 </footer>
 
 <script src="./assets/docs.js" defer></script>

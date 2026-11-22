@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [1.0.8] — 2026-11-22
+
+### Added
+
+- **The scenarios run before any code.** With `--tests e2e-web` and the `specgate` extra, the web app
+  gets playwright-bdd 9.2: a `bdd` Playwright project generated from the repository's `features/`,
+  its steps in `apps/web/e2e/steps/`, and `npm run test:bdd` at the root, which Specgate's gate runs
+  with a requirement's tag. A scenario without its steps fails when it runs (`Missing step`), never at
+  generation. `test:e2e` runs only the end-to-end tests.
+
 ## [1.0.7] — 2026-10-29
 
 ### Fixed
