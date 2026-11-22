@@ -1,0 +1,10 @@
+import { createBdd } from "playwright-bdd";
+
+/**
+ * The steps of the feature files Specgate writes in features/ (BDD): one
+ * function per step phrase, written with the scenario's test before its code.
+ * A scenario whose steps are not here yet fails when it runs — the red of TDD.
+ *
+ *   Given('the order {string} not shipped', async ({ page }, id) => { … });
+ */
+export const { Given, When, Then } = createBdd();

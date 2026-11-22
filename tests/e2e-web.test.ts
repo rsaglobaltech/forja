@@ -28,6 +28,28 @@ describe("--tests e2e-web", () => {
     expect(nextSteps(config, true).join("\n")).toContain("npx playwright install chromium");
   });
 
+  it("with Specgate, BDD: playwright-bdd runs the feature files Specgate writes, their steps in e2e/steps", async () => {
+    const config = parseForjaConfig({ ...withE2e(defaultConfig("acme")), extras: ["specgate"] });
+    const file = await files(config);
+    const web = JSON.parse(file("apps/web/package.json"));
+    expect(web.devDependencies["playwright-bdd"]).toBe("~9.2.1");
+    expect(web.scripts["test:bdd"]).toBe("bddgen && playwright test --project=bdd");
+    expect(web.scripts["test:e2e"]).toBe("playwright test --project=e2e");
+    expect(JSON.parse(file("package.json")).scripts["test:bdd"]).toBe("npm run test:bdd --workspace apps/web --");
+    const pw = file("apps/web/playwright.config.ts");
+    expect(pw).toContain('features: "../../features/**/*.feature"');
+    expect(pw).toContain('missingSteps: "fail-on-run"');
+    expect(pw).toContain('name: "bdd", testDir: bddTestDir');
+    expect(file("apps/web/e2e/steps/steps.ts")).toContain("createBdd()");
+    expect(file(".gitignore")).toContain(".features-gen/");
+  });
+
+  it("without Specgate, no BDD", async () => {
+    const file = await files(withE2e(defaultConfig("acme")));
+    expect(JSON.parse(file("apps/web/package.json")).devDependencies["playwright-bdd"]).toBeUndefined();
+    expect(file("apps/web/e2e/steps/steps.ts")).toBeUndefined();
+  });
+
   it("node without auth: the smoke test only", async () => {
     const file = await files(withE2e(parseForjaConfig({ ...defaultConfig("acme"), auth: "none", platforms: ["web"] })));
     expect(file("apps/web/e2e/smoke.spec.ts")).toBeTruthy();
