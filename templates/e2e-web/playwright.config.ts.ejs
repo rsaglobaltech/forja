@@ -24,6 +24,7 @@ import { defineBddConfig } from "playwright-bdd";
  */
 const bddTestDir = defineBddConfig({
   features: "../../features/**/*.feature",
+  featuresRoot: "../../features",
   steps: "e2e/steps/**/*.ts",
   outputDir: ".features-gen",
   missingSteps: "fail-on-run",

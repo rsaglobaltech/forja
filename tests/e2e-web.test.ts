@@ -39,6 +39,7 @@ describe("--tests e2e-web", () => {
     const pw = file("apps/web/playwright.config.ts");
     expect(pw).toContain('features: "../../features/**/*.feature"');
     expect(pw).toContain('missingSteps: "fail-on-run"');
+    expect(pw).toContain('featuresRoot: "../../features"');
     expect(pw).toContain('name: "bdd", testDir: bddTestDir');
     expect(file("apps/web/e2e/steps/steps.ts")).toContain("createBdd()");
     expect(file(".gitignore")).toContain(".features-gen/");
