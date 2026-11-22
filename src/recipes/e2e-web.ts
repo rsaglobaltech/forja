@@ -10,7 +10,9 @@ export default defineRecipe({
   id: "e2e-web",
   apply(ctx) {
     const java = isJava(ctx.config);
+    const bdd = ctx.config.extras.includes("specgate");
     const data = {
+      bdd,
       java,
       oauth2: ctx.config.auth === "oauth2",
       backendName: ctx.config.backend === "quarkus" ? "Quarkus" : "Spring Boot",
@@ -22,13 +24,24 @@ export default defineRecipe({
     if (java) ctx.copyFile("e2e-web/e2e/tasks.spec.ts.ejs", "apps/web/e2e/tasks.spec.ts", data);
     else if (ctx.config.auth === "sessions") ctx.copyFile("e2e-web/e2e/auth.spec.ts.ejs", "apps/web/e2e/auth.spec.ts", data);
 
+    if (bdd) ctx.copyFile("e2e-web/e2e/steps/steps.ts.ejs", "apps/web/e2e/steps/steps.ts", data);
+
     ctx.mergePackageJson("apps/web", {
-      // 1.63: the newest release that has been out for more than two weeks.
-      devDependencies: { "@playwright/test": "~1.63.0" },
-      scripts: { "test:e2e": "playwright test" },
+      // 1.63: the newest release that has been out for more than two weeks; playwright-bdd 9.2 likewise.
+      devDependencies: {
+        "@playwright/test": "~1.63.0",
+        ...(bdd ? { "playwright-bdd": "~9.2.1" } : {}),
+      },
+      scripts: {
+        "test:e2e": bdd ? "playwright test --project=e2e" : "playwright test",
+        ...(bdd ? { "test:bdd": "bddgen && playwright test --project=bdd" } : {}),
+      },
     });
     ctx.mergePackageJson(".", {
-      scripts: { "test:e2e": "npm run test:e2e --workspace apps/web" },
+      scripts: {
+        "test:e2e": "npm run test:e2e --workspace apps/web",
+        ...(bdd ? { "test:bdd": "npm run test:bdd --workspace apps/web --" } : {}),
+      },
     });
   },
 });

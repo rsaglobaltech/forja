@@ -1,4 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
+<% if (bdd) { -%>
+import { defineBddConfig } from "playwright-bdd";
+<% } -%>
 
 /**
  * End-to-end tests of the web app in a real browser: `npm run test:e2e` from
@@ -13,11 +16,28 @@ import { defineConfig, devices } from "@playwright/test";
  * Before the first run, once: `npx playwright install chromium`.
 <% } -%>
  */
+<% if (bdd) { -%>
+/**
+ * BDD: the feature files Specgate writes when a change is approved, at the
+ * repository's root, run as tests — each step in e2e/steps. A step not written
+ * yet fails its scenario when it runs, never the generation: red first.
+ */
+const bddTestDir = defineBddConfig({
+  features: "../../features/**/*.feature",
+  featuresRoot: "../../features",
+  steps: "e2e/steps/**/*.ts",
+  outputDir: ".features-gen",
+  missingSteps: "fail-on-run",
+});
+
+<% } -%>
 const port = Number(process.env.E2E_PORT ?? 3000);
 const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${port}`;
 
 export default defineConfig({
+<% if (!bdd) { -%>
   testDir: "./e2e",
+<% } -%>
   timeout: 60_000,
   expect: { timeout: 15_000 },
   fullyParallel: false,
@@ -25,7 +45,14 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: { baseURL, trace: "retain-on-failure" },
+<% if (bdd) { -%>
+  projects: [
+    { name: "e2e", testDir: "./e2e", testIgnore: "steps/**", use: { ...devices["Desktop Chrome"] } },
+    { name: "bdd", testDir: bddTestDir, use: { ...devices["Desktop Chrome"] } },
+  ],
+<% } else { -%>
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+<% } -%>
   webServer: [
 <% if (java) { -%>
     {
