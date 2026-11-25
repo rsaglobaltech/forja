@@ -1,0 +1,62 @@
+package <%= pkg %>.assistant.infrastructure.ai;
+
+<% if (ai.store === "redis") { -%>
+import java.util.List;
+<% } -%>
+import org.jspecify.annotations.Nullable;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.ai.embedding.EmbeddingRequest;
+import org.springframework.ai.embedding.EmbeddingResponse;
+<% if (ai.store === "redis") { -%>
+import org.springframework.ai.vectorstore.redis.RedisVectorStore;
+<% } -%>
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+
+/** The vector store's pieces Spring AI does not configure the way this application needs. */
+@Configuration(proxyBeanMethods = false)
+class VectorStoreConfiguration {
+  /**
+   * The embedding size, known in advance (app.ai.embedding-dimensions). Without it Spring AI learns it by
+   * embedding a test string when it creates the index: a call to the provider on every startup, which fails
+   * with no network or no key, and on Gemini returns 3072 while the model is asked for 768.
+   */
+  @Bean
+  static BeanPostProcessor embeddingDimensions(Environment env) {
+    int dimensions = env.getRequiredProperty("app.ai.embedding-dimensions", Integer.class);
+    return new BeanPostProcessor() {
+      @Override
+      public Object postProcessAfterInitialization(Object bean, String name) {
+        return bean instanceof EmbeddingModel model && !(bean instanceof KnownDimensions)
+            ? new KnownDimensions(model, dimensions)
+            : bean;
+      }
+    };
+  }
+<% if (ai.store === "redis") { -%>
+
+  /**
+   * Redis keeps and returns only the metadata it is told about: the owner (a tag, to search each user's
+   * notes alone) and the title (to say which notes an answer comes from).
+   */
+  @Bean
+  List<RedisVectorStore.MetadataField> metadataFields() {
+    return List.of(RedisVectorStore.MetadataField.tag("owner"), RedisVectorStore.MetadataField.text("title"));
+  }
+<% } -%>
+
+  /** The provider's model, with its size answered without asking it. */
+  record KnownDimensions(EmbeddingModel delegate, int dimensions) implements EmbeddingModel {
+    @Override
+    public EmbeddingResponse call(EmbeddingRequest request) { return delegate.call(request); }
+
+    @Override
+    public float[] embed(Document document) { return delegate.embed(document); }
+
+    @Override
+    public @Nullable String getEmbeddingContent(Document document) { return delegate.getEmbeddingContent(document); }
+  }
+}

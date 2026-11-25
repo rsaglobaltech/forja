@@ -1,0 +1,21 @@
+package <%= pkg %>.assistant.domain;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import <%= pkg %>.shared.domain.DomainException;
+import org.junit.jupiter.api.Test;
+
+class QuestionTest {
+  @Test
+  void isTrimmed() {
+    assertThat(new Question("  When is the demo?  ").text()).isEqualTo("When is the demo?");
+  }
+
+  @Test
+  void blankOrTooLongIsInvalid() {
+    assertThatThrownBy(() -> new Question("   ")).isInstanceOf(DomainException.class).hasMessage("Ask something.");
+    assertThatThrownBy(() -> new Question("x".repeat(Question.MAX_LENGTH + 1)))
+        .isInstanceOfSatisfying(DomainException.class, e -> assertThat(e.code()).isEqualTo("invalid_question"));
+  }
+}

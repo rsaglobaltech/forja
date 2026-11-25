@@ -1,17 +1,38 @@
 package <%= pkg %>;
 
+<% if (ai && ai.store === "elasticsearch") { -%>
+import java.time.Duration;
+<% } -%>
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
+<% if (ai && ai.store === "redis") { -%>
+import org.testcontainers.containers.GenericContainer;
+<% } -%>
+<% if (ai && ai.store === "elasticsearch") { -%>
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
+<% } -%>
+<% if (config.db === "postgres-docker") { -%>
 import org.testcontainers.postgresql.PostgreSQLContainer;
+<% } -%>
+<% if (ai && ai.store === "qdrant") { -%>
+import org.testcontainers.qdrant.QdrantContainer;
+<% } -%>
 import org.testcontainers.utility.DockerImageName;
 
-/** A real PostgreSQL in Docker for the tests (Testcontainers); Spring picks up the connection by itself. */
+/** Real services in Docker for the tests (Testcontainers); Spring picks up each connection by itself. */
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
+<% if (config.db === "postgres-docker") { -%>
   @Bean
   @ServiceConnection
   PostgreSQLContainer postgres() {
-    return new PostgreSQLContainer(DockerImageName.parse("postgres:17-alpine"));
+<% if (ai && ai.store === "pgvector") { -%>
+    // PostgreSQL with the pgvector extension: the tasks and the assistant's notes in one database.
+    return new PostgreSQLContainer(DockerImageName.parse("pgvector/pgvector:<%= versions.pgvector %>").asCompatibleSubstituteFor("postgres"));
+<% } else { -%>
+    return new PostgreSQLContainer(DockerImageName.parse("postgres:<%= versions.postgres %>"));
+<% } -%>
   }
-}
+<% } -%>
+<%- include('../../../../../../spring-ai/_partials/test-containers.ejs') %>}

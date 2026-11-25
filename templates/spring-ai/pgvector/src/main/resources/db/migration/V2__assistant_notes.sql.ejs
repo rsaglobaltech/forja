@@ -1,0 +1,12 @@
+-- The assistant's notes, as Spring AI's PgVectorStore expects them (spring.ai.vectorstore.pgvector.table-name).
+-- <%= ai.dimensions %> dimensions: the size of the <%= ai.embeddings %> embeddings (app.ai.embedding-dimensions).
+-- Changing the embeddings model means a new migration and embedding the notes again.
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE assistant_note (
+  id        UUID PRIMARY KEY,
+  content   TEXT,
+  metadata  JSON,
+  embedding VECTOR(<%= ai.dimensions %>)
+);
+CREATE INDEX assistant_note_embedding_idx ON assistant_note USING hnsw (embedding vector_cosine_ops);

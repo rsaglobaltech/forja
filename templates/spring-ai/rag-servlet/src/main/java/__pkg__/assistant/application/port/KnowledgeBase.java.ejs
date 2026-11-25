@@ -1,0 +1,14 @@
+package <%= pkg %>.assistant.application.port;
+
+import <%= pkg %>.assistant.domain.Note;
+import <%= pkg %>.assistant.domain.Passage;
+import <%= pkg %>.assistant.domain.Question;
+import java.util.List;
+
+/** Outbound port: where notes are kept, searchable by meaning. The adapter is a Spring AI vector store. */
+public interface KnowledgeBase {
+  void add(String owner, Note note);
+
+  /** The owner's passages closest to the question; empty when none is close enough. */
+  List<Passage> search(String owner, Question question);
+}

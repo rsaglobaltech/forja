@@ -1,0 +1,19 @@
+package <%= pkg %>.assistant.domain;
+
+import <%= pkg %>.shared.domain.DomainException;
+
+/** What the user asks the assistant. Pure Java: no framework, no AI library. */
+public record Question(String text) {
+  public static final int MAX_LENGTH = 2000;
+
+  public Question {
+    if (text == null || text.isBlank()) {
+      throw new DomainException("invalid_question", DomainException.Kind.INVALID, "Ask something.");
+    }
+    text = text.strip();
+    if (text.length() > MAX_LENGTH) {
+      throw new DomainException("invalid_question", DomainException.Kind.INVALID,
+          "A question has at most " + MAX_LENGTH + " characters.");
+    }
+  }
+}

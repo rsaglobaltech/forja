@@ -1,0 +1,18 @@
+package <%= pkg %>.assistant.application.port;
+
+import <%= pkg %>.assistant.domain.Question;
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.domain.Passage;
+import java.util.List;
+<% } -%>
+import reactor.core.publisher.Flux;
+
+/** Outbound port: a language model that writes the answer as it goes (token by token). Adapter: Spring AI. */
+public interface LanguageModel {
+<% if (ai.store !== "none") { -%>
+  /** Answers from the given passages only. */
+  Flux<String> answer(Question question, List<Passage> context);
+<% } else { -%>
+  Flux<String> answer(Question question);
+<% } -%>
+}

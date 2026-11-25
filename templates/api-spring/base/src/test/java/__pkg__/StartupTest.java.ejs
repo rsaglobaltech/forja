@@ -5,10 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import <%= pkg %>.shared.application.CurrentUser;
 import <%= pkg %>.tasks.application.port.TaskRepository;
 import java.time.Clock;
+<% if (ai) { -%>
+import org.springframework.ai.chat.model.ChatModel;
+<% if (ai.store !== "none") { -%>
+import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.ai.vectorstore.VectorStore;
+<% } -%>
+<% } -%>
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-<% if (config.db === "postgres-docker") { -%>
+<% if (containers) { -%>
 import org.springframework.context.annotation.Import;
 <% } -%>
 
@@ -18,18 +25,33 @@ import org.springframework.context.annotation.Import;
  * failure that has already happened).
  */
 @SpringBootTest
-<% if (config.db === "postgres-docker") { -%>
+<% if (containers) { -%>
 @Import(TestcontainersConfiguration.class)
 <% } -%>
 class StartupTest {
   @Autowired TaskRepository tasks;
   @Autowired CurrentUser user;
   @Autowired Clock clock;
+<% if (ai) { -%>
+  @Autowired ChatModel chat;
+<% if (ai.store !== "none") { -%>
+  @Autowired EmbeddingModel embeddings;
+  @Autowired VectorStore notes;
+<% } -%>
+<% } -%>
 
   @Test
   void theRealPiecesAreWired() {
     assertThat(tasks.getClass().getSimpleName()).startsWith("<%= config.db === "postgres-docker" ? "JdbcTaskRepository" : "InMemoryTaskRepository" %>");
     assertThat(user.getClass().getSimpleName()).startsWith("<%= config.auth === "oauth2" ? "JwtCurrentUser" : "LocalUser" %>");
     assertThat(clock.getZone().getId()).isEqualTo("Z");
+<% if (ai) { -%>
+    assertThat(chat.getClass().getSimpleName()).isEqualTo("<%= {anthropic: "AnthropicChatModel", openai: "OpenAiChatModel", ollama: "OllamaChatModel", "google-genai": "GoogleGenAiChatModel"}[ai.chat] %>");
+<% if (ai.store !== "none") { -%>
+    // The provider's embeddings, with their size fixed: the vector store never asks the provider at startup.
+    assertThat(embeddings.dimensions()).isEqualTo(<%= ai.dimensions %>);
+    assertThat(notes.getClass().getSimpleName()).isEqualTo("<%= {pgvector: "PgVectorStore", qdrant: "QdrantVectorStore", redis: "RedisVectorStore", elasticsearch: "ElasticsearchVectorStore"}[ai.store] %>");
+<% } -%>
+<% } -%>
   }
 }

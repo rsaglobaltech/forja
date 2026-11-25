@@ -1,0 +1,29 @@
+package <%= pkg %>.assistant.application;
+
+import <%= pkg %>.assistant.application.port.LanguageModel;
+import <%= pkg %>.assistant.domain.Question;
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.domain.Passage;
+import java.util.List;
+import java.util.stream.Collectors;
+<% } -%>
+import reactor.core.publisher.Flux;
+
+/** Test double: answers by repeating what it was given, in two pieces, and counts how often it was asked. */
+class FakeLanguageModel implements LanguageModel {
+  int calls;
+
+  @Override
+<% if (ai.store !== "none") { -%>
+  public Flux<String> answer(Question question, List<Passage> context) {
+    calls++;
+    return Flux.just("From " + context.stream().map(Passage::title).collect(Collectors.joining(", ")) + ": ",
+        context.stream().map(Passage::text).collect(Collectors.joining(" ")));
+  }
+<% } else { -%>
+  public Flux<String> answer(Question question) {
+    calls++;
+    return Flux.just("You asked: ", question.text());
+  }
+<% } -%>
+}

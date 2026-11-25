@@ -9,6 +9,16 @@
   on `SecurityWebFilterChain`, RFC 9457 errors, Flyway over JDBC for the migrations, `WebTestClient` and
   `StepVerifier` tests, and ArchUnit forbidding Reactor in the domain. The wizard asks for the stack;
   servlet (MVC) stays the default. `forja add usecase` follows the project's stack.
+- **Spring AI: `--ai anthropic|openai|ollama|google-genai`**, with an optional **`--vector-store
+  pgvector|qdrant|redis|elasticsearch`** (and `--embeddings` when the chat provider has none). Generates a
+  hexagonal `assistant` module that answers from each user's own notes (RAG, retrieval in the use case),
+  for servlet or reactive — streamed over Server-Sent Events in reactive. Services in docker compose
+  (pgvector image, Qdrant, Redis 8, Elasticsearch, Ollama), keys in `apps/api/.env`, and tests with fake
+  models against the real store in Testcontainers. The wizard asks for it.
+
+### Changed
+
+- Spring Boot 4.1.3 (Spring AI 2.0.3 is built on it); its Tomcat, Jackson, Netty and Spring list clean on OSV.
 
 ## [1.0.8] — 2026-11-22
 

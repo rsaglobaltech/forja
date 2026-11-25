@@ -1,6 +1,6 @@
 import { defineRecipe } from "./types.js";
 import { isJava } from "../config/schema.js";
-import { javaData } from "./java.js";
+import { javaData, needsCompose } from "./java.js";
 
 export default defineRecipe({
   id: "base",
@@ -48,7 +48,7 @@ function applyJava(ctx: Parameters<Parameters<typeof defineRecipe>[0]["apply"]>[
   const data = {
     ...javaData(ctx),
     web,
-    compose: ctx.config.db === "postgres-docker" || ctx.config.auth === "oauth2",
+    compose: needsCompose(ctx.config),
     backendName: ctx.config.backend === "spring" ? (ctx.config.reactive ? "Spring Boot WebFlux" : "Spring Boot") : "Quarkus",
   };
   ctx.write(".gitignore", (ctx.read(".gitignore") ?? "") + JAVA_GITIGNORE);
