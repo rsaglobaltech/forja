@@ -9,7 +9,7 @@ export default defineRecipe({
     ctx.copyFile("ci/ci.yml.ejs", ".github/workflows/ci.yml", {
       java: isJava(ctx.config),
       web: ctx.config.platforms.includes("web"),
-      backendName: ctx.config.backend === "quarkus" ? "Quarkus" : "Spring Boot",
+      backendName: ctx.config.backend === "quarkus" ? "Quarkus" : ctx.config.reactive ? "Spring Boot WebFlux" : "Spring Boot",
       versions,
     });
   },

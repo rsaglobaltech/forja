@@ -1,0 +1,29 @@
+package <%= pkg %>.tasks.infrastructure.persistence;
+
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskId;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/** In-memory adapter (db = none): lost on restart. Swapping it for R2DBC does not touch the domain. */
+@Repository
+class InMemoryTaskRepository implements TaskRepository {
+  private final Map<TaskId, Task> tasks = new ConcurrentHashMap<>();
+
+  @Override
+  public Mono<Void> save(Task task) { return Mono.fromRunnable(() -> tasks.put(task.id(), task)); }
+
+  @Override
+  public Mono<Task> findById(TaskId id) { return Mono.fromSupplier(() -> tasks.get(id)); }
+
+  @Override
+  public Flux<Task> findByOwner(String owner) {
+    return Flux.defer(() -> Flux.fromStream(tasks.values().stream().filter(t -> t.ownedBy(owner))
+        .sorted(Comparator.comparing(Task::createdAt).reversed())));
+  }
+}

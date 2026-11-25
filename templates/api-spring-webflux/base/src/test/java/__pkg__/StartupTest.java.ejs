@@ -1,0 +1,35 @@
+package <%= pkg %>;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import java.time.Clock;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+<% if (config.db === "postgres-docker") { -%>
+import org.springframework.context.annotation.Import;
+<% } -%>
+
+/**
+ * The application starts with its real pieces, no test doubles. Other tests replace pieces;
+ * this one checks that the real ones exist and are wired (green tests with an app that does not start is a
+ * failure that has already happened).
+ */
+@SpringBootTest
+<% if (config.db === "postgres-docker") { -%>
+@Import(TestcontainersConfiguration.class)
+<% } -%>
+class StartupTest {
+  @Autowired TaskRepository tasks;
+  @Autowired CurrentUser user;
+  @Autowired Clock clock;
+
+  @Test
+  void theRealPiecesAreWired() {
+    assertThat(tasks.getClass().getSimpleName()).startsWith("<%= config.db === "postgres-docker" ? "R2dbcTaskRepository" : "InMemoryTaskRepository" %>");
+    assertThat(user.getClass().getSimpleName()).startsWith("<%= config.auth === "oauth2" ? "JwtCurrentUser" : "LocalUser" %>");
+    assertThat(clock.getZone().getId()).isEqualTo("Z");
+  }
+}

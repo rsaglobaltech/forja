@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Reactive Spring: `--backend spring --reactive`.** WebFlux + R2DBC, with Reactor (`Mono`/`Flux`) in the
+  ports and use cases; the domain stays pure Java and shared with the servlet stack. OAuth2 resource server
+  on `SecurityWebFilterChain`, RFC 9457 errors, Flyway over JDBC for the migrations, `WebTestClient` and
+  `StepVerifier` tests, and ArchUnit forbidding Reactor in the domain. The wizard asks for the stack;
+  servlet (MVC) stays the default. `forja add usecase` follows the project's stack.
+
 ## [1.0.8] — 2026-11-22
 
 ### Added

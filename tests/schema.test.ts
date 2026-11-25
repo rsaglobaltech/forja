@@ -27,6 +27,13 @@ describe("configuration", () => {
     expect(() => parseForjaConfig({ ...base, platforms: [] })).not.toThrow();
   });
 
+  it("reactive is for Spring only, and off by default", () => {
+    expect(parseForjaConfig(defaultJavaConfig("acme", "spring")).reactive).toBe(false);
+    expect(() => parseForjaConfig({ ...defaultJavaConfig("acme", "spring"), reactive: true })).not.toThrow();
+    expect(() => parseForjaConfig({ ...defaultJavaConfig("acme", "quarkus"), reactive: true })).toThrow(/reactive/);
+    expect(() => parseForjaConfig({ ...defaultConfig("acme"), reactive: true })).toThrow(/reactive/);
+  });
+
   it("ArchUnit, OAuth2 and javaPackage need a Java backend", () => {
     const node = defaultConfig("acme");
     expect(() => parseForjaConfig({ ...node, archunit: true })).toThrow(/archunit/);

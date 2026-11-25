@@ -32,27 +32,56 @@ export class JavaModule {
 
   addUseCase(changes: Changes, name: string, req?: Requirement): void {
     const title = req?.title ?? sentence(name);
+    const reactive = this.config.reactive;
     changes.create(
       `${this.main}/application/${name}.java`,
       `package ${this.pkg}.application;
-
+${reactive ? "\nimport reactor.core.publisher.Mono;\n" : ""}
 /**
  * Use case: ${title}.${req ? ` Specified by ${req.id}.` : ""}
  *
  * No annotations: it is instantiated in infrastructure/config. Ports
- * (application/port) come in through the constructor.
+ * (application/port) come in through the constructor.${reactive ? "\n * Reactive: nothing runs until someone subscribes." : ""}
  */
 public final class ${name} {
-  public void execute() {
+${
+  reactive
+    ? `  public Mono<Void> execute() {
     // The rule this use case enforces goes here.
-  }
+    return Mono.empty();
+  }`
+    : `  public void execute() {
+    // The rule this use case enforces goes here.
+  }`
+}
 }
 `,
     );
 
+    const disabled = `@Disabled("${req?.featureFile ? `to write: the scenario in ${req.featureFile}` : "to write: what the use case promises"}")`;
     changes.create(
       `${this.test}/application/${name}Test.java`,
-      `package ${this.pkg}.application;
+      reactive
+        ? `package ${this.pkg}.application;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import reactor.test.StepVerifier;
+
+@DisplayName("${req ? `${req.id} ` : ""}${title}")
+class ${name}Test {
+  @Test
+  void runs() {
+    StepVerifier.create(new ${name}().execute()).verifyComplete();
+  }
+
+  @Test
+  ${disabled}
+  void provesTheScenario() {}
+}
+`
+        : `package ${this.pkg}.application;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -68,7 +97,7 @@ class ${name}Test {
   }
 
   @Test
-  @Disabled("${req?.featureFile ? `to write: the scenario in ${req.featureFile}` : "to write: what the use case promises"}")
+  ${disabled}
   void provesTheScenario() {}
 }
 `,

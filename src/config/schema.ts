@@ -33,6 +33,8 @@ const baseConfigSchema = z.object({
     .optional(),
   /** Architecture rules with ArchUnit (Java backends only). */
   archunit: z.boolean().default(false),
+  /** Spring only: WebFlux + R2DBC, with Reactor (Mono/Flux) in the ports and use cases. */
+  reactive: z.boolean().default(false),
   arch: ArchSchema,
   db: DbSchema,
   auth: AuthSchema,
@@ -58,6 +60,9 @@ export const ForjaConfigSchema = baseConfigSchema.superRefine((cfg, ctx) => {
 
   if (!java && cfg.platforms.length === 0) {
     fail(["platforms"], "Choose at least one platform");
+  }
+  if (cfg.reactive && cfg.backend !== "spring") {
+    fail(["reactive"], "--reactive is for --backend spring (WebFlux)");
   }
   if (java) {
     if (cfg.platforms.includes("mobile")) {
@@ -114,6 +119,7 @@ export const defaultJavaConfig = (name: string, backend: "spring" | "quarkus"): 
   backend,
   javaPackage: undefined,
   archunit: true,
+  reactive: false,
   arch: "hexagonal",
   db: "postgres-docker",
   auth: "oauth2",
@@ -136,6 +142,7 @@ export const defaultConfig = (name: string): ForjaConfig => ({
   backend: "node",
   javaPackage: undefined,
   archunit: false,
+  reactive: false,
   arch: "hexagonal",
   db: "postgres-docker",
   auth: "sessions",

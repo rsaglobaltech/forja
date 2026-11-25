@@ -1,0 +1,30 @@
+package <%= pkg %>.tasks.application;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskId;
+import <%= pkg %>.tasks.domain.TaskNotFound;
+import java.time.Clock;
+import reactor.core.publisher.Mono;
+
+/** Another user's task responds as if it did not exist: which ids exist is never revealed. */
+public final class CompleteTask {
+  private final TaskRepository tasks;
+  private final CurrentUser user;
+  private final Clock clock;
+
+  public CompleteTask(TaskRepository tasks, CurrentUser user, Clock clock) {
+    this.tasks = tasks;
+    this.user = user;
+    this.clock = clock;
+  }
+
+  public Mono<Task> execute(String id) {
+    return user.id()
+        .flatMap(owner -> tasks.findById(TaskId.of(id)).filter(t -> t.ownedBy(owner)))
+        .switchIfEmpty(Mono.error(() -> TaskNotFound.withId(id)))
+        .map(task -> task.complete(clock.instant()))
+        .flatMap(done -> tasks.save(done).thenReturn(done));
+  }
+}

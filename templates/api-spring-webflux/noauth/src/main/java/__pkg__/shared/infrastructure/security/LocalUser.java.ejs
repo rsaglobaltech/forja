@@ -1,0 +1,14 @@
+package <%= pkg %>.shared.infrastructure.security;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+
+/** No authentication (auth = none): every request belongs to the same local user. */
+@Component
+class LocalUser implements CurrentUser {
+  static final String ID = "local-user";
+
+  @Override
+  public Mono<String> id() { return Mono.just(ID); }
+}

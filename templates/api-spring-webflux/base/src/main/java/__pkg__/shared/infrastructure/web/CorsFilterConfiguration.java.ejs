@@ -1,0 +1,30 @@
+package <%= pkg %>.shared.infrastructure.web;
+
+import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+
+/**
+ * CORS as the very first filter: a browser's preflight (OPTIONS, no token) is answered here, before
+ * security can reject it.
+ */
+@Configuration(proxyBeanMethods = false)
+class CorsFilterConfiguration {
+  @Bean
+  @Order(Ordered.HIGHEST_PRECEDENCE)
+  CorsWebFilter corsWebFilter(@Value("${app.cors.allowed-origins}") String origins) {
+    CorsConfiguration cors = new CorsConfiguration();
+    cors.setAllowedOrigins(List.of(origins.split("\\s*,\\s*")));
+    cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
+    cors.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/api/**", cors);
+    return new CorsWebFilter(source);
+  }
+}

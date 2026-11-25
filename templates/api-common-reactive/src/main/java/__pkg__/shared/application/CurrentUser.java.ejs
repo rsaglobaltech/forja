@@ -1,0 +1,11 @@
+package <%= pkg %>.shared.application;
+
+import reactor.core.publisher.Mono;
+
+/**
+ * Port: who is making the request. Reactive because, under WebFlux, the user lives in the Reactor context
+ * (not in a thread-local): the adapter reads it from the OAuth2 token, or a local user without auth.
+ */
+public interface CurrentUser {
+  Mono<String> id();
+}
