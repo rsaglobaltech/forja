@@ -1,0 +1,70 @@
+package <%= pkg %>.assistant.infrastructure.web;
+
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.application.AddNote;
+<% } -%>
+import <%= pkg %>.assistant.application.AskAssistant;
+import <%= pkg %>.assistant.domain.Answer;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import java.util.List;
+<% if (ai.store !== "none") { -%>
+import org.springframework.http.HttpStatus;
+<% } -%>
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+<% if (ai.store !== "none") { -%>
+import org.springframework.web.bind.annotation.ResponseStatus;
+<% } -%>
+import org.springframework.web.bind.annotation.RestController;
+
+/** Inbound REST adapter: translates HTTP ⇄ the assistant's use cases. */
+@RestController
+@RequestMapping("/api/assistant")
+@Tag(name = "assistant")
+class AssistantController {
+  record QuestionRequest(@NotNull String question) {}
+
+  record AnswerResponse(String answer, List<String> sources) {
+    static AnswerResponse of(Answer a) { return new AnswerResponse(a.text(), a.sources()); }
+  }
+<% if (ai.store !== "none") { -%>
+
+  record NoteRequest(@NotNull String title, @NotNull String text) {}
+
+  record NoteResponse(String title) {}
+<% } -%>
+
+  private final AskAssistant askAssistant;
+<% if (ai.store !== "none") { -%>
+  private final AddNote addNote;
+
+  AssistantController(AskAssistant askAssistant, AddNote addNote) {
+    this.askAssistant = askAssistant;
+    this.addNote = addNote;
+  }
+<% } else { -%>
+
+  AssistantController(AskAssistant askAssistant) {
+    this.askAssistant = askAssistant;
+  }
+<% } -%>
+
+  @PostMapping("/answers")
+  @Operation(summary = "<%= ai.store !== "none" ? "Ask the assistant: it answers from your notes" : "Ask the assistant" %>")
+  AnswerResponse ask(@Valid @RequestBody QuestionRequest request) {
+    return AnswerResponse.of(askAssistant.execute(request.question()));
+  }
+<% if (ai.store !== "none") { -%>
+
+  @PostMapping("/notes")
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Teach the assistant something: only you will get answers from it")
+  NoteResponse addNote(@Valid @RequestBody NoteRequest request) {
+    return new NoteResponse(addNote.execute(request.title(), request.text()).title());
+  }
+<% } -%>
+}

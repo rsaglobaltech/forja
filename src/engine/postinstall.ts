@@ -1,5 +1,6 @@
 import { execa } from "execa";
 import { isJava, type ForjaConfig } from "../config/schema.js";
+import { aiData } from "../recipes/java.js";
 
 export interface PostinstallOptions {
   targetDir: string;
@@ -90,16 +91,16 @@ function nextStepsJava(
   // Quarkus starts its own PostgreSQL in dev and tests (Dev Services); the
   // compose one serves Spring, and Keycloak serves both.
   const composeDb = config.db === "postgres-docker" && config.backend === "spring";
-  if (composeDb || config.auth === "oauth2") {
-    steps.push(
-      "docker compose up -d          # " +
-        [
-          composeDb ? "PostgreSQL" : "",
-          config.auth === "oauth2" ? "Keycloak (demo / demo)" : "",
-        ]
-          .filter(Boolean)
-          .join(" + "),
-    );
+  const ai = config.backend === "spring" ? aiData(config) : undefined;
+  const services = [
+    composeDb ? (ai?.store === "pgvector" ? "PostgreSQL + pgvector" : "PostgreSQL") : "",
+    config.auth === "oauth2" ? "Keycloak (demo / demo)" : "",
+    ai && ai.store !== "none" && ai.store !== "pgvector" ? storeNames[ai.store] : "",
+    ai?.ollama ? "Ollama" : "",
+  ].filter(Boolean);
+  if (services.length > 0) steps.push("docker compose up -d          # " + services.join(" + "));
+  if (ai && (ai.chat !== "ollama" || (ai.embeddings !== undefined && ai.embeddings !== "ollama"))) {
+    steps.push("cp apps/api/.env.example apps/api/.env   # and fill in the API key");
   }
   if (!installDeps) steps.push("npm install");
   steps.push(
@@ -111,6 +112,8 @@ function nextStepsJava(
   steps.push(...specgateSteps(config, result));
   return steps;
 }
+
+const storeNames: Record<string, string> = { qdrant: "Qdrant", redis: "Redis", elasticsearch: "Elasticsearch" };
 
 function e2eSteps(config: ForjaConfig): string[] {
   if (!config.tests.includes("e2e-web")) return [];

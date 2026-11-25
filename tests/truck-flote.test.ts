@@ -152,9 +152,9 @@ describe("F15: no terminal, no questions", () => {
 });
 
 describe("F16: a new Java project has no known vulnerability", () => {
-  it("pins Spring Boot 4.1.2, whose Tomcat and Jackson OSV lists clean", async () => {
+  it("pins Spring Boot 4.1.3, whose Tomcat, Jackson, Netty and Spring OSV lists clean (2026-11-25)", async () => {
     const read = await render(parseForjaConfig({ ...defaultJavaConfig("fleet", "spring") }));
-    expect(read("apps/api/pom.xml")).toMatch(/<artifactId>spring-boot-starter-parent<\/artifactId>\s*<version>4\.1\.2<\/version>/);
+    expect(read("apps/api/pom.xml")).toMatch(/<artifactId>spring-boot-starter-parent<\/artifactId>\s*<version>4\.1\.3<\/version>/);
   });
 });
 

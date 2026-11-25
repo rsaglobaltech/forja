@@ -1,0 +1,19 @@
+package <%= pkg %>.assistant.domain;
+
+import java.util.List;
+
+/** The assistant's reply<% if (ai.store !== "none") { %> and the titles of the notes it was built from<% } %>. */
+public record Answer(String text, List<String> sources) {
+<% if (ai.store !== "none") { -%>
+  /** Said without asking the model: nothing in the user's notes is close enough to the question. */
+  public static final String NOTHING_FOUND = "Nothing in your notes covers that yet.";
+
+  public static Answer nothingFound() {
+    return new Answer(NOTHING_FOUND, List.of());
+  }
+
+<% } -%>
+  public Answer {
+    sources = List.copyOf(sources);
+  }
+}

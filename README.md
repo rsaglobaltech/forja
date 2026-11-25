@@ -82,6 +82,9 @@ Details in [`design/java-backends.md`](design/java-backends.md).
 | `--java-package` | e.g. `com.acme.shop` (default `com.<name>`) |
 | `--archunit` / `--no-archunit` | architecture rules (Java) |
 | `--reactive` | Spring WebFlux + R2DBC, Mono/Flux in ports and use cases (`--backend spring`) |
+| `--ai` | Spring AI chat model: `anthropic` · `openai` · `ollama` · `google-genai` (`--backend spring`) |
+| `--vector-store` | RAG over each user's notes: `pgvector` (needs `--db postgres-docker`) · `qdrant` · `redis` · `elasticsearch` |
+| `--embeddings` | `openai` · `ollama` · `google-genai`; defaults to `--ai`, required with `anthropic` (no embeddings model) |
 | `--platforms` | `web,mobile` (Java: `web`, or `""` for an API only) |
 | `--db` | `postgres-docker` · `none` |
 | `--auth` | `sessions` (Node) · `oauth2` (Java) · `none` |

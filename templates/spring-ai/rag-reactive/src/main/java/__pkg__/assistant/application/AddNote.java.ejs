@@ -1,0 +1,22 @@
+package <%= pkg %>.assistant.application;
+
+import <%= pkg %>.assistant.application.port.KnowledgeBase;
+import <%= pkg %>.assistant.domain.Note;
+import <%= pkg %>.shared.application.CurrentUser;
+import reactor.core.publisher.Mono;
+
+/** Use case: the current user teaches the assistant something. Only they will get answers from it. */
+public final class AddNote {
+  private final KnowledgeBase notes;
+  private final CurrentUser user;
+
+  public AddNote(KnowledgeBase notes, CurrentUser user) {
+    this.notes = notes;
+    this.user = user;
+  }
+
+  public Mono<Note> execute(String title, String text) {
+    return Mono.fromCallable(() -> new Note(title, text)).zipWith(user.id())
+        .flatMap(t -> notes.add(t.getT2(), t.getT1()).thenReturn(t.getT1()));
+  }
+}

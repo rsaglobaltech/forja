@@ -1,0 +1,26 @@
+package <%= pkg %>.assistant.domain;
+
+import <%= pkg %>.shared.domain.DomainException;
+
+/** Something the user wants the assistant to know. The assistant answers only from the user's own notes. */
+public record Note(String title, String text) {
+  public static final int MAX_TITLE = 120;
+  public static final int MAX_TEXT = 20_000;
+
+  public Note {
+    title = required(title, MAX_TITLE, "title");
+    text = required(text, MAX_TEXT, "text");
+  }
+
+  private static String required(String value, int max, String field) {
+    if (value == null || value.isBlank()) {
+      throw new DomainException("invalid_note", DomainException.Kind.INVALID, "The note needs a " + field + ".");
+    }
+    String stripped = value.strip();
+    if (stripped.length() > max) {
+      throw new DomainException("invalid_note", DomainException.Kind.INVALID,
+          "The note's " + field + " has at most " + max + " characters.");
+    }
+    return stripped;
+  }
+}

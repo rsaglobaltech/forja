@@ -47,6 +47,9 @@ interface InitFlags {
   javaPackage?: string;
   archunit?: boolean;
   reactive?: boolean;
+  ai?: string;
+  vectorStore?: string;
+  embeddings?: string;
   platforms?: string;
   skipInstall?: boolean;
   skipGit?: boolean;
@@ -96,6 +99,9 @@ function applyFlags(
         ? base.archunit
         : (flags.archunit ?? base.archunit),
     reactive: flags.reactive ?? base.reactive,
+    ai: flags.ai ?? base.ai,
+    vectorStore: flags.vectorStore ?? base.vectorStore,
+    embeddings: flags.embeddings ?? base.embeddings,
   });
 }
 
@@ -107,6 +113,9 @@ program
   .option("--archunit", "architecture rules with ArchUnit (Java backend)")
   .option("--no-archunit", "no ArchUnit")
   .option("--reactive", "Spring WebFlux + R2DBC, reactive end to end (--backend spring)")
+  .option("--ai <provider>", "Spring AI chat model: anthropic | openai | ollama | google-genai (--backend spring)")
+  .option("--vector-store <store>", "Spring AI vector store for RAG: pgvector | elasticsearch | redis | qdrant")
+  .option("--embeddings <provider>", "embeddings for the vector store: openai | ollama | google-genai")
   .option(
     "--platforms <platforms>",
     "web,mobile (Java: web, or empty for an API only)",

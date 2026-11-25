@@ -1,0 +1,87 @@
+package <%= pkg %>.assistant.infrastructure.web;
+
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.application.AddNote;
+<% } -%>
+import <%= pkg %>.assistant.application.AskAssistant;
+import <%= pkg %>.assistant.application.Reply;
+import <%= pkg %>.assistant.domain.Answer;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import java.util.List;
+<% if (ai.store !== "none") { -%>
+import org.springframework.http.HttpStatus;
+<% } -%>
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+<% if (ai.store !== "none") { -%>
+import org.springframework.web.bind.annotation.ResponseStatus;
+<% } -%>
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/**
+ * Inbound REST adapter. The same question two ways: {@code /answers} returns the finished answer as JSON;
+ * {@code /answers/stream} sends it as Server-Sent Events while the model writes it.
+ */
+@RestController
+@RequestMapping("/api/assistant")
+@Tag(name = "assistant")
+class AssistantController {
+  record QuestionRequest(@NotNull String question) {}
+
+  record AnswerResponse(String answer, List<String> sources) {
+    static AnswerResponse of(Answer a) { return new AnswerResponse(a.text(), a.sources()); }
+  }
+<% if (ai.store !== "none") { -%>
+
+  record NoteRequest(@NotNull String title, @NotNull String text) {}
+
+  record NoteResponse(String title) {}
+<% } -%>
+
+  private final AskAssistant askAssistant;
+<% if (ai.store !== "none") { -%>
+  private final AddNote addNote;
+
+  AssistantController(AskAssistant askAssistant, AddNote addNote) {
+    this.askAssistant = askAssistant;
+    this.addNote = addNote;
+  }
+<% } else { -%>
+
+  AssistantController(AskAssistant askAssistant) {
+    this.askAssistant = askAssistant;
+  }
+<% } -%>
+
+  @PostMapping("/answers")
+  @Operation(summary = "<%= ai.store !== "none" ? "Ask the assistant: it answers from your notes" : "Ask the assistant" %>")
+  Mono<AnswerResponse> ask(@Valid @RequestBody QuestionRequest request) {
+    return askAssistant.execute(request.question()).flatMap(Reply::toAnswer).map(AnswerResponse::of);
+  }
+
+  /** {@code sources} first (the note titles, comma-separated), then one {@code token} event per piece of text. */
+  @PostMapping(path = "/answers/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @Operation(summary = "Ask the assistant and receive the answer while it is written (Server-Sent Events)")
+  Flux<ServerSentEvent<String>> stream(@Valid @RequestBody QuestionRequest request) {
+    return askAssistant.execute(request.question()).flatMapMany(reply -> Flux.concat(
+        Mono.just(ServerSentEvent.builder(String.join(",", reply.sources())).event("sources").build()),
+        reply.text().map(token -> ServerSentEvent.builder(token).event("token").build())));
+  }
+<% if (ai.store !== "none") { -%>
+
+  @PostMapping("/notes")
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Teach the assistant something: only you will get answers from it")
+  Mono<NoteResponse> addNote(@Valid @RequestBody NoteRequest request) {
+    return addNote.execute(request.title(), request.text()).map(n -> new NoteResponse(n.title()));
+  }
+<% } -%>
+}

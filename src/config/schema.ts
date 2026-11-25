@@ -17,6 +17,12 @@ export const UiSchema = z.enum(["own"]);
 export const TestSchema = z.enum(["unit", "integration", "e2e-web"]);
 export const ExtraSchema = z.enum(["lint", "ci", "docker", "specgate"]);
 export const PmSchema = z.enum(["npm", "pnpm", "bun"]);
+/** Spring AI chat model provider (Spring only). */
+export const AiSchema = z.enum(["none", "anthropic", "openai", "ollama", "google-genai"]);
+/** Spring AI vector store: with one, the assistant answers from the user's notes (RAG). */
+export const VectorStoreSchema = z.enum(["none", "pgvector", "elasticsearch", "redis", "qdrant"]);
+/** Who turns text into vectors. Anthropic has no embeddings model, so it is a separate choice. */
+export const EmbeddingsSchema = z.enum(["openai", "ollama", "google-genai"]);
 
 const baseConfigSchema = z.object({
   name: z
@@ -35,6 +41,11 @@ const baseConfigSchema = z.object({
   archunit: z.boolean().default(false),
   /** Spring only: WebFlux + R2DBC, with Reactor (Mono/Flux) in the ports and use cases. */
   reactive: z.boolean().default(false),
+  /** Spring only: Spring AI with this chat model, and the sample `assistant` module. */
+  ai: AiSchema.default("none"),
+  vectorStore: VectorStoreSchema.default("none"),
+  /** Needed with a vector store; defaults to the chat provider when it has embeddings. */
+  embeddings: EmbeddingsSchema.optional(),
   arch: ArchSchema,
   db: DbSchema,
   auth: AuthSchema,
@@ -63,6 +74,20 @@ export const ForjaConfigSchema = baseConfigSchema.superRefine((cfg, ctx) => {
   }
   if (cfg.reactive && cfg.backend !== "spring") {
     fail(["reactive"], "--reactive is for --backend spring (WebFlux)");
+  }
+  if (cfg.ai !== "none" && cfg.backend !== "spring") {
+    fail(["ai"], "--ai (Spring AI) is for --backend spring");
+  }
+  if (cfg.vectorStore !== "none") {
+    if (cfg.ai === "none") fail(["vectorStore"], "--vector-store needs --ai: the assistant answers from the store");
+    if (cfg.vectorStore === "pgvector" && cfg.db !== "postgres-docker") {
+      fail(["vectorStore"], "pgvector lives in PostgreSQL: use --db postgres-docker, or another vector store");
+    }
+    if (!embeddingsOf(cfg)) {
+      fail(["embeddings"], "anthropic has no embeddings model: add --embeddings openai, ollama or google-genai");
+    }
+  } else if (cfg.embeddings) {
+    fail(["embeddings"], "--embeddings is for a vector store: add --vector-store");
   }
   if (java) {
     if (cfg.platforms.includes("mobile")) {
@@ -103,6 +128,14 @@ export const ForjaConfigSchema = baseConfigSchema.superRefine((cfg, ctx) => {
 
 export type ForjaConfig = z.infer<typeof baseConfigSchema>;
 
+/** The embeddings provider: the one asked for, or the chat provider when it has embeddings. */
+export function embeddingsOf(
+  config: Pick<ForjaConfig, "ai" | "embeddings">,
+): z.infer<typeof EmbeddingsSchema> | undefined {
+  if (config.embeddings) return config.embeddings;
+  return config.ai === "openai" || config.ai === "ollama" || config.ai === "google-genai" ? config.ai : undefined;
+}
+
 export function isJava(config: Pick<ForjaConfig, "backend">): boolean {
   return config.backend === "spring" || config.backend === "quarkus";
 }
@@ -120,6 +153,9 @@ export const defaultJavaConfig = (name: string, backend: "spring" | "quarkus"): 
   javaPackage: undefined,
   archunit: true,
   reactive: false,
+  ai: "none",
+  vectorStore: "none",
+  embeddings: undefined,
   arch: "hexagonal",
   db: "postgres-docker",
   auth: "oauth2",
@@ -143,6 +179,9 @@ export const defaultConfig = (name: string): ForjaConfig => ({
   javaPackage: undefined,
   archunit: false,
   reactive: false,
+  ai: "none",
+  vectorStore: "none",
+  embeddings: undefined,
   arch: "hexagonal",
   db: "postgres-docker",
   auth: "sessions",

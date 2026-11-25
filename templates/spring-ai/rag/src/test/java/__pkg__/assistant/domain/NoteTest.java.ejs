@@ -1,0 +1,17 @@
+package <%= pkg %>.assistant.domain;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import <%= pkg %>.shared.domain.DomainException;
+import org.junit.jupiter.api.Test;
+
+class NoteTest {
+  @Test
+  void needsATitleAndAText() {
+    assertThat(new Note(" Billing ", " Invoices go out on Mondays. ")).isEqualTo(new Note("Billing", "Invoices go out on Mondays."));
+    assertThatThrownBy(() -> new Note("", "text"))
+        .isInstanceOfSatisfying(DomainException.class, e -> assertThat(e.code()).isEqualTo("invalid_note"));
+    assertThatThrownBy(() -> new Note("title", "x".repeat(Note.MAX_TEXT + 1))).isInstanceOf(DomainException.class);
+  }
+}

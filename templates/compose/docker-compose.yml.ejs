@@ -2,7 +2,12 @@
 services:
 <% if (config.db === "postgres-docker") { -%>
   db:
+<% if (ai && ai.store === "pgvector") { -%>
+    # PostgreSQL with pgvector: the tasks and the assistant's notes in one database.
+    image: pgvector/pgvector:<%= versions.pgvector %>
+<% } else { -%>
     image: postgres:<%= versions.postgres %>
+<% } -%>
     environment:
       POSTGRES_DB: <%= dbName %>
       POSTGRES_USER: postgres
@@ -41,8 +46,58 @@ services:
       retries: 30
       start_period: 10s
 <% } -%>
-<% if (config.db === "postgres-docker") { -%>
+<% if (ai && ai.store === "qdrant") { -%>
+  qdrant:
+    image: qdrant/qdrant:<%= versions.qdrant %>
+    ports: ["6333:6333", "6334:6334"]   # REST (dashboard at /dashboard) and gRPC (Spring AI)
+    volumes: ["qdrant-data:/qdrant/storage"]
+<% } -%>
+<% if (ai && ai.store === "redis") { -%>
+  redis:
+    # Redis 8 ships the query engine (vector search) in the official image.
+    image: redis:<%= versions.redis %>
+    ports: ["${REDIS_PORT:-6379}:6379"]
+    volumes: ["redis-data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+<% } -%>
+<% if (ai && ai.store === "elasticsearch") { -%>
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:<%= versions.elasticsearch %>
+    # Development only: a single node, no security.
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports: ["9200:9200"]
+    volumes: ["es-data:/usr/share/elasticsearch/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      retries: 30
+<% } -%>
+<% if (ai && ai.ollama) { -%>
+  ollama:
+    image: ollama/ollama:<%= versions.ollama %>
+    # The API pulls its models here on first start (spring.ai.ollama.init); they stay in the volume.
+    ports: ["11434:11434"]
+    volumes: ["ollama-data:/root/.ollama"]
+<% } -%>
+<%
+  const volumes = [
+    config.db === "postgres-docker" && "db-data",
+    ai && ai.store === "qdrant" && "qdrant-data",
+    ai && ai.store === "redis" && "redis-data",
+    ai && ai.store === "elasticsearch" && "es-data",
+    ai && ai.ollama && "ollama-data",
+  ].filter(Boolean);
+-%>
+<% if (volumes.length > 0) { -%>
 
 volumes:
-  db-data:
+<% for (const v of volumes) { -%>
+  <%= v %>:
+<% } -%>
 <% } -%>

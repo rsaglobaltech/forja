@@ -1,0 +1,87 @@
+package <%= pkg %>.assistant.application;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import <%= pkg %>.assistant.domain.Answer;
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.shared.application.CurrentUser;
+<% } -%>
+import <%= pkg %>.shared.domain.DomainException;
+import org.junit.jupiter.api.Test;
+<% if (ai.store !== "none") { -%>
+import reactor.core.publisher.Mono;
+<% } -%>
+import reactor.test.StepVerifier;
+
+class AssistantUseCasesTest {
+  private final FakeLanguageModel model = new FakeLanguageModel();
+<% if (ai.store !== "none") { -%>
+  private final InMemoryNotes notes = new InMemoryNotes();
+  private String who = "ana";
+  private final CurrentUser user = () -> Mono.fromSupplier(() -> who);
+
+  private AskAssistant ask() { return new AskAssistant(model, notes, user); }
+
+  private void addBilling() {
+    new AddNote(notes, user).execute("Billing", "Invoices go out on the first Monday.").block();
+  }
+
+  @Test
+  void answersFromMyNotesAndSaysWhich() {
+    addBilling();
+    StepVerifier.create(ask().execute("When do invoices go out?").flatMap(Reply::toAnswer))
+        .assertNext(answer -> {
+          assertThat(answer.text()).contains("Invoices go out on the first Monday.");
+          assertThat(answer.sources()).containsExactly("Billing");
+        })
+        .verifyComplete();
+  }
+
+  @Test
+  void theTextStreamsInPieces() {
+    addBilling();
+    StepVerifier.create(ask().execute("When do invoices go out?").flatMapMany(Reply::text))
+        .expectNext("From Billing: ", "Invoices go out on the first Monday.")
+        .verifyComplete();
+  }
+
+  @Test
+  void withNothingCloseTheModelIsNotAsked() {
+    addBilling();
+    StepVerifier.create(ask().execute("Who painted Guernica?").flatMap(Reply::toAnswer))
+        .expectNext(Answer.nothingFound())
+        .verifyComplete();
+    assertThat(model.calls).isZero();
+  }
+
+  @Test
+  void someoneElsesNotesDoNotExistForMe() {
+    addBilling();
+    who = "luis";
+    StepVerifier.create(ask().execute("When do invoices go out?").flatMap(Reply::toAnswer))
+        .expectNext(Answer.nothingFound())
+        .verifyComplete();
+  }
+
+  @Test
+  void anInvalidQuestionNeverReachesTheNotes() {
+    StepVerifier.create(ask().execute("  ")).expectError(DomainException.class).verify();
+    StepVerifier.create(new AddNote(notes, user).execute("", "text")).expectError(DomainException.class).verify();
+    assertThat(notes.searches).isZero();
+  }
+<% } else { -%>
+
+  @Test
+  void theModelAnswersInPieces() {
+    StepVerifier.create(new AskAssistant(model).execute(" What is hexagonal architecture? ").flatMapMany(Reply::text))
+        .expectNext("You asked: ", "What is hexagonal architecture?")
+        .verifyComplete();
+  }
+
+  @Test
+  void anInvalidQuestionNeverReachesTheModel() {
+    StepVerifier.create(new AskAssistant(model).execute("  ")).expectError(DomainException.class).verify();
+    assertThat(model.calls).isZero();
+  }
+<% } -%>
+}

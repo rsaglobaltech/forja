@@ -1,6 +1,7 @@
 import { isJava, type ForjaConfig } from "../config/schema.js";
 import type { Recipe } from "../recipes/types.js";
 import { recipeRegistry } from "../recipes/registry.js";
+import { needsCompose } from "../recipes/java.js";
 
 /**
  * ForjaConfig → the ordered list of recipes to apply.
@@ -49,7 +50,7 @@ export function planRecipes(config: ForjaConfig): Recipe[] {
  */
 export function planJava(config: ForjaConfig): string[] {
   const ids = ["base", `api-${config.backend}`];
-  if (config.db === "postgres-docker" || config.auth === "oauth2") ids.push("compose");
+  if (needsCompose(config)) ids.push("compose");
   if (config.auth === "oauth2") ids.push("keycloak");
   if (config.platforms.includes("web")) {
     ids.push("shared", "web-java");

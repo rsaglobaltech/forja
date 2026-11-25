@@ -1,0 +1,142 @@
+package <%= pkg %>.assistant.infrastructure;
+
+import static org.assertj.core.api.Assertions.assertThat;
+<% if (config.auth === "oauth2") { -%>
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
+<% } -%>
+
+<% if (containers) { -%>
+import <%= pkg %>.TestcontainersConfiguration;
+<% } -%>
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.domain.Answer;
+<% } -%>
+import java.util.List;
+<% if (config.auth === "oauth2" || ai.store !== "none") { -%>
+import java.util.UUID;
+<% } -%>
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
+import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+/**
+ * The assistant end to end, non-blocking: HTTP → use case → Spring AI<%= ai.store !== "none" ? ` → ${ai.store} (real, in a container)` : "" %>.
+ * Only the models are doubles (FakeAiConfiguration).
+ */
+@SpringBootTest(properties = {
+    "spring.ai.model.chat=none", "spring.ai.model.embedding=none", "spring.ai.model.embedding.text=none",
+<% if (ai.store !== "none") { -%>
+    "app.assistant.min-similarity=0.2",
+<% } -%>
+})
+@AutoConfigureWebTestClient
+@Import({FakeAiConfiguration.class<%= containers ? ", TestcontainersConfiguration.class" : "" %>})
+class AssistantApiTest {
+  @Autowired WebTestClient http;
+<% if (config.auth === "oauth2") { -%>
+
+  /** A different user per test: tests do not interfere even when they share a store. */
+  private final String ana = "ana-" + UUID.randomUUID();
+  private final String luis = "luis-" + UUID.randomUUID();
+
+  private WebTestClient as(String user) {
+    return http.mutateWith(mockJwt().jwt(j -> j.subject(user)));
+  }
+<% } else { -%>
+
+  private final String ana = "local-user";
+
+  private WebTestClient as(String user) {
+    return http;
+  }
+<% } -%>
+
+  private WebTestClient.ResponseSpec post(String user, String uri, String json) {
+    return as(user).post().uri(uri).contentType(MediaType.APPLICATION_JSON).bodyValue(json).exchange();
+  }
+
+  private WebTestClient.ResponseSpec ask(String user, String question) {
+    return post(user, "/api/assistant/answers", "{\"question\":\"" + question + "\"}");
+  }
+
+  private List<ServerSentEvent<String>> streamed(String user, String question) {
+    return as(user).post().uri("/api/assistant/answers/stream").contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.TEXT_EVENT_STREAM).bodyValue("{\"question\":\"" + question + "\"}").exchange()
+        .expectStatus().isOk()
+        .returnResult(new ParameterizedTypeReference<ServerSentEvent<String>>() {})
+        .getResponseBody().collectList().block();
+  }
+<% if (ai.store !== "none") { -%>
+
+  @Test
+  void answersFromMyNotesAsJsonOrAsAStream() {
+    // A word only this test uses: the store is shared across tests<%= config.auth === "oauth2" ? "" : " and users" %>.
+    String code = "Z" + UUID.randomUUID().toString().substring(0, 8);
+    post(ana, "/api/assistant/notes", "{\"title\":\"Billing\",\"text\":\"Invoices go out on the first Monday, code " + code + ".\"}")
+        .expectStatus().isCreated().expectBody().jsonPath("$.title").isEqualTo("Billing");
+    String question = "When do invoices go out, the first Monday? " + code;
+    ask(ana, question).expectStatus().isOk().expectBody()
+        .jsonPath("$.answer").value(String.class, a -> assertThat(a).contains("Invoices go out on the first Monday"))
+        .jsonPath("$.sources[0]").isEqualTo("Billing");
+
+    List<ServerSentEvent<String>> events = streamed(ana, question);
+    assertThat(events.getFirst().event()).isEqualTo("sources");
+    assertThat(events.getFirst().data()).isEqualTo("Billing");
+    assertThat(events.subList(1, events.size())).hasSizeGreaterThan(1).allMatch(e -> "token".equals(e.event()));
+    assertThat(String.join("", events.subList(1, events.size()).stream().map(ServerSentEvent::data).toList()))
+        .contains("Invoices go out on the first Monday");
+  }
+
+  @Test
+  void withNothingCloseTheModelIsNotAsked() {
+    ask(ana, "Who painted Guernica?").expectStatus().isOk().expectBody()
+        .jsonPath("$.answer").isEqualTo(Answer.NOTHING_FOUND)
+        .jsonPath("$.sources.length()").isEqualTo(0);
+  }
+<% if (config.auth === "oauth2") { -%>
+
+  @Test
+  void someoneElsesNotesDoNotExistForMe() {
+    post(ana, "/api/assistant/notes", "{\"title\":\"Salary\",\"text\":\"My salary review happens in March.\"}")
+        .expectStatus().isCreated();
+    ask(luis, "When does the salary review happen in March?").expectBody().jsonPath("$.answer").isEqualTo(Answer.NOTHING_FOUND);
+  }
+
+  @Test
+  void withoutATokenIs401() {
+    http.post().uri("/api/assistant/answers").contentType(MediaType.APPLICATION_JSON).bodyValue("{\"question\":\"Hi\"}")
+        .exchange().expectStatus().isUnauthorized();
+  }
+<% } -%>
+
+  @Test
+  void anInvalidNoteIs422() {
+    post(ana, "/api/assistant/notes", "{\"title\":\" \",\"text\":\"text\"}")
+        .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT).expectBody().jsonPath("$.code").isEqualTo("invalid_note");
+  }
+<% } else { -%>
+
+  @Test
+  void theModelAnswersAsJsonOrAsAStream() {
+    ask(ana, "What is hexagonal architecture?").expectStatus().isOk().expectBody()
+        .jsonPath("$.answer").isEqualTo("Echo: What is hexagonal architecture?");
+    List<ServerSentEvent<String>> events = streamed(ana, "What is hexagonal architecture?");
+    assertThat(events.getFirst().event()).isEqualTo("sources");
+    assertThat(String.join("", events.stream().skip(1).map(ServerSentEvent::data).toList()))
+        .isEqualTo("Echo: What is hexagonal architecture?");
+  }
+<% } -%>
+
+  @Test
+  void anInvalidQuestionIs422() {
+    ask(ana, "  ").expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+        .expectBody().jsonPath("$.code").isEqualTo("invalid_question");
+  }
+}

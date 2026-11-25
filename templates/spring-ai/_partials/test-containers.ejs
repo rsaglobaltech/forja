@@ -1,0 +1,28 @@
+<% if (ai && ai.store === "qdrant") { -%>
+
+  @Bean
+  @ServiceConnection
+  QdrantContainer qdrant() {
+    return new QdrantContainer(DockerImageName.parse("qdrant/qdrant:<%= versions.qdrant %>"));
+  }
+<% } -%>
+<% if (ai && ai.store === "redis") { -%>
+
+  /** Redis 8 ships the query engine (vector search) in the official image. */
+  @Bean
+  @ServiceConnection(name = "redis")
+  GenericContainer<?> redis() {
+    return new GenericContainer<>(DockerImageName.parse("redis:<%= versions.redis %>")).withExposedPorts(6379);
+  }
+<% } -%>
+<% if (ai && ai.store === "elasticsearch") { -%>
+
+  @Bean
+  @ServiceConnection
+  ElasticsearchContainer elasticsearch() {
+    return new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:<%= versions.elasticsearch %>"))
+        .withEnv("xpack.security.enabled", "false")
+        .withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m")
+        .withStartupTimeout(Duration.ofMinutes(3));
+  }
+<% } -%>

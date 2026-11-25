@@ -1,0 +1,36 @@
+package <%= pkg %>.assistant.infrastructure.config;
+
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.application.AddNote;
+<% } -%>
+import <%= pkg %>.assistant.application.AskAssistant;
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.application.port.KnowledgeBase;
+<% } -%>
+import <%= pkg %>.assistant.application.port.LanguageModel;
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.shared.application.CurrentUser;
+<% } -%>
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/** The only place that knows both the use cases and Spring: they are wired here. */
+@Configuration(proxyBeanMethods = false)
+class AssistantConfiguration {
+<% if (ai.store !== "none") { -%>
+  @Bean
+  AskAssistant askAssistant(LanguageModel model, KnowledgeBase notes, CurrentUser user) {
+    return new AskAssistant(model, notes, user);
+  }
+
+  @Bean
+  AddNote addNote(KnowledgeBase notes, CurrentUser user) {
+    return new AddNote(notes, user);
+  }
+<% } else { -%>
+  @Bean
+  AskAssistant askAssistant(LanguageModel model) {
+    return new AskAssistant(model);
+  }
+<% } -%>
+}
