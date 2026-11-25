@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-11-25
+
 ### Added
 
 - **Reactive Spring: `--backend spring --reactive`.** WebFlux + R2DBC, with Reactor (`Mono`/`Flux`) in the
