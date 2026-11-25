@@ -186,6 +186,19 @@ async function runJavaWizard(name: string, backend: "spring" | "quarkus"): Promi
       initialValue: true,
     }),
   );
+  const reactive =
+    backend === "spring"
+      ? await ask(
+          p.select({
+            message: "Spring web stack",
+            options: [
+              { value: false, label: "Servlet (Spring MVC + JDBC)" },
+              { value: true, label: "Reactive (WebFlux + R2DBC, Mono/Flux end to end)" },
+            ],
+            initialValue: false,
+          }),
+        )
+      : false;
   const web = await ask(p.confirm({ message: "A web app (Next.js 16)?", initialValue: true }));
   const db = await ask(
     p.select({
@@ -207,6 +220,54 @@ async function runJavaWizard(name: string, backend: "spring" | "quarkus"): Promi
       initialValue: "oauth2",
     }),
   );
+  const ai =
+    backend === "spring"
+      ? await ask(
+          p.select({
+            message: "Spring AI (an `assistant` module with a chat model)",
+            options: [
+              { value: "none", label: "No" },
+              { value: "anthropic", label: "Anthropic (Claude)" },
+              { value: "openai", label: "OpenAI" },
+              { value: "ollama", label: "Ollama", hint: "local models in docker compose, no API key" },
+              { value: "google-genai", label: "Google Gemini" },
+            ],
+            initialValue: "none",
+          }),
+        )
+      : "none";
+  const vectorStore =
+    ai !== "none"
+      ? await ask(
+          p.select({
+            message: "Vector store (the assistant answers from each user's notes: RAG)",
+            options: [
+              { value: "none", label: "None (just the chat model)" },
+              ...(db === "postgres-docker"
+                ? [{ value: "pgvector", label: "PGVector", hint: "in the same PostgreSQL" }]
+                : []),
+              { value: "qdrant", label: "Qdrant" },
+              { value: "redis", label: "Redis" },
+              { value: "elasticsearch", label: "Elasticsearch" },
+            ],
+            initialValue: db === "postgres-docker" ? "pgvector" : "qdrant",
+          }),
+        )
+      : "none";
+  const embeddings =
+    vectorStore !== "none" && ai === "anthropic"
+      ? await ask(
+          p.select({
+            message: "Embeddings (Anthropic has no embeddings model)",
+            options: [
+              { value: "openai", label: "OpenAI" },
+              { value: "ollama", label: "Ollama", hint: "local, no API key" },
+              { value: "google-genai", label: "Google Gemini" },
+            ],
+            initialValue: "openai",
+          }),
+        )
+      : undefined;
   const design = web
     ? await ask(
         p.select({
@@ -248,6 +309,10 @@ async function runJavaWizard(name: string, backend: "spring" | "quarkus"): Promi
     backend,
     javaPackage,
     archunit,
+    reactive,
+    ai,
+    vectorStore,
+    embeddings,
     arch: "hexagonal",
     db,
     auth,

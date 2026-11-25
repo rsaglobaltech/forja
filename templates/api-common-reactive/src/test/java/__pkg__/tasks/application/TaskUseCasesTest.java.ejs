@@ -1,0 +1,56 @@
+package <%= pkg %>.tasks.application;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskNotFound;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+class TaskUseCasesTest {
+  private final InMemoryTasks tasks = new InMemoryTasks();
+  private final Clock clock = Clock.fixed(Instant.parse("2026-01-01T10:00:00Z"), ZoneOffset.UTC);
+  private String who = "ana";
+  private final CurrentUser user = () -> Mono.fromSupplier(() -> who);
+
+  private Task create(String title) {
+    return new CreateTask(tasks, user, clock).execute(title).block();
+  }
+
+  @Test
+  void createAndListMine() {
+    Task t = create("Call the customer");
+    who = "luis";
+    create("Something else");
+    who = "ana";
+    StepVerifier.create(new ListMyTasks(tasks, user).execute().map(Task::id))
+        .expectNext(t.id())
+        .verifyComplete();
+  }
+
+  @Test
+  void someoneElsesTaskDoesNotExistForMe() {
+    Task t = create("Private");
+    who = "luis";
+    StepVerifier.create(new CompleteTask(tasks, user, clock).execute(t.id().toString()))
+        .expectError(TaskNotFound.class)
+        .verify();
+  }
+
+  @Test
+  void completeMine() {
+    Task t = create("Send the invoice");
+    StepVerifier.create(new CompleteTask(tasks, user, clock).execute(t.id().toString()))
+        .expectNextMatches(Task::done)
+        .verifyComplete();
+  }
+
+  @Test
+  void nothingHappensUntilSubscribed() {
+    new CreateTask(tasks, user, clock).execute("Never saved");
+    StepVerifier.create(new ListMyTasks(tasks, user).execute()).verifyComplete();
+  }
+}

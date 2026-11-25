@@ -1,0 +1,17 @@
+package <%= pkg %>.assistant.application.port;
+
+import <%= pkg %>.assistant.domain.Question;
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.domain.Passage;
+import java.util.List;
+<% } -%>
+
+/** Outbound port: a language model that writes the answer. The adapter is Spring AI's ChatClient. */
+public interface LanguageModel {
+<% if (ai.store !== "none") { -%>
+  /** Answers from the given passages only. */
+  String answer(Question question, List<Passage> context);
+<% } else { -%>
+  String answer(Question question);
+<% } -%>
+}

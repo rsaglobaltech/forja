@@ -56,6 +56,7 @@ forja --version
 | --- | --- | --- | --- | --- |
 | `node` | `packages/core` in TypeScript | Next.js (+ Expo) | built-in sessions | Drizzle + PostgreSQL |
 | `spring` | `apps/api` — Spring Boot 4.1, Java 21 | Next.js 16 | OAuth2/OIDC (Keycloak) | JDBC + Flyway + PostgreSQL |
+| `spring --reactive` | `apps/api` — Spring Boot 4.1 WebFlux, Java 21 | Next.js 16 | OAuth2/OIDC (Keycloak) | R2DBC + Flyway + PostgreSQL |
 | `quarkus` | `apps/api` — Quarkus 3.40, Java 21 | Next.js 16 | OAuth2/OIDC (Keycloak) | JDBC + Flyway + PostgreSQL |
 
 Always hexagonal. With Java you also get:
@@ -80,6 +81,10 @@ Details in [`design/java-backends.md`](design/java-backends.md).
 | `--backend` | `node` · `spring` · `quarkus` |
 | `--java-package` | e.g. `com.acme.shop` (default `com.<name>`) |
 | `--archunit` / `--no-archunit` | architecture rules (Java) |
+| `--reactive` | Spring WebFlux + R2DBC, Mono/Flux in ports and use cases (`--backend spring`) |
+| `--ai` | Spring AI chat model: `anthropic` · `openai` · `ollama` · `google-genai` (`--backend spring`) |
+| `--vector-store` | RAG over each user's notes: `pgvector` (needs `--db postgres-docker`) · `qdrant` · `redis` · `elasticsearch` |
+| `--embeddings` | `openai` · `ollama` · `google-genai`; defaults to `--ai`, required with `anthropic` (no embeddings model) |
 | `--platforms` | `web,mobile` (Java: `web`, or `""` for an API only) |
 | `--db` | `postgres-docker` · `none` |
 | `--auth` | `sessions` (Node) · `oauth2` (Java) · `none` |

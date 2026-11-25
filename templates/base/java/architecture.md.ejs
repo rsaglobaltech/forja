@@ -6,7 +6,7 @@ domain**.
 ```
 infrastructure  ──►  application  ──►  domain
  (Spring/Quarkus,     (use cases,        (entities, value objects,
-  REST, JDBC,          ports)             rules: pure Java)
+  REST, <%= config.reactive ? 'R2DBC,' : 'JDBC, ' %>         ports)             rules: pure Java)
   security)
 ```
 

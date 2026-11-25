@@ -195,6 +195,19 @@ describe("forja add — java", () => {
     });
   }
 
+  it("spring reactive: the use case returns Mono and its test subscribes", async () => {
+    const { project, read } = await generate(parseForjaConfig({ ...defaultJavaConfig("shop", "spring"), reactive: true }));
+    await add(project, "usecase", "tasks/ArchiveTask", { spec: false }, neverAsked);
+    const useCase = read("apps/api/src/main/java/com/shop/tasks/application/ArchiveTask.java");
+    expect(useCase).toContain("import reactor.core.publisher.Mono;");
+    expect(useCase).toContain("public Mono<Void> execute()");
+    const test = read("apps/api/src/test/java/com/shop/tasks/application/ArchiveTaskTest.java");
+    expect(test).toContain("StepVerifier.create(new ArchiveTask().execute()).verifyComplete();");
+    expect(read("apps/api/src/main/java/com/shop/tasks/infrastructure/config/TasksConfiguration.java")).toContain(
+      "@Bean\n  ArchiveTask",
+    );
+  });
+
   it("every Java class needs its module", async () => {
     const { project } = await generate(parseForjaConfig(defaultJavaConfig("shop", "spring")));
     await expect(add(project, "entity", "Order", {}, neverAsked)).rejects.toThrow(/needs its module/);

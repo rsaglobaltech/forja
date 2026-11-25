@@ -1,0 +1,19 @@
+<% if (ai && ai.store === "qdrant") { -%>
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-spring-boot-testcontainers</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-qdrant</artifactId>
+      <scope>test</scope>
+    </dependency>
+<% } -%>
+<% if (ai && ai.store === "elasticsearch") { -%>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-elasticsearch</artifactId>
+      <scope>test</scope>
+    </dependency>
+<% } -%>

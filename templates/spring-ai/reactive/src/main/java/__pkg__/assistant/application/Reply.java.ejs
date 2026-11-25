@@ -1,0 +1,21 @@
+package <%= pkg %>.assistant.application;
+
+import <%= pkg %>.assistant.domain.Answer;
+import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/**
+ * The assistant's reply as it is being written: the sources are known up front, the text arrives in pieces.
+ * It lives in the application layer because it holds a Flux; the domain's {@link Answer} is the finished one.
+ */
+public record Reply(List<String> sources, Flux<String> text) {
+  public Reply {
+    sources = List.copyOf(sources);
+  }
+
+  /** Waits for the whole text. */
+  public Mono<Answer> toAnswer() {
+    return text.reduce(new StringBuilder(), StringBuilder::append).map(t -> new Answer(t.toString(), sources));
+  }
+}

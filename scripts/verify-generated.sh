@@ -4,7 +4,7 @@
 # the mobile app bundled for iOS, Android and web plus `expo-doctor`, and the
 # Playwright end-to-end tests in a real browser.
 #
-#   scripts/verify-generated.sh node|spring|quarkus [workdir]
+#   scripts/verify-generated.sh node|spring|spring-reactive|quarkus [workdir]
 #
 # Run it locally before a merge or a release (build forja first:
 # `npm run build`). Java backends need a JDK 21 and Docker (Testcontainers,
@@ -12,7 +12,7 @@
 # run one backend at a time.
 set -euo pipefail
 
-backend="${1:?usage: verify-generated.sh node|spring|quarkus [workdir]}"
+backend="${1:?usage: verify-generated.sh node|spring|spring-reactive|quarkus [workdir]}"
 forja="$(cd "$(dirname "$0")/.." && pwd)/dist/cli.js"
 work="${2:-$(mktemp -d)}"
 name="demo-$backend"
@@ -26,7 +26,9 @@ if [ "$backend" = node ]; then
   node "$forja" init "$name" --yes --tests unit,integration,e2e-web --extras lint,ci,specgate --skip-git
 else
   step "forja init ($backend: PostgreSQL, OAuth2, ArchUnit, web, Playwright, extras)"
-  node "$forja" init "$name" --yes --backend "$backend" --java-package com.acme.demo \
+  stack=(--backend "$backend")
+  [ "$backend" = spring-reactive ] && stack=(--backend spring --reactive)
+  node "$forja" init "$name" --yes "${stack[@]}" --java-package com.acme.demo \
     --tests unit,integration,e2e-web --skip-git
 fi
 cd "$name"

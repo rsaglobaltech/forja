@@ -1,0 +1,28 @@
+<% if (ai) { -%>
+    <!-- Spring AI: the chat model<%= ai.store !== "none" ? ", the embeddings and the vector store" : "" %> (versions from spring-ai-bom). -->
+<% for (const starter of ai.starters) { -%>
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId><%= starter %></artifactId>
+    </dependency>
+<% } -%>
+<% if (ai.store !== "none") { -%>
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-starter-vector-store-<%= ai.store %></artifactId>
+    </dependency>
+<% } -%>
+<% if (ai.store === "elasticsearch") { -%>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-elasticsearch</artifactId>
+    </dependency>
+<% } -%>
+<% if (ai.store === "redis") { -%>
+    <!-- Spring AI's Redis store talks Jedis (Spring Boot's default client is Lettuce): spring.data.redis.client-type. -->
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+    </dependency>
+<% } -%>
+<% } -%>

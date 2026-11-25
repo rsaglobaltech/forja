@@ -1,0 +1,124 @@
+package <%= pkg %>.assistant.infrastructure;
+
+<% if (config.auth === "oauth2") { -%>
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+<% } -%>
+<% if (ai.store !== "none") { -%>
+import static org.hamcrest.Matchers.containsString;
+<% } -%>
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+<% if (containers) { -%>
+import <%= pkg %>.TestcontainersConfiguration;
+<% } -%>
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.domain.Answer;
+<% } -%>
+<% if (config.auth === "oauth2" || ai.store !== "none") { -%>
+import java.util.UUID;
+<% } -%>
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+
+/**
+ * The assistant end to end: HTTP → use case → Spring AI<%= ai.store !== "none" ? ` → ${ai.store} (real, in a container)` : "" %>.
+ * Only the models are doubles (FakeAiConfiguration).
+ */
+@SpringBootTest(properties = {
+    "spring.ai.model.chat=none", "spring.ai.model.embedding=none", "spring.ai.model.embedding.text=none",
+<% if (ai.store !== "none") { -%>
+    "app.assistant.min-similarity=0.2",
+<% } -%>
+})
+@AutoConfigureMockMvc
+@Import({FakeAiConfiguration.class<%= containers ? ", TestcontainersConfiguration.class" : "" %>})
+class AssistantApiTest {
+  @Autowired MockMvc mvc;
+<% if (config.auth === "oauth2") { -%>
+
+  /** A different user per test: tests do not interfere even when they share a store. */
+  private final String ana = "ana-" + UUID.randomUUID();
+  private final String luis = "luis-" + UUID.randomUUID();
+
+  private MockHttpServletRequestBuilder as(String user, MockHttpServletRequestBuilder request) {
+    return request.with(jwt().jwt(j -> j.subject(user)));
+  }
+<% } else { -%>
+
+  private final String ana = "local-user";
+
+  private MockHttpServletRequestBuilder as(String user, MockHttpServletRequestBuilder request) {
+    return request;
+  }
+<% } -%>
+
+  private ResultActions postJson(String user, String uri, String json) throws Exception {
+    return mvc.perform(as(user, post(uri)).contentType(MediaType.APPLICATION_JSON).content(json));
+  }
+
+  private ResultActions ask(String user, String question) throws Exception {
+    return postJson(user, "/api/assistant/answers", "{\"question\":\"" + question + "\"}");
+  }
+<% if (ai.store !== "none") { -%>
+
+  @Test
+  void answersFromMyNotes() throws Exception {
+    // A word only this test uses: the store is shared across tests<%= config.auth === "oauth2" ? "" : " and users" %>.
+    String code = "Z" + UUID.randomUUID().toString().substring(0, 8);
+    postJson(ana, "/api/assistant/notes", "{\"title\":\"Billing\",\"text\":\"Invoices go out on the first Monday, code " + code + ".\"}")
+        .andExpect(status().isCreated()).andExpect(jsonPath("$.title").value("Billing"));
+    ask(ana, "When do invoices go out, the first Monday? " + code).andExpect(status().isOk())
+        .andExpect(jsonPath("$.answer").value(containsString("Invoices go out on the first Monday")))
+        .andExpect(jsonPath("$.sources[0]").value("Billing"));
+  }
+
+  @Test
+  void withNothingCloseTheModelIsNotAsked() throws Exception {
+    ask(ana, "Who painted Guernica?").andExpect(status().isOk())
+        .andExpect(jsonPath("$.answer").value(Answer.NOTHING_FOUND))
+        .andExpect(jsonPath("$.sources.length()").value(0));
+  }
+<% if (config.auth === "oauth2") { -%>
+
+  @Test
+  void someoneElsesNotesDoNotExistForMe() throws Exception {
+    postJson(ana, "/api/assistant/notes", "{\"title\":\"Salary\",\"text\":\"My salary review happens in March.\"}")
+        .andExpect(status().isCreated());
+    ask(luis, "When does the salary review happen in March?").andExpect(jsonPath("$.answer").value(Answer.NOTHING_FOUND));
+  }
+
+  @Test
+  void withoutATokenIs401() throws Exception {
+    mvc.perform(post("/api/assistant/answers").contentType(MediaType.APPLICATION_JSON).content("{\"question\":\"Hi\"}"))
+        .andExpect(status().isUnauthorized());
+  }
+<% } -%>
+
+  @Test
+  void anInvalidNoteIs422() throws Exception {
+    postJson(ana, "/api/assistant/notes", "{\"title\":\" \",\"text\":\"text\"}").andExpect(status().isUnprocessableContent())
+        .andExpect(jsonPath("$.code").value("invalid_note"));
+  }
+<% } else { -%>
+
+  @Test
+  void theModelAnswers() throws Exception {
+    ask(ana, "What is hexagonal architecture?").andExpect(status().isOk())
+        .andExpect(jsonPath("$.answer").value("Echo: What is hexagonal architecture?"));
+  }
+<% } -%>
+
+  @Test
+  void anInvalidQuestionIs422() throws Exception {
+    ask(ana, "  ").andExpect(status().isUnprocessableContent()).andExpect(jsonPath("$.code").value("invalid_question"));
+  }
+}

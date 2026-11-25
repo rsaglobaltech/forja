@@ -1,0 +1,80 @@
+package <%= pkg %>.assistant.infrastructure.ai;
+
+import <%= pkg %>.assistant.application.port.KnowledgeBase;
+import <%= pkg %>.assistant.domain.Note;
+import <%= pkg %>.assistant.domain.Passage;
+import <%= pkg %>.assistant.domain.Question;
+<% if (ai.store === "elasticsearch") { -%>
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+<% } -%>
+import java.util.List;
+import java.util.Map;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+/**
+ * Adapter: notes in the vector store, each tagged with its owner. Every search filters by owner, so one
+ * user's notes never reach another user's answers.
+ */
+@Component
+class VectorStoreKnowledgeBase implements KnowledgeBase {
+  private final VectorStore store;
+  private final int topK;
+  private final double minSimilarity;
+<% if (ai.store === "elasticsearch") { -%>
+  private final String index;
+<% } -%>
+
+  VectorStoreKnowledgeBase(VectorStore store, @Value("${app.assistant.top-k}") int topK,
+      @Value("${app.assistant.min-similarity}") double minSimilarity<% if (ai.store === "elasticsearch") { %>,
+      @Value("${spring.ai.vectorstore.elasticsearch.index-name}") String index<% } %>) {
+    this.store = store;
+    this.topK = topK;
+<% if (ai.store === "redis") { -%>
+    // min-similarity is a cosine similarity, as pgvector, Qdrant and Elasticsearch read it. Spring AI's Redis
+    // store compares against (1 + cosine) / 2 instead: the same bar, on its scale.
+    this.minSimilarity = (1 + minSimilarity) / 2;
+<% } else { -%>
+    this.minSimilarity = minSimilarity;
+<% } -%>
+<% if (ai.store === "elasticsearch") { -%>
+    this.index = index;
+<% } -%>
+  }
+
+  @Override
+  public void add(String owner, Note note) {
+    store.add(List.of(new Document(note.text(), Map.of("owner", owner, "title", note.title()))));
+<% if (ai.store === "elasticsearch") { -%>
+    refresh();
+<% } -%>
+  }
+
+  @Override
+  public List<Passage> search(String owner, Question question) {
+    SearchRequest request = SearchRequest.builder().query(question.text()).topK(topK)
+        .similarityThreshold(minSimilarity)
+        .filterExpression(new FilterExpressionBuilder().eq("owner", owner).build())
+        .build();
+    return store.similaritySearch(request).stream()
+        .map(d -> new Passage(String.valueOf(d.getMetadata().get("title")), d.getText()))
+        .toList();
+  }
+<% if (ai.store === "elasticsearch") { -%>
+
+  /** Elasticsearch makes a write searchable on its next refresh (about a second): a note is usable at once. */
+  private void refresh() {
+    try {
+      store.<ElasticsearchClient>getNativeClient().orElseThrow().indices().refresh(r -> r.index(index));
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+<% } -%>
+}

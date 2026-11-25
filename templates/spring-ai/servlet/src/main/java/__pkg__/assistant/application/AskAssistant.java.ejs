@@ -1,0 +1,54 @@
+package <%= pkg %>.assistant.application;
+
+import <%= pkg %>.assistant.application.port.LanguageModel;
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.application.port.KnowledgeBase;
+import <%= pkg %>.assistant.domain.Passage;
+<% } -%>
+import <%= pkg %>.assistant.domain.Answer;
+import <%= pkg %>.assistant.domain.Question;
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.shared.application.CurrentUser;
+<% } -%>
+import java.util.List;
+
+<% if (ai.store !== "none") { -%>
+/**
+ * Use case: answer a question from the current user's notes (retrieval-augmented generation). The retrieval
+ * is here, not hidden in the AI library: when nothing in the notes is close enough, the model is not asked at
+ * all — no cost, and no answer made up from nothing.
+ */
+<% } else { -%>
+/** Use case: answer a question with the language model. No annotations: it is instantiated in infrastructure/config. */
+<% } -%>
+public final class AskAssistant {
+  private final LanguageModel model;
+<% if (ai.store !== "none") { -%>
+  private final KnowledgeBase notes;
+  private final CurrentUser user;
+
+  public AskAssistant(LanguageModel model, KnowledgeBase notes, CurrentUser user) {
+    this.model = model;
+    this.notes = notes;
+    this.user = user;
+  }
+
+  public Answer execute(String text) {
+    Question question = new Question(text);
+    List<Passage> context = notes.search(user.id(), question);
+    if (context.isEmpty()) return Answer.nothingFound();
+    List<String> sources = context.stream().map(Passage::title).distinct().toList();
+    return new Answer(model.answer(question, context), sources);
+  }
+<% } else { -%>
+
+  public AskAssistant(LanguageModel model) {
+    this.model = model;
+  }
+
+  public Answer execute(String text) {
+    Question question = new Question(text);
+    return new Answer(model.answer(question), List.of());
+  }
+<% } -%>
+}

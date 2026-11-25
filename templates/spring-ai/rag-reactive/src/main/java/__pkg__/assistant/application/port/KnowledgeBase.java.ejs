@@ -1,0 +1,15 @@
+package <%= pkg %>.assistant.application.port;
+
+import <%= pkg %>.assistant.domain.Note;
+import <%= pkg %>.assistant.domain.Passage;
+import <%= pkg %>.assistant.domain.Question;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/** Outbound port: where notes are kept, searchable by meaning. The adapter is a Spring AI vector store. */
+public interface KnowledgeBase {
+  Mono<Void> add(String owner, Note note);
+
+  /** The owner's passages closest to the question; empty when none is close enough. */
+  Flux<Passage> search(String owner, Question question);
+}

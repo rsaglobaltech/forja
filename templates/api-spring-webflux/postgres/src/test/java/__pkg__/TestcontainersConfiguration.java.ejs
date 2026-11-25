@@ -1,0 +1,63 @@
+package <%= pkg %>;
+
+<% if (ai && ai.store === "elasticsearch") { -%>
+import java.time.Duration;
+<% } -%>
+import org.springframework.boot.test.context.TestConfiguration;
+<% if (ai && ai.store !== "none" && ai.store !== "pgvector") { -%>
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+<% } -%>
+import org.springframework.context.annotation.Bean;
+<% if (config.db === "postgres-docker") { -%>
+import org.springframework.test.context.DynamicPropertyRegistrar;
+<% } -%>
+<% if (ai && ai.store === "redis") { -%>
+import org.testcontainers.containers.GenericContainer;
+<% } -%>
+<% if (ai && ai.store === "elasticsearch") { -%>
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
+<% } -%>
+<% if (config.db === "postgres-docker") { -%>
+import org.testcontainers.postgresql.PostgreSQLContainer;
+<% } -%>
+<% if (ai && ai.store === "qdrant") { -%>
+import org.testcontainers.qdrant.QdrantContainer;
+<% } -%>
+import org.testcontainers.utility.DockerImageName;
+
+/**
+ * Real services in Docker for the tests (Testcontainers).<% if (config.db === "postgres-docker") { %> The application reaches PostgreSQL more than once:
+ * R2DBC for the requests and JDBC for Flyway's migrations<%= ai && ai.store === "pgvector" ? " and the vector store" : "" %>, so every URL points at the same container.<% } %>
+ */
+@TestConfiguration(proxyBeanMethods = false)
+public class TestcontainersConfiguration {
+<% if (config.db === "postgres-docker") { -%>
+  @Bean
+  PostgreSQLContainer postgres() {
+<% if (ai && ai.store === "pgvector") { -%>
+    // PostgreSQL with the pgvector extension: the tasks and the assistant's notes in one database.
+    return new PostgreSQLContainer(DockerImageName.parse("pgvector/pgvector:<%= versions.pgvector %>").asCompatibleSubstituteFor("postgres"));
+<% } else { -%>
+    return new PostgreSQLContainer(DockerImageName.parse("postgres:<%= versions.postgres %>"));
+<% } -%>
+  }
+
+  @Bean
+  DynamicPropertyRegistrar database(PostgreSQLContainer pg) {
+    return registry -> {
+      registry.add("spring.r2dbc.url",
+          () -> "r2dbc:postgresql://" + pg.getHost() + ":" + pg.getMappedPort(5432) + "/" + pg.getDatabaseName());
+      registry.add("spring.r2dbc.username", pg::getUsername);
+      registry.add("spring.r2dbc.password", pg::getPassword);
+      registry.add("spring.flyway.url", pg::getJdbcUrl);
+      registry.add("spring.flyway.user", pg::getUsername);
+      registry.add("spring.flyway.password", pg::getPassword);
+<% if (ai && ai.store === "pgvector") { -%>
+      registry.add("app.ai.vectors.datasource.jdbc-url", pg::getJdbcUrl);
+      registry.add("app.ai.vectors.datasource.username", pg::getUsername);
+      registry.add("app.ai.vectors.datasource.password", pg::getPassword);
+<% } -%>
+    };
+  }
+<% } -%>
+<%- include('../../../../../../spring-ai/_partials/test-containers.ejs') %>}

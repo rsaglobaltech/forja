@@ -1,0 +1,120 @@
+package <%= pkg %>.tasks.infrastructure;
+
+<% if (config.auth === "oauth2") { -%>
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
+
+<% } -%>
+<% if (containers) { -%>
+import <%= pkg %>.TestcontainersConfiguration;
+<% } -%>
+<% if (config.auth === "oauth2") { -%>
+import java.util.UUID;
+<% } -%>
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
+<% if (containers) { -%>
+import org.springframework.context.annotation.Import;
+<% } -%>
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+/** The API end to end, non-blocking: HTTP → use case → adapter<%= config.db === "postgres-docker" ? " R2DBC (real PostgreSQL)" : "" %>. */
+@SpringBootTest
+@AutoConfigureWebTestClient
+<% if (containers) { -%>
+@Import(TestcontainersConfiguration.class)
+<% } -%>
+class TaskApiTest {
+  @Autowired WebTestClient http;
+<% if (config.auth === "oauth2") { -%>
+
+  /** A different user per test: tests do not interfere even when they share a database. */
+  private final String ana = "ana-" + UUID.randomUUID();
+  private final String luis = "luis-" + UUID.randomUUID();
+
+  private WebTestClient as(String user) {
+    return http.mutateWith(mockJwt().jwt(j -> j.subject(user)));
+  }
+<% } else { -%>
+
+  private final String ana = "local-user";
+
+  private WebTestClient as(String user) {
+    return http;
+  }
+<% } -%>
+
+  private WebTestClient.ResponseSpec post(String user, String uri, String json) {
+    return as(user).post().uri(uri).contentType(MediaType.APPLICATION_JSON).bodyValue(json).exchange();
+  }
+
+  @SuppressWarnings("unchecked")
+  private String create(String user, String title) {
+    Map<String, Object> body = post(user, "/api/tasks", "{\"title\":\"" + title + "\"}")
+        .expectStatus().isCreated()
+        .expectBody(Map.class).returnResult().getResponseBody();
+    return (String) body.get("id");
+  }
+
+  @Test
+  void createListAndComplete() {
+    String id = create(ana, "Prepare the demo");
+    as(ana).get().uri("/api/tasks").exchange().expectStatus().isOk()
+        .expectBody().jsonPath("$[?(@.id == '" + id + "')].title").isEqualTo("Prepare the demo");
+    as(ana).post().uri("/api/tasks/" + id + "/completion").exchange().expectStatus().isOk()
+        .expectBody().jsonPath("$.done").isEqualTo(true);
+    as(ana).post().uri("/api/tasks/" + id + "/completion").exchange().expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectBody().jsonPath("$.code").isEqualTo("task_already_done");
+  }
+
+  @Test
+  void errorsAreProblemDetails() {
+    post(ana, "/api/tasks", "{\"title\":\"  \"}").expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+        .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+        .expectBody().jsonPath("$.code").isEqualTo("invalid_title");
+    post(ana, "/api/tasks", "{\"title\":").expectStatus().isBadRequest()
+        .expectBody().jsonPath("$.code").isEqualTo("invalid_request");
+    post(ana, "/api/tasks", "{}").expectStatus().isBadRequest()
+        .expectBody().jsonPath("$.code").isEqualTo("invalid_request");
+    as(ana).post().uri("/api/tasks/not-an-id/completion").exchange().expectStatus().isNotFound()
+        .expectBody().jsonPath("$.code").isEqualTo("task_not_found");
+    as(ana).delete().uri("/api/tasks").exchange().expectStatus().isEqualTo(HttpStatus.METHOD_NOT_ALLOWED)
+        .expectBody().jsonPath("$.code").isEqualTo("method_not_allowed");
+  }
+<% if (config.auth === "oauth2") { -%>
+
+  @Test
+  void someoneElsesTaskDoesNotExistForMe() {
+    String id = create(ana, "Private");
+    as(luis).post().uri("/api/tasks/" + id + "/completion").exchange().expectStatus().isNotFound();
+    as(luis).get().uri("/api/tasks").exchange().expectBody().jsonPath("$.length()").isEqualTo(0);
+  }
+
+  @Test
+  void withoutATokenIs401() {
+    http.get().uri("/api/tasks").exchange().expectStatus().isUnauthorized()
+        .expectHeader().valueEquals("WWW-Authenticate", "Bearer")
+        .expectBody().jsonPath("$.code").isEqualTo("unauthorized");
+  }
+<% } -%>
+
+  @Test
+  void corsPreflightIsAnsweredWithoutAToken() {
+    // An absolute URI: CORS compares the Origin with the request's host, and a relative one has none.
+    http.options().uri("http://localhost:8080/api/tasks").header("Origin", "http://localhost:3000")
+        .header("Access-Control-Request-Method", "POST").exchange()
+        .expectStatus().isOk()
+        .expectHeader().valueEquals("Access-Control-Allow-Origin", "http://localhost:3000");
+  }
+
+  @Test
+  void healthAndOpenApiAreOpen() {
+    http.get().uri("/actuator/health").exchange().expectStatus().isOk();
+    http.get().uri("/v3/api-docs").exchange().expectStatus().isOk()
+        .expectBody().jsonPath("$.paths['/api/tasks']").exists();
+  }
+}

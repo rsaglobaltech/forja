@@ -1,0 +1,34 @@
+package <%= pkg %>.assistant.application;
+
+import <%= pkg %>.assistant.application.port.KnowledgeBase;
+import <%= pkg %>.assistant.domain.Note;
+import <%= pkg %>.assistant.domain.Passage;
+import <%= pkg %>.assistant.domain.Question;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+
+/** Test double for the port: "close" means sharing a word of four letters or more. */
+class InMemoryNotes implements KnowledgeBase {
+  private record Owned(String owner, Note note) {}
+
+  private final List<Owned> notes = new ArrayList<>();
+  int searches;
+
+  @Override
+  public void add(String owner, Note note) { notes.add(new Owned(owner, note)); }
+
+  @Override
+  public List<Passage> search(String owner, Question question) {
+    searches++;
+    List<String> words = words(question.text());
+    return notes.stream().filter(o -> o.owner().equals(owner))
+        .filter(o -> words(o.note().text()).stream().anyMatch(words::contains))
+        .map(o -> new Passage(o.note().title(), o.note().text())).toList();
+  }
+
+  private static List<String> words(String text) {
+    return Arrays.stream(text.toLowerCase(Locale.ROOT).split("[^\\p{L}\\p{N}]+")).filter(w -> w.length() >= 4).toList();
+  }
+}

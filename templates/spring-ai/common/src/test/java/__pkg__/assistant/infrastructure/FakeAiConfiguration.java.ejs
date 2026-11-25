@@ -1,0 +1,98 @@
+package <%= pkg %>.assistant.infrastructure;
+
+<% if (ai.store !== "none") { -%>
+import java.util.Arrays;
+<% } -%>
+import java.util.List;
+<% if (ai.store !== "none") { -%>
+import java.util.Locale;
+import java.util.stream.IntStream;
+<% } -%>
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.model.Generation;
+import org.springframework.ai.chat.prompt.Prompt;
+<% if (ai.store !== "none") { -%>
+import org.springframework.ai.document.Document;
+import org.springframework.ai.embedding.Embedding;
+import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.ai.embedding.EmbeddingRequest;
+import org.springframework.ai.embedding.EmbeddingResponse;
+<% } -%>
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import reactor.core.publisher.Flux;
+
+/**
+ * Models that need no network, no key and no money, for the API tests: the rest of the stack is real
+ * (Spring AI's ChatClient<%= ai.store !== "none" ? ", the vector store in a container" : "" %>). The tests turn the provider off
+ * ({@code spring.ai.model.*=none}) so these are the only models.
+ */
+@TestConfiguration(proxyBeanMethods = false)
+public class FakeAiConfiguration {
+  @Bean
+  ChatModel echoChatModel() {
+    return new EchoChatModel();
+  }
+<% if (ai.store !== "none") { -%>
+
+  @Bean
+  EmbeddingModel wordsEmbeddingModel() {
+    return new WordsEmbeddingModel(<%= ai.dimensions %>);
+  }
+<% } -%>
+
+  /** Answers with what it was asked (the notes included), so a test can see what reached the model. */
+  static class EchoChatModel implements ChatModel {
+    @Override
+    public ChatResponse call(Prompt prompt) {
+      return reply("Echo: " + prompt.getUserMessage().getText());
+    }
+
+    /** Word by word, like a real model streams tokens. */
+    @Override
+    public Flux<ChatResponse> stream(Prompt prompt) {
+      String text = "Echo: " + prompt.getUserMessage().getText();
+      return Flux.fromArray(text.split("(?<= )")).map(EchoChatModel::reply);
+    }
+
+    private static ChatResponse reply(String text) {
+      return new ChatResponse(List.of(new Generation(new AssistantMessage(text))));
+    }
+  }
+<% if (ai.store !== "none") { -%>
+
+  /** Deterministic embeddings: a vector of the words in the text, so texts sharing words are close. */
+  static class WordsEmbeddingModel implements EmbeddingModel {
+    private final int dimensions;
+
+    WordsEmbeddingModel(int dimensions) { this.dimensions = dimensions; }
+
+    @Override
+    public EmbeddingResponse call(EmbeddingRequest request) {
+      List<String> texts = request.getInstructions();
+      return new EmbeddingResponse(IntStream.range(0, texts.size())
+          .mapToObj(i -> new Embedding(vector(texts.get(i)), i)).toList());
+    }
+
+    @Override
+    public float[] embed(Document document) { return vector(document.getText()); }
+
+    @Override
+    public int dimensions() { return dimensions; }
+
+    private float[] vector(String text) {
+      float[] v = new float[dimensions];
+      Arrays.stream(text.toLowerCase(Locale.ROOT).split("[^\\p{L}\\p{N}]+")).filter(w -> w.length() >= 4)
+          .forEach(w -> v[Math.floorMod(w.hashCode(), dimensions)] += 1);
+      double norm = 0;
+      for (float x : v) norm += x * x;
+      if (norm == 0) { v[0] = 1; return v; }
+      float n = (float) Math.sqrt(norm);
+      for (int i = 0; i < v.length; i++) v[i] /= n;
+      return v;
+    }
+  }
+<% } -%>
+}

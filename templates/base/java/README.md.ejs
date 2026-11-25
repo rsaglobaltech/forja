@@ -42,6 +42,9 @@ apps/api/src/main/java/<%= pkgPath %>/
     domain/               Task, TaskTitle — pure Java
     application/          use cases + ports (application/port)
     infrastructure/       adapters: web (REST), persistence, config (wiring)
+<% if (ai) { -%>
+  assistant/              Spring AI module, same hexagon (domain/application know no AI library)
+<% } -%>
 <% if (web) { -%>
 apps/web/                 Next.js: pages, API client<% if (config.auth === "oauth2") { %>, Auth.js<% } %>
 packages/shared/          types shared by the web app
@@ -52,6 +55,34 @@ infra/keycloak/           development realm
 ```
 
 See [`docs/architecture.md`](docs/architecture.md): layers, how to add a module and what each test checks.
+<% if (ai) { -%>
+<% const providers = { anthropic: "Anthropic (Claude)", openai: "OpenAI", ollama: "Ollama", "google-genai": "Google Gemini" }; -%>
+
+## Assistant (Spring AI)
+
+Chat model: **<%= providers[ai.chat] %>**<% if (ai.store !== "none") { %>; notes in **<%= ai.store %>**, embedded with
+**<%= providers[ai.embeddings] %>** (<%= ai.dimensions %> dimensions)<% } %>.
+
+<% if (ai.chat !== "ollama" || (ai.embeddings && ai.embeddings !== "ollama")) { -%>
+1. `cp apps/api/.env.example apps/api/.env` and fill in the API key (the file is git-ignored).
+<% } -%>
+<% if (ai.ollama) { -%>
+1. `docker compose up -d` starts Ollama; the API downloads its models on first start (minutes, a few GB).
+<% } -%>
+<% if (ai.store !== "none") { -%>
+1. `POST /api/assistant/notes` `{"title", "text"}` teaches it something; only you get answers from your notes.
+<% } -%>
+1. `POST /api/assistant/answers` `{"question"}` → `{"answer", "sources"}`<% if (config.reactive) { %>, or
+   `POST /api/assistant/answers/stream` for Server-Sent Events while the model writes<% } %>.
+
+<% if (ai.store !== "none") { -%>
+When nothing in your notes is close enough (`app.assistant.min-similarity`), the model is not asked. Changing
+the embeddings model changes the vectors' size: <%= ai.store === "pgvector" ? "a new migration, and" : "a new index, and" %> embedding the notes again.
+The tests use fake models against the real store: they need Docker, never a key.
+<% } else { -%>
+The tests use a fake model: they never need a key or the network.
+<% } -%>
+<% } -%>
 <% if (config.extras.includes("specgate")) { -%>
 
 ## Specification (Specgate)

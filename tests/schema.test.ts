@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 import {
   defaultConfig,
+  embeddingsOf,
   defaultJavaConfig,
   formatConfigError,
   javaPackageOf,
@@ -25,6 +26,27 @@ describe("configuration", () => {
     expect(() => parseForjaConfig({ ...base, platforms: ["web", "mobile"] })).toThrow(/mobile/);
     expect(() => parseForjaConfig({ ...base, auth: "sessions" })).toThrow(/oauth2 or none/);
     expect(() => parseForjaConfig({ ...base, platforms: [] })).not.toThrow();
+  });
+
+  it("reactive is for Spring only, and off by default", () => {
+    expect(parseForjaConfig(defaultJavaConfig("acme", "spring")).reactive).toBe(false);
+    expect(() => parseForjaConfig({ ...defaultJavaConfig("acme", "spring"), reactive: true })).not.toThrow();
+    expect(() => parseForjaConfig({ ...defaultJavaConfig("acme", "quarkus"), reactive: true })).toThrow(/reactive/);
+    expect(() => parseForjaConfig({ ...defaultConfig("acme"), reactive: true })).toThrow(/reactive/);
+  });
+
+  it("Spring AI: Spring only; a vector store needs a model, embeddings, and PostgreSQL for pgvector", () => {
+    const spring = defaultJavaConfig("acme", "spring");
+    expect(parseForjaConfig(spring).ai).toBe("none");
+    expect(() => parseForjaConfig({ ...defaultJavaConfig("acme", "quarkus"), ai: "openai" })).toThrow(/--ai/);
+    expect(() => parseForjaConfig({ ...spring, vectorStore: "qdrant" })).toThrow(/needs --ai/);
+    expect(() => parseForjaConfig({ ...spring, ai: "openai", vectorStore: "pgvector", db: "none" })).toThrow(/pgvector/);
+    // Anthropic has no embeddings model: it has to be named.
+    expect(() => parseForjaConfig({ ...spring, ai: "anthropic", vectorStore: "qdrant" })).toThrow(/embeddings/);
+    expect(() => parseForjaConfig({ ...spring, ai: "anthropic", vectorStore: "qdrant", embeddings: "ollama" })).not.toThrow();
+    expect(() => parseForjaConfig({ ...spring, ai: "openai", embeddings: "ollama" })).toThrow(/--vector-store/);
+    expect(embeddingsOf({ ai: "google-genai", embeddings: undefined })).toBe("google-genai");
+    expect(embeddingsOf({ ai: "anthropic", embeddings: undefined })).toBeUndefined();
   });
 
   it("ArchUnit, OAuth2 and javaPackage need a Java backend", () => {

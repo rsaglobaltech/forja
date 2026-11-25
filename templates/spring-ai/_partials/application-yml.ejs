@@ -1,0 +1,102 @@
+<% if (ai) { -%>
+  # Secrets out of the repository: apps/api/.env (git-ignored; see .env.example) or the environment.
+  config:
+    import: optional:file:.env[.properties]
+  ai:
+    model:
+      # One provider per kind, so ChatClient and the vector store know which model to use.
+      chat: <%= ai.chat %>
+<% if (ai.embeddings === "google-genai") { -%>
+      embedding: none
+      embedding.text: google-genai
+<% } else { -%>
+      embedding: <%= ai.embeddings ?? "none" %>
+      embedding.text: none
+<% } -%>
+<% if (ai.starters.includes("spring-ai-starter-model-openai")) { -%>
+      # The OpenAI starter brings image, audio and moderation models too: not used here.
+      image: none
+      audio.speech: none
+      audio.transcription: none
+      moderation: none
+<% } -%>
+<% if (ai.chat === "anthropic") { -%>
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:}
+<% } -%>
+<% if (ai.chat === "openai" || ai.embeddings === "openai") { -%>
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+<% if (ai.embeddings === "openai") { -%>
+      embedding:
+        model: text-embedding-3-small
+<% } -%>
+<% } -%>
+<% if (ai.ollama) { -%>
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+<% if (ai.chat === "ollama") { -%>
+      chat:
+        model: ${OLLAMA_CHAT_MODEL:llama3.2}
+<% } -%>
+<% if (ai.embeddings === "ollama") { -%>
+      embedding:
+        model: nomic-embed-text
+<% } -%>
+      init:
+        # The first start downloads the models into the compose Ollama (a few GB): it can take minutes.
+        pull-model-strategy: when_missing
+        timeout: 15m
+<% } -%>
+<% if (ai.chat === "google-genai" || ai.embeddings === "google-genai") { -%>
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY:}
+<% if (ai.embeddings === "google-genai") { -%>
+        embedding:
+          api-key: ${GEMINI_API_KEY:}
+          text:
+            model: gemini-embedding-001
+            # Gemini embeds in 3072 dimensions by default; 768 keeps pgvector's index and memory small.
+            dimensions: <%= ai.dimensions %>
+<% } -%>
+<% } -%>
+<% if (ai.store !== "none") { -%>
+    vectorstore:
+      type: <%= ai.store %>
+<% if (ai.store === "pgvector") { -%>
+      pgvector:
+        # The table is created by Flyway (db/migration/V2__assistant_notes.sql), not by Spring AI.
+        table-name: assistant_note
+        initialize-schema: false
+        dimensions: <%= ai.dimensions %>
+<% } else if (ai.store === "qdrant") { -%>
+      qdrant:
+        host: ${QDRANT_HOST:localhost}
+        port: ${QDRANT_GRPC_PORT:6334}
+        collection-name: assistant_notes
+        initialize-schema: true
+<% } else if (ai.store === "redis") { -%>
+      redis:
+        index-name: assistant-notes
+        prefix: "assistant-note:"
+        initialize-schema: true
+<% } else if (ai.store === "elasticsearch") { -%>
+      elasticsearch:
+        index-name: assistant-notes
+        dimensions: <%= ai.dimensions %>
+        initialize-schema: true
+<% } -%>
+<% } -%>
+<% if (ai.store === "redis") { -%>
+  data:
+    redis:
+      client-type: jedis
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+<% } -%>
+<% if (ai.store === "elasticsearch") { -%>
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+<% } -%>
+<% } -%>

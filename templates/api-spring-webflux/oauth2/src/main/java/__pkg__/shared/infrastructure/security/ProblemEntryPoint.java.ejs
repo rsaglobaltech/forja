@@ -1,0 +1,27 @@
+package <%= pkg %>.shared.infrastructure.security;
+
+import java.nio.charset.StandardCharsets;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+/** No token or an invalid token: 401 in the same RFC 9457 format as every other error. */
+class ProblemEntryPoint implements ServerAuthenticationEntryPoint {
+  private static final byte[] BODY = """
+      {"type":"about:blank","title":"Unauthorized","status":401,"detail":"A valid token is required.","code":"unauthorized"}"""
+      .getBytes(StandardCharsets.UTF_8);
+
+  @Override
+  public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
+    ServerHttpResponse response = exchange.getResponse();
+    response.setStatusCode(HttpStatus.UNAUTHORIZED);
+    response.getHeaders().set(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
+    response.getHeaders().setContentType(MediaType.APPLICATION_PROBLEM_JSON);
+    return response.writeWith(Mono.fromSupplier(() -> response.bufferFactory().wrap(BODY)));
+  }
+}

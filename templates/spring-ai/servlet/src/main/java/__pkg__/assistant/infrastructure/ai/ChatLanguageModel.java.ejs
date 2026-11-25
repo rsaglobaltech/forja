@@ -1,0 +1,31 @@
+package <%= pkg %>.assistant.infrastructure.ai;
+
+import <%= pkg %>.assistant.application.port.LanguageModel;
+import <%= pkg %>.assistant.domain.Question;
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.domain.Passage;
+import java.util.List;
+<% } -%>
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.stereotype.Component;
+
+/** Adapter: the language model through Spring AI's ChatClient (the provider is configured in application.yml). */
+@Component
+class ChatLanguageModel implements LanguageModel {
+  private final ChatClient chat;
+
+  ChatLanguageModel(ChatClient.Builder chat) {
+    this.chat = chat.defaultSystem(Prompts.SYSTEM).build();
+  }
+
+  @Override
+<% if (ai.store !== "none") { -%>
+  public String answer(Question question, List<Passage> context) {
+    return chat.prompt().user(Prompts.user(question, context)).call().content();
+  }
+<% } else { -%>
+  public String answer(Question question) {
+    return chat.prompt().user(Prompts.user(question)).call().content();
+  }
+<% } -%>
+}

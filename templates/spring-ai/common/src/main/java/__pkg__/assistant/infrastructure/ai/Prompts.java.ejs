@@ -1,0 +1,34 @@
+package <%= pkg %>.assistant.infrastructure.ai;
+
+import <%= pkg %>.assistant.domain.Question;
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.assistant.domain.Passage;
+import java.util.List;
+import java.util.stream.Collectors;
+<% } -%>
+
+/** What the model is told. One place, so the servlet and reactive adapters (and their tests) agree. */
+final class Prompts {
+  private Prompts() {}
+
+<% if (ai.store !== "none") { -%>
+  static final String SYSTEM = """
+      You are the assistant of <%= config.name %>. Answer in the language of the question, briefly.
+      Use only the user's notes given below the question. If they do not answer it, say so: never make
+      anything up. Name the notes you used by their title, in square brackets.""";
+
+  static String user(Question question, List<Passage> context) {
+    return question.text() + "\n\nNotes:\n" + context.stream()
+        .map(p -> "[" + p.title() + "]\n" + p.text())
+        .collect(Collectors.joining("\n\n"));
+  }
+<% } else { -%>
+  static final String SYSTEM = """
+      You are the assistant of <%= config.name %>. Answer in the language of the question, briefly.
+      If you do not know, say so: never make anything up.""";
+
+  static String user(Question question) {
+    return question.text();
+  }
+<% } -%>
+}

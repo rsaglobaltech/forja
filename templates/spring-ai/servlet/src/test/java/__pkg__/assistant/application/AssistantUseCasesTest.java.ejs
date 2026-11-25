@@ -1,0 +1,64 @@
+package <%= pkg %>.assistant.application;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import <%= pkg %>.assistant.domain.Answer;
+<% if (ai.store !== "none") { -%>
+import <%= pkg %>.shared.application.CurrentUser;
+<% } -%>
+import <%= pkg %>.shared.domain.DomainException;
+import org.junit.jupiter.api.Test;
+
+class AssistantUseCasesTest {
+  private final FakeLanguageModel model = new FakeLanguageModel();
+<% if (ai.store !== "none") { -%>
+  private final InMemoryNotes notes = new InMemoryNotes();
+  private String who = "ana";
+  private final CurrentUser user = () -> who;
+
+  private AskAssistant ask() { return new AskAssistant(model, notes, user); }
+
+  @Test
+  void answersFromMyNotesAndSaysWhich() {
+    new AddNote(notes, user).execute("Billing", "Invoices go out on the first Monday.");
+    Answer answer = ask().execute("When do invoices go out?");
+    assertThat(answer.text()).contains("Invoices go out on the first Monday.");
+    assertThat(answer.sources()).containsExactly("Billing");
+  }
+
+  @Test
+  void withNothingCloseTheModelIsNotAsked() {
+    new AddNote(notes, user).execute("Billing", "Invoices go out on the first Monday.");
+    assertThat(ask().execute("Who painted Guernica?")).isEqualTo(Answer.nothingFound());
+    assertThat(model.calls).isZero();
+  }
+
+  @Test
+  void someoneElsesNotesDoNotExistForMe() {
+    new AddNote(notes, user).execute("Billing", "Invoices go out on the first Monday.");
+    who = "luis";
+    assertThat(ask().execute("When do invoices go out?")).isEqualTo(Answer.nothingFound());
+  }
+
+  @Test
+  void anInvalidQuestionNeverReachesTheNotes() {
+    assertThatThrownBy(() -> ask().execute("  ")).isInstanceOf(DomainException.class);
+    assertThatThrownBy(() -> new AddNote(notes, user).execute("", "text")).isInstanceOf(DomainException.class);
+    assertThat(notes.searches).isZero();
+  }
+<% } else { -%>
+
+  @Test
+  void theModelAnswers() {
+    assertThat(new AskAssistant(model).execute(" What is hexagonal architecture? ").text())
+        .isEqualTo("You asked: What is hexagonal architecture?");
+  }
+
+  @Test
+  void anInvalidQuestionNeverReachesTheModel() {
+    assertThatThrownBy(() -> new AskAssistant(model).execute("  ")).isInstanceOf(DomainException.class);
+    assertThat(model.calls).isZero();
+  }
+<% } -%>
+}

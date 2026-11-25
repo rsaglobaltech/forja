@@ -1,0 +1,22 @@
+package <%= pkg %>.assistant.application;
+
+import <%= pkg %>.assistant.application.port.KnowledgeBase;
+import <%= pkg %>.assistant.domain.Note;
+import <%= pkg %>.shared.application.CurrentUser;
+
+/** Use case: the current user teaches the assistant something. Only they will get answers from it. */
+public final class AddNote {
+  private final KnowledgeBase notes;
+  private final CurrentUser user;
+
+  public AddNote(KnowledgeBase notes, CurrentUser user) {
+    this.notes = notes;
+    this.user = user;
+  }
+
+  public Note execute(String title, String text) {
+    Note note = new Note(title, text);
+    notes.add(user.id(), note);
+    return note;
+  }
+}
