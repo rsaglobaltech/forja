@@ -1,0 +1,40 @@
+package <%= pkg %>.shared.infrastructure.security;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import reactor.core.publisher.Mono;
+
+/**
+ * OAuth2 resource server on WebFlux: the API validates the JWT issued by the provider (Keycloak in development)
+ * and keeps no session. Health and docs stay open; all of /api/** requires a token. CORS is answered before
+ * this chain (CorsFilterConfiguration).
+ */
+@Configuration(proxyBeanMethods = false)
+class SecurityConfiguration {
+  @Bean
+  SecurityWebFilterChain api(ServerHttpSecurity http) {
+    ProblemEntryPoint unauthorized = new ProblemEntryPoint();
+    return http
+        .csrf(ServerHttpSecurity.CsrfSpec::disable)
+        .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+        .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+        .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+        .authorizeExchange(auth -> auth
+            .pathMatchers("/actuator/health/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**")
+            .permitAll()
+            .pathMatchers("/api/**").authenticated()
+            .anyExchange().denyAll())
+        .oauth2ResourceServer(oauth -> oauth
+            .jwt(Customizer.withDefaults())
+            .authenticationEntryPoint(unauthorized))
+        .exceptionHandling(e -> e.authenticationEntryPoint(unauthorized)
+            .accessDeniedHandler((exchange, denied) ->
+                Mono.fromRunnable(() -> exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN))))
+        .build();
+  }
+}

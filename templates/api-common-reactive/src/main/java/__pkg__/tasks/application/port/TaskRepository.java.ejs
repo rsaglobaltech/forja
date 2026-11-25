@@ -1,0 +1,17 @@
+package <%= pkg %>.tasks.application.port;
+
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskId;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/** Outbound port: where tasks live, non-blocking. Adapters in infrastructure/persistence. */
+public interface TaskRepository {
+  Mono<Void> save(Task task);
+
+  /** Empty when it does not exist. */
+  Mono<Task> findById(TaskId id);
+
+  /** The user's tasks, newest first. */
+  Flux<Task> findByOwner(String owner);
+}

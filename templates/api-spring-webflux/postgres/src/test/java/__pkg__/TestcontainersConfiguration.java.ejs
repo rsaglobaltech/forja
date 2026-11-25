@@ -1,0 +1,32 @@
+package <%= pkg %>;
+
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.DynamicPropertyRegistrar;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
+
+/**
+ * A real PostgreSQL in Docker for the tests (Testcontainers). The application reaches it twice: R2DBC for the
+ * requests and JDBC for Flyway's migrations, so both URLs point at the same container.
+ */
+@TestConfiguration(proxyBeanMethods = false)
+public class TestcontainersConfiguration {
+  @Bean
+  PostgreSQLContainer postgres() {
+    return new PostgreSQLContainer(DockerImageName.parse("postgres:17-alpine"));
+  }
+
+  @Bean
+  DynamicPropertyRegistrar database(PostgreSQLContainer pg) {
+    return registry -> {
+      registry.add("spring.r2dbc.url",
+          () -> "r2dbc:postgresql://" + pg.getHost() + ":" + pg.getMappedPort(5432) + "/" + pg.getDatabaseName());
+      registry.add("spring.r2dbc.username", pg::getUsername);
+      registry.add("spring.r2dbc.password", pg::getPassword);
+      registry.add("spring.flyway.url", pg::getJdbcUrl);
+      registry.add("spring.flyway.user", pg::getUsername);
+      registry.add("spring.flyway.password", pg::getPassword);
+    };
+  }
+}

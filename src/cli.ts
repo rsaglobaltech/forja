@@ -46,6 +46,7 @@ interface InitFlags {
   backend?: string;
   javaPackage?: string;
   archunit?: boolean;
+  reactive?: boolean;
   platforms?: string;
   skipInstall?: boolean;
   skipGit?: boolean;
@@ -94,6 +95,7 @@ function applyFlags(
       base.backend === "node"
         ? base.archunit
         : (flags.archunit ?? base.archunit),
+    reactive: flags.reactive ?? base.reactive,
   });
 }
 
@@ -104,6 +106,7 @@ program
   .option("--java-package <pkg>", "root Java package, e.g. com.acme.shop")
   .option("--archunit", "architecture rules with ArchUnit (Java backend)")
   .option("--no-archunit", "no ArchUnit")
+  .option("--reactive", "Spring WebFlux + R2DBC, reactive end to end (--backend spring)")
   .option(
     "--platforms <platforms>",
     "web,mobile (Java: web, or empty for an API only)",

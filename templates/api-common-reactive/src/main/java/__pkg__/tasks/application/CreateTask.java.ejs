@@ -1,0 +1,30 @@
+package <%= pkg %>.tasks.application;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskTitle;
+import java.time.Clock;
+import reactor.core.publisher.Mono;
+
+/**
+ * Use case: create a task for the current user. No annotations: it is instantiated in infrastructure/config.
+ * Nothing happens until someone subscribes; a domain rule that fails comes out as an error signal.
+ */
+public final class CreateTask {
+  private final TaskRepository tasks;
+  private final CurrentUser user;
+  private final Clock clock;
+
+  public CreateTask(TaskRepository tasks, CurrentUser user, Clock clock) {
+    this.tasks = tasks;
+    this.user = user;
+    this.clock = clock;
+  }
+
+  public Mono<Task> execute(String title) {
+    return user.id()
+        .map(owner -> Task.create(owner, new TaskTitle(title), clock.instant()))
+        .flatMap(task -> tasks.save(task).thenReturn(task));
+  }
+}

@@ -18,7 +18,7 @@ class ArchitectureTest {
   @ArchTest
   static final ArchRule domainIsPureJava = noClasses().that().resideInAPackage("..domain..")
       .should().dependOnClassesThat().resideInAnyPackage("..application..", "..infrastructure..",
-          <%- frameworks %>);
+          <%- locals.domainFrameworks ?? frameworks %>);
 
   @ArchTest
   static final ArchRule applicationHasNoFrameworkNorAdapters = noClasses().that().resideInAPackage("..application..")

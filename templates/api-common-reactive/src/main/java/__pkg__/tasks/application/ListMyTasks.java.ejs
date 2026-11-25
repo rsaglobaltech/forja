@@ -1,0 +1,20 @@
+package <%= pkg %>.tasks.application;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import reactor.core.publisher.Flux;
+
+public final class ListMyTasks {
+  private final TaskRepository tasks;
+  private final CurrentUser user;
+
+  public ListMyTasks(TaskRepository tasks, CurrentUser user) {
+    this.tasks = tasks;
+    this.user = user;
+  }
+
+  public Flux<Task> execute() {
+    return user.id().flatMapMany(tasks::findByOwner);
+  }
+}

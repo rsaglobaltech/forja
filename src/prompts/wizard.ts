@@ -186,6 +186,19 @@ async function runJavaWizard(name: string, backend: "spring" | "quarkus"): Promi
       initialValue: true,
     }),
   );
+  const reactive =
+    backend === "spring"
+      ? await ask(
+          p.select({
+            message: "Spring web stack",
+            options: [
+              { value: false, label: "Servlet (Spring MVC + JDBC)" },
+              { value: true, label: "Reactive (WebFlux + R2DBC, Mono/Flux end to end)" },
+            ],
+            initialValue: false,
+          }),
+        )
+      : false;
   const web = await ask(p.confirm({ message: "A web app (Next.js 16)?", initialValue: true }));
   const db = await ask(
     p.select({
@@ -248,6 +261,7 @@ async function runJavaWizard(name: string, backend: "spring" | "quarkus"): Promi
     backend,
     javaPackage,
     archunit,
+    reactive,
     arch: "hexagonal",
     db,
     auth,

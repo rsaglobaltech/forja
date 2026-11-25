@@ -11,6 +11,7 @@ hexagonal architecture, always.
 | `backend` | `node` · `spring` · `quarkus` | — |
 | `javaPackage` | e.g. `com.acme.shop` | `com.<name>` |
 | `archunit` | `true` · `false` | `true` |
+| `reactive` | `true` · `false` (Spring only) | `false` |
 | `auth` | `oauth2` · `none` | `oauth2` |
 | `db` | `postgres-docker` · `none` | `postgres-docker` |
 | `platforms` | `web` (optional) | `["web"]` |
@@ -46,6 +47,25 @@ docs/brief.md + Specgate      # with the `specgate` extra
 - **A test that boots the real application** without doubles (a lesson from
   the Specgate pilots: green tests while the app would not even start).
 - **OpenAPI and health** out of the box.
+
+## Reactive Spring (`--reactive`)
+
+Same architecture, another stack: WebFlux on Netty, R2DBC over PostgreSQL, and Reactor in the ports and use
+cases, so nothing blocks between the HTTP request and the database.
+
+- **Domain**: unchanged and shared with the servlet stack — pure Java; ArchUnit forbids Reactor there too.
+- **Application**: ports return `Mono`/`Flux` (`TaskRepository`, and `CurrentUser.id()` as `Mono<String>`,
+  because under WebFlux the user lives in the Reactor context, not in a thread-local). Use cases compose them
+  and raise domain errors as error signals. Reactor is the one library allowed in this layer.
+- **Infrastructure**: annotated controllers returning `Mono`/`Flux`, `DatabaseClient` (R2DBC), a
+  `SecurityWebFilterChain` resource server with an RFC 9457 entry point, and CORS as the first `WebFilter`
+  so a browser's preflight is answered before security.
+- **Migrations**: Flyway still runs over JDBC at startup (it has no R2DBC driver), through
+  `spring-boot-flyway` rather than its starter, which would add a JDBC pool the app never uses. The
+  migration file is the same one as the servlet stack.
+- **Tests**: `StepVerifier` for the use cases, `WebTestClient` for the API, Testcontainers with both URLs
+  (R2DBC and JDBC) pointing at one PostgreSQL.
+- **`forja add usecase`** generates `Mono<Void> execute()` and a `StepVerifier` test.
 
 ## Tested
 

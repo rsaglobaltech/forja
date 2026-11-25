@@ -1,0 +1,26 @@
+package <%= pkg %>.shared.infrastructure.security;
+
+import <%= pkg %>.shared.application.CurrentUser;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+
+/**
+ * The current user is the JWT {@code sub}: stable even if their name or email changes. Under WebFlux it is
+ * read from the Reactor context of the request, not from a thread-local.
+ */
+@Component
+class JwtCurrentUser implements CurrentUser {
+  @Override
+  public Mono<String> id() {
+    return ReactiveSecurityContextHolder.getContext()
+        .map(SecurityContext::getAuthentication)
+        .map(Authentication::getPrincipal)
+        .ofType(Jwt.class)
+        .map(Jwt::getSubject)
+        .switchIfEmpty(Mono.error(() -> new IllegalStateException("No authenticated user: the route should require a token")));
+  }
+}

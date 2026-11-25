@@ -19,6 +19,10 @@ for (const backend of ["spring", "quarkus"] as const) {
         for (const platforms of [["web"], []] as ForjaConfig["platforms"][]) {
           combos.push([`${backend} ${db} ${auth} archunit=${archunit} web=${platforms.length > 0}`, backend,
             { db, auth, archunit, platforms }]);
+          if (backend === "spring") {
+            combos.push([`spring reactive ${db} ${auth} archunit=${archunit} web=${platforms.length > 0}`, backend,
+              { db, auth, archunit, platforms, reactive: true }]);
+          }
         }
       }
     }
@@ -58,6 +62,42 @@ describe("Java rendering", () => {
     expect(full).toContain("archunit-junit5");
     const min = (await render({ db: "none", auth: "none", archunit: false, platforms: [] })).read("apps/api/pom.xml");
     expect(min).not.toMatch(/oauth2|testcontainers|archunit|flyway/);
+  });
+
+  it("Spring reactive: WebFlux + R2DBC, no servlet or JDBC repository anywhere", async () => {
+    const { read, tree, files } = await render({ reactive: true });
+    const pom = read("apps/api/pom.xml");
+    expect(pom).toContain("spring-boot-starter-webflux");
+    expect(pom).toContain("springdoc-openapi-starter-webflux-ui");
+    expect(pom).toContain("r2dbc-postgresql");
+    expect(pom).toContain("spring-boot-starter-webflux-test");
+    // Flyway without its starter: the starter brings a JDBC pool the app would never use.
+    expect(pom).not.toMatch(/webmvc|spring-boot-starter-jdbc|spring-boot-starter-flyway/);
+    const api = "apps/api/src/main/java/com/acme/app";
+    expect(tree).toContain(`${api}/tasks/infrastructure/persistence/R2dbcTaskRepository.java`);
+    expect(tree).not.toContain(`${api}/tasks/infrastructure/persistence/JdbcTaskRepository.java`);
+    expect(tree).toContain("apps/api/src/main/resources/db/migration/V1__tasks.sql");
+    expect(read(`${api}/tasks/application/port/TaskRepository.java`)).toContain("Flux<Task> findByOwner(String owner);");
+    expect(read(`${api}/shared/application/CurrentUser.java`)).toContain("Mono<String> id();");
+    expect(read(`${api}/tasks/infrastructure/web/TaskController.java`)).toContain("Flux<TaskResponse> mine()");
+    expect(read(`${api}/shared/infrastructure/security/SecurityConfiguration.java`)).toContain("SecurityWebFilterChain");
+    expect(read("apps/api/src/main/resources/application.yml")).toMatch(/r2dbc:[\s\S]*flyway:/);
+    expect(read("apps/api/src/test/java/com/acme/app/ArchitectureTest.java")).toContain('"io.swagger..", "reactor.."');
+    for (const [path, content] of Object.entries(files)) {
+      if (!path.endsWith(".java")) continue;
+      expect(content, path).not.toMatch(/import (jakarta\.servlet|org\.springframework\.web\.servlet|org\.springframework\.jdbc)\./);
+      // Nothing in production code blocks a thread.
+      if (path.includes("/src/main/")) expect(content, path).not.toContain(".block()");
+    }
+  });
+
+  it("Spring servlet stays as it was: no Reactor, no WebFlux", async () => {
+    const { read, files } = await render({});
+    expect(read("apps/api/pom.xml")).not.toMatch(/webflux|r2dbc/);
+    expect(read("apps/api/src/test/java/com/acme/app/ArchitectureTest.java")).not.toContain("reactor..");
+    for (const [path, content] of Object.entries(files)) {
+      if (path.endsWith(".java")) expect(content, path).not.toContain("reactor.core");
+    }
   });
 
   it("Quarkus pom: dependencies follow the options", async () => {

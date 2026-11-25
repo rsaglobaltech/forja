@@ -1,0 +1,55 @@
+package <%= pkg %>.tasks.infrastructure.persistence;
+
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskId;
+import <%= pkg %>.tasks.domain.TaskTitle;
+import io.r2dbc.spi.Readable;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.UUID;
+import org.springframework.r2dbc.core.DatabaseClient;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/** R2DBC adapter over PostgreSQL: non-blocking end to end. Flyway creates the schema (db/migration). */
+@Repository
+class R2dbcTaskRepository implements TaskRepository {
+  private final DatabaseClient db;
+
+  R2dbcTaskRepository(DatabaseClient db) { this.db = db; }
+
+  @Override
+  public Mono<Void> save(Task t) {
+    DatabaseClient.GenericExecuteSpec insert = db.sql("""
+        INSERT INTO task (id, owner, title, done, created_at, done_at) VALUES (:id, :owner, :title, :done, :created, :doneAt)
+        ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, done = EXCLUDED.done, done_at = EXCLUDED.done_at
+        """)
+        .bind("id", t.id().value()).bind("owner", t.owner()).bind("title", t.title().value())
+        .bind("done", t.done()).bind("created", utc(t.createdAt()));
+    insert = t.doneAt() == null ? insert.bindNull("doneAt", OffsetDateTime.class) : insert.bind("doneAt", utc(t.doneAt()));
+    return insert.then();
+  }
+
+  @Override
+  public Mono<Task> findById(TaskId id) {
+    return db.sql("SELECT * FROM task WHERE id = :id").bind("id", id.value()).map(R2dbcTaskRepository::row).one();
+  }
+
+  @Override
+  public Flux<Task> findByOwner(String owner) {
+    return db.sql("SELECT * FROM task WHERE owner = :owner ORDER BY created_at DESC, id")
+        .bind("owner", owner).map(R2dbcTaskRepository::row).all();
+  }
+
+  private static OffsetDateTime utc(Instant instant) { return instant.atOffset(ZoneOffset.UTC); }
+
+  private static Task row(Readable r) {
+    OffsetDateTime doneAt = r.get("done_at", OffsetDateTime.class);
+    return new Task(new TaskId(r.get("id", UUID.class)), r.get("owner", String.class),
+        new TaskTitle(r.get("title", String.class)), Boolean.TRUE.equals(r.get("done", Boolean.class)),
+        r.get("created_at", OffsetDateTime.class).toInstant(), doneAt == null ? null : doneAt.toInstant());
+  }
+}

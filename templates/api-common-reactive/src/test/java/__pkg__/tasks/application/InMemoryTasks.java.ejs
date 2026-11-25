@@ -1,0 +1,27 @@
+package <%= pkg %>.tasks.application;
+
+import <%= pkg %>.tasks.application.port.TaskRepository;
+import <%= pkg %>.tasks.domain.Task;
+import <%= pkg %>.tasks.domain.TaskId;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/** Test double for the port: use cases are tested without Spring or a database. */
+class InMemoryTasks implements TaskRepository {
+  private final Map<TaskId, Task> tasks = new ConcurrentHashMap<>();
+
+  @Override
+  public Mono<Void> save(Task task) { return Mono.fromRunnable(() -> tasks.put(task.id(), task)); }
+
+  @Override
+  public Mono<Task> findById(TaskId id) { return Mono.fromSupplier(() -> tasks.get(id)); }
+
+  @Override
+  public Flux<Task> findByOwner(String owner) {
+    return Flux.defer(() -> Flux.fromStream(tasks.values().stream().filter(t -> t.ownedBy(owner))
+        .sorted(Comparator.comparing(Task::createdAt).reversed())));
+  }
+}
